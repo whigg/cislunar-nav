@@ -11,13 +11,12 @@ class Batch:
     '''
     Runs a posteriori batch filtering
     '''
-    
     def __init__(self, t, x0, x_true, phi, Y, G, Ht, R):
         '''
         Input:
          - t; time steps associated with data
          - x0; state estimate -- near true position, not used w/ a priori
-         - x_true; trueinal user trajectory (m,n)
+         - x_true; true user trajectory (m,n)
          - phi; state transition matrix function, accepts 1 arg (time), returns (m,m)
          - Y; measurements at each time step (l,n)
          - G; measurement model, accepts 1 arg (state), returns (l,)

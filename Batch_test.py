@@ -1,5 +1,5 @@
 # local imports
-from Batch import *
+from filters.Batch import *
 from URE import *
 
 def A(w):
@@ -111,7 +111,8 @@ if __name__ == "__main__":
     # run batch filter
     with Batch(t, xstar, x_true, lambda t: phi(A(w), t), y, G, Ht,
                lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)
-               ) as batch:
+        ) as batch:
+        
         fig = plt.figure()
         ax = plt.axes()
         
