@@ -1,0 +1,134 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2022-07-01 13:06:07
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Orbiter;
+GMAT Orbiter.DateFormat = UTCGregorian;
+GMAT Orbiter.Epoch = '26 May 2024 12:16:34.044';
+GMAT Orbiter.CoordinateSystem = MoonInertial;
+GMAT Orbiter.DisplayStateType = Keplerian;
+GMAT Orbiter.SMA = 1861.000000000029;
+GMAT Orbiter.ECC = 0.04300000000000775;
+GMAT Orbiter.INC = 90;
+GMAT Orbiter.RAAN = 0;
+GMAT Orbiter.AOP = 269.9999999999948;
+GMAT Orbiter.TA = 0;
+GMAT Orbiter.DryMass = 80;
+GMAT Orbiter.Cd = 2.1;
+GMAT Orbiter.Cr = 1.75;
+GMAT Orbiter.DragArea = 1.8;
+GMAT Orbiter.SRPArea = 2.5;
+GMAT Orbiter.SPADDragScaleFactor = 1;
+GMAT Orbiter.SPADSRPScaleFactor = 1;
+GMAT Orbiter.NAIFId = -10000001;
+GMAT Orbiter.NAIFIdReferenceFrame = -9000001;
+GMAT Orbiter.OrbitColor = Red;
+GMAT Orbiter.TargetColor = Teal;
+GMAT Orbiter.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT Orbiter.CdSigma = 1e+70;
+GMAT Orbiter.CrSigma = 1e+70;
+GMAT Orbiter.Id = 'SatId';
+GMAT Orbiter.Attitude = CoordinateSystemFixed;
+GMAT Orbiter.SPADSRPInterpolationMethod = Bilinear;
+GMAT Orbiter.SPADSRPScaleFactorSigma = 1e+70;
+GMAT Orbiter.SPADDragInterpolationMethod = Bilinear;
+GMAT Orbiter.SPADDragScaleFactorSigma = 1e+70;
+GMAT Orbiter.ModelFile = 'aura.3ds';
+GMAT Orbiter.ModelOffsetX = 0;
+GMAT Orbiter.ModelOffsetY = 0;
+GMAT Orbiter.ModelOffsetZ = 0;
+GMAT Orbiter.ModelRotationX = 0;
+GMAT Orbiter.ModelRotationY = 0;
+GMAT Orbiter.ModelRotationZ = 0;
+GMAT Orbiter.ModelScale = 1;
+GMAT Orbiter.AttitudeDisplayStateType = 'Quaternion';
+GMAT Orbiter.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Orbiter.AttitudeCoordinateSystem = MoonInertial;
+GMAT Orbiter.EulerAngleSequence = '321';
+
+
+
+
+
+
+
+
+
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel Propagator1_ForceModel;
+GMAT Propagator1_ForceModel.CentralBody = Luna;
+GMAT Propagator1_ForceModel.PrimaryBodies = {Luna};
+GMAT Propagator1_ForceModel.PointMasses = {Earth, Jupiter, Mars, Mercury, Neptune, Pluto, Saturn, Sun, Uranus, Venus};
+GMAT Propagator1_ForceModel.Drag = None;
+GMAT Propagator1_ForceModel.SRP = Off;
+GMAT Propagator1_ForceModel.RelativisticCorrection = Off;
+GMAT Propagator1_ForceModel.ErrorControl = RSSStep;
+GMAT Propagator1_ForceModel.GravityField.Luna.Degree = 64;
+GMAT Propagator1_ForceModel.GravityField.Luna.Order = 64;
+GMAT Propagator1_ForceModel.GravityField.Luna.StmLimit = 100;
+GMAT Propagator1_ForceModel.GravityField.Luna.PotentialFile = 'LP165P.cof';
+GMAT Propagator1_ForceModel.GravityField.Luna.TideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = Propagator1_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-12;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 3600;
+GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem MoonInertial;
+GMAT MoonInertial.Origin = Luna;
+GMAT MoonInertial.Axes = MJ2000Eq;
+
+Create CoordinateSystem LunaFixed;
+GMAT LunaFixed.Origin = Luna;
+GMAT LunaFixed.Axes = BodyFixed;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create ReportFile ReportFile;
+GMAT ReportFile.SolverIterations = Current;
+GMAT ReportFile.UpperLeft = [ 0 0 ];
+GMAT ReportFile.Size = [ 0 0 ];
+GMAT ReportFile.RelativeZOrder = 0;
+GMAT ReportFile.Maximized = false;
+GMAT ReportFile.Filename = 'D:\Documents\Georgia Tech\_PNT\cislunar-nav\data\training\temp_MoonOrb.txt';
+GMAT ReportFile.Precision = 16;
+GMAT ReportFile.Add = {Orbiter.MoonInertial.X, Orbiter.MoonInertial.Y, Orbiter.MoonInertial.Z, Orbiter.MoonInertial.VX, Orbiter.MoonInertial.VY, Orbiter.MoonInertial.VZ, Luna.MoonInertial.X, Luna.MoonInertial.Y, Luna.MoonInertial.Z, Earth.MoonInertial.X, Earth.MoonInertial.Y, Earth.MoonInertial.Z, Sun.MoonInertial.X, Sun.MoonInertial.Y, Sun.MoonInertial.Z, Orbiter.Propagator1_ForceModel.AccelerationX, Orbiter.Propagator1_ForceModel.AccelerationY, Orbiter.Propagator1_ForceModel.AccelerationZ, Orbiter.ElapsedSecs};
+GMAT ReportFile.WriteHeaders = true;
+GMAT ReportFile.LeftJustify = On;
+GMAT ReportFile.ZeroFill = Off;
+GMAT ReportFile.FixedWidth = true;
+GMAT ReportFile.Delimiter = ' ';
+GMAT ReportFile.ColumnWidth = 23;
+GMAT ReportFile.WriteReport = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate DefaultProp(Orbiter) {Orbiter.ElapsedDays = 1};
