@@ -126,7 +126,7 @@ if __name__ == "__main__":
         #np.savetxt('test/est.csv', batch.x, delimiter=',')
 
         ax.grid()
-        # ax.set_ylim(bottom=0, top=65)
+        #ax.set_ylim(bottom=0, top=65)
         ax.set_xlabel("Samples")
         ax.set_ylabel("Error (m)")
         ax.set_title(f"RMS Position Uncertainty (Batch filter, GPS geometry)")
