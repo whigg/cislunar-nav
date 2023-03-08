@@ -1,5 +1,5 @@
 # local imports
-from filters.Batch import *
+from filters.LinearKalman import *
 from filters.Dynamics import *
 
 
@@ -14,6 +14,7 @@ if __name__ == "__main__":
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
     # x0 = np.array([np.sin(np.pi/12)*r, 0., -np.cos(np.pi/12)*r, 0, w*np.sin(np.pi/12)*r, 0])
     x0 = np.array([np.sin(np.pi/12)*r, 0., -np.cos(np.pi/12)*r])
+    vx0 = np.array([15**2, 15**2, 15**2])
     xstar = np.array([0, 0, -r])
     x_true = np.zeros((m,n))
     x_nom  = np.zeros((m,n))
@@ -35,29 +36,30 @@ if __name__ == "__main__":
         # Compute measurement
         y[:,j] = Y(x_true[:,j], R(DOP[:,:,j], t[j]))
 
-    #np.savetxt('test/true.csv', x_true, delimiter=',')
+    np.savetxt('test/true.csv', x_true, delimiter=',')
 
-    # run batch filter
-    with Batch(t, xstar, x_true, lambda t: statPhi(statA(w), t), y, G, Ht_3x3,
-               lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)
-        ) as batch:
+    # run linear kalman filter
+    with LinearKalman(t, x0, np.diag(vx0), x_true, statA, statB,
+                      linU, y, Ht_3x3(0), lambda z: linQ(statB(z), (3e-1)**2),
+                      lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)
+        ) as dyn:
         
         fig = plt.figure()
         ax = plt.axes()
         
         iter = 1
         for i in range(iter):
-            batch.evaluate()
-            mc, stat = batch.plot(ax, last=True if i == iter - 1 else False)
+            dyn.evaluate()
+            mc, stat = dyn.plot(ax, last=True if i == iter - 1 else False, batch=False)
             # update initial guess
-            print(batch.x[:,-1])
-            #batch.x0 = batch.x[:,-1]
-        #np.savetxt('test/est.csv', batch.x, delimiter=',')
+            print(dyn.x[:,-1])
+            #dyn.x0 = dyn.x[:,-1]
+        np.savetxt('test/est.csv', dyn.x, delimiter=',')
 
         ax.grid()
         #ax.set_ylim(bottom=0, top=65)
         ax.set_xlabel("Samples")
         ax.set_ylabel("Error (m)")
-        ax.set_title(f"RMS Position Uncertainty (Batch filter, GPS geometry)")
+        ax.set_title(f"RMS Position Uncertainty (Linear Kalman filter, GPS geometry)")
         ax.legend(handles=[mc, stat])
         plt.show()

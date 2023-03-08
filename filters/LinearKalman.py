@@ -4,11 +4,12 @@ import spiceypy as spice
 # local imports
 from filters.Filter import *
 
+
 class LinearKalman(Filter):
     '''
     Runs a posteriori Kalman filter. 
     '''
-    def __init__(self, t, x0, vx0, x_true, A, B, Y, Ht, Q, R):
+    def __init__(self, t, x0, vx0, x_true, A, B, u, Y, Ht, Q, R):
         '''
         Input:
          - t; time steps associated with data
@@ -16,7 +17,8 @@ class LinearKalman(Filter):
          - vx0; covariance associated with initial state estimate (m,m)
          - x_true; true user trajectory (m,n)
          - A; state dynamics matrix, accepts 1 arg (dt), returns (m,m)
-         - B; input dynamics matrix, accepts 1 arg (dt), returns (m,l)
+         - B; input dynamics matrix, accepts 1 arg (dt), returns (m,k)
+         - u; state input, returns (k,)
          - Y; measurements at each time step (l,n)
          - Ht; measurement model partials, accepts 1 arg (state), returns (l,m)
          - Q; state covariance matrix, accepts 1 arg (dt), returns (m,m)
@@ -27,6 +29,7 @@ class LinearKalman(Filter):
         # Track state, residual, estimate covariance, and Kalman gain
         self.A = A
         self.B = B
+        self.u = u
         self.Q = Q
         self.vx0 = vx0
 
@@ -67,16 +70,14 @@ class LinearKalman(Filter):
             R[(R == float('inf')) | (R < 0)] = sys.float_info.max
 
             # Predict step
-            accel = np.random.normal(loc=np.zeros((3,)), scale=1.5e-3)
-
-            x = A @ x + B @ accel       # \hat{x_{k|k-1}}
+            x = A @ x + B @ self.u()    # \hat{x_{k|k-1}}
             self.e[:,self.i] = x
             P = A @ P @ np.transpose(A) + self.Q(dt)            # \hat{P_{k|k-1}}
 
             # Update step
             S = self.Ht @ (P @ np.transpose(self.Ht)) + R         # S_{k}
             self.K[:,:,self.i] = P @ (np.transpose(self.Ht) @ np.linalg.inv(S))  # K_{k}
-            IKH = np.eye(6) - self.K[:,:,self.i] @ self.Ht       # (I - K_{k} * H_{k})
+            IKH = np.eye(self.m) - self.K[:,:,self.i] @ self.Ht       # (I - K_{k} * H_{k})
             self.x[:,self.i] = IKH @ x + self.K[:,:,self.i] @ z # x_{k|k}
             self.P[:,:,self.i] = IKH @ P                        # P_{k|k}
             self.y[:,self.i] = z - self.Ht @ self.x[:,self.i]    # y_{k|k}

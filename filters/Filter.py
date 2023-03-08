@@ -67,13 +67,14 @@ class Filter(ABC):
         '''
         pass
 
-    def plot(self, ax, last=False):
+    def plot(self, ax, last=False, batch=True):
         # Compute RMS position error
         t = [x / 3600 for x in self.t]   # get time in hours
         e = [0] * self.n
         std = [0] * self.n
         for j in range(0,self.n):
-            diff = self.x[0:3,j] - self.x_true[0:3,0]
+            diff  = self.x[0:3,j] 
+            diff -= self.x_true[0:3,0] if batch else self.x_true[0:3,j]
             var = np.diag(self.P[:,:,j])
             e[j] = np.sqrt(np.dot(diff, diff))              # rms pos error
             std[j] = 3 * np.sqrt(var[0] + var[1] + var[2])  # std of est.

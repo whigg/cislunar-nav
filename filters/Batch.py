@@ -1,6 +1,3 @@
-# library imports
-from scipy.linalg import expm
-
 # local imports
 from filters.Filter import *
 
