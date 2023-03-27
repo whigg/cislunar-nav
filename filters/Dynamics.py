@@ -1,9 +1,12 @@
 # library imports
-import numpy as np
+import autograd.numpy as np
 from scipy.linalg import expm
 import spiceypy as spice
+from autograd import grad, jacobian
+from scipy.integrate import solve_ivp
 
 # local imports
+# if __name__ == "__main__": from os import chdir; chdir('../')
 from URE import *
 
 '''
@@ -165,3 +168,62 @@ def nbodydyn(sat, t0, t):
         F -= GM[j] / np.linalg.norm(r)**3 * r
 
     return F
+
+'''
+Lunar surface user, continuous dynamics
+'''
+def surfDyn(x, u, g, r, W):
+    '''
+    dynamical equations for lunar surface user
+    Input
+     - x; state vector at current time [pos; vel], (6,)
+     - u; input acceleration (walk on planet)
+     - g; planetary acceleration
+     - r; hard planetary radius
+     - W; rotation rate vector of planet
+    '''
+    dx = np.zeros(np.shape(x))
+    dx[0:3] = x[3:6]
+
+    p = x[0:3]
+    dir = p / np.linalg.norm(p)
+    vrel = x[3:6] - np.cross(W, p)      # velocity relative to moon-fixed frame
+
+    u += 2*np.cross(W, vrel) + np.cross(W, np.cross(W, p)) - dir*g 
+    u += dir * max(np.dot(u, -dir), 0) if np.linalg.norm(p) <= r else 0
+
+    dx[3:6] = u
+    return dx
+
+def surfInt(dt, x0, u, g, r, W):
+    '''
+    Integrates surfDyn(...) given the time step dt; same inputs.
+    '''
+    func = lambda _, x: surfDyn(x, u, g, r, W)
+    sol = solve_ivp(func, (0, dt), x0, t_eval=[0, dt], rtol=1e-6, atol=1e-8)
+    if sol.success:
+        return sol.y[:,-1]
+    else:
+        print("Integration Error: " + sol.message)
+
+
+def tester(dt, x0, *args):
+    A = np.array([[0,0,0,1,0,0],[0,0,0,0,1,0],[0,0,0,0,0,1],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]])
+    func = lambda _, x: A @ x
+    sol = solve_ivp(func, [0, dt], x0, t_eval=[0, dt])
+    return sol.y[:,-1]
+
+
+if __name__ == "__main__":
+
+    u = np.zeros((3,))
+    r = 1737.4
+    w = 2*np.pi / (27.3217 * 24 * 60 * 60)
+    W = np.array([0,0,w])
+    g = 1.625e-3
+    v0 = 0
+    x0 = np.array([r*np.sin(15*np.pi/180), 0, -r*np.cos(15*np.pi/180), np.cos(15*np.pi/180)*v0, w*r*np.sin(15*np.pi/180), np.sin(15*np.pi/180)*v0])
+
+    xf = surfInt(3600, x0, u, g, r, W)
+    print(x0)
+    print(xf)

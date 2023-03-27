@@ -44,15 +44,24 @@ class Batch(Filter):
             R = self.R(ti)
             # catch inf or negative vals
             R[(R == float('inf')) | (R < 0)] = sys.float_info.max
-            W = np.linalg.inv(R)
+            R[R == 0] = 0
+            try:
+                W = np.linalg.inv(R)
+            except np.linalg.LinAlgError:
+                W = np.zeros(np.shape(R))
             H = self.Ht(xi) @ self.phi(ti)
 
             self.y[:,self.i] = self.Y[:,self.i] - self.G(xi)
+
             HTWH = HTWH + H.T @ W @ H
             HTWy = HTWy + H.T @ W @ self.y[:,self.i]
 
-            self.P[:,:,self.i] = np.linalg.inv(HTWH)
-            self.x[:,self.i]   = self.x0 + np.linalg.solve(HTWH, HTWy)
+            try:
+                self.P[:,:,self.i] = np.linalg.inv(HTWH)
+                self.x[:,self.i]   = self.x0 + np.linalg.solve(HTWH, HTWy)
+            except:
+                pass
+
 
             self.step()             # next time step
             looptime.append(timeit.default_timer() - loopstart)

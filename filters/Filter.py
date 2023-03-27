@@ -1,7 +1,7 @@
 # library imports
 import timeit
 import sys
-import numpy as np
+import autograd.numpy as np
 from abc import ABC, abstractmethod
 
 # local imports

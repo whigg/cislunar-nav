@@ -1,19 +1,25 @@
 # local imports
-from filters.Batch import *
+from filters.ExtendedKalman import *
 from filters.Dynamics import *
 
 
+def dynamics(x, u, dt, w):
+    return statA(w)@x + statB(dt)@u
+
 if __name__ == "__main__":
     # Data and dimensions
-    sats = parseGmatData("data/const_eph/10_MoonOrb.txt", gmatReport=True)
+    sats = parseGmatData("gmat/GPS_20161231_24sat_1day.txt", gmatReport=True)
     n = sats[0].end
     l = 3; m = 3; n = 126    
         
     # Constants
+    g = 1.625                               # m/s^2, gravity
     r = 1737400                             # m, radius of moon
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
+    W = np.array([0,0,w])
     # x0 = np.array([np.sin(np.pi/12)*r, 0., -np.cos(np.pi/12)*r, 0, w*np.sin(np.pi/12)*r, 0])
     x0 = np.array([np.sin(np.pi/12)*r, 0., -np.cos(np.pi/12)*r])
+    vx0 = np.array([15**2, 15**2, 15**2])
     xstar = np.array([0, 0, -r])
     x_true = np.zeros((m,n))
     x_nom  = np.zeros((m,n))
@@ -33,38 +39,34 @@ if __name__ == "__main__":
         DOP[:,:,j] = np.diag(H[0:3])
 
         # Compute measurement
-        r = R(DOP[:,:,j], t[j])
-        # catch inf or negative vals
-        r[(r == float('inf')) | (r <= 0)] = sys.float_info.max
-        y[:,j] = Y(x_true[:,j], r)
+        y[:,j] = Y(x_true[:,j], R(DOP[:,:,j], t[j]))
 
-    #np.savetxt('test/true.csv', x_true, delimiter=',')
+    np.savetxt('test/true.csv', x_true, delimiter=',')
 
-    # run batch filter
-    with Batch(t, xstar, x_true, lambda t: statPhi(statA(w), t), y, G, Ht_3x3,
-               lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)
-        ) as batch:
+    func = lambda x, u: surfInt(t[1]-t[0], x, u, g, r, W)
+
+    # run linear kalman filter
+    with ExtendedKalman(t, x0, np.diag(vx0), x_true, func,
+                      linU, y, Ht_3x3(0), lambda z: linQ(statB(z), (3e-1)**2),
+                      lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)
+        ) as dyn:
         
         fig = plt.figure()
         ax = plt.axes()
         
         iter = 1
         for i in range(iter):
-            batch.evaluate()
-            mc, stat = batch.plot(ax, last=True if i == iter - 1 else False)
+            dyn.evaluate()
+            mc, stat = dyn.plot(ax, last=True if i == iter - 1 else False, batch=False)
             # update initial guess
-            print(batch.x[:,-1])
-            #batch.x0 = batch.x[:,-1]
-        #np.savetxt('test/est.csv', batch.x, delimiter=',')
-
-        # print best 3-sigma error
-        var = np.diag(batch.P[:,:,j])
-        print(3 * np.sqrt(var[0] + var[1] + var[2]))
+            print(dyn.x[:,-1])
+            #dyn.x0 = dyn.x[:,-1]
+        np.savetxt('test/est.csv', dyn.x, delimiter=',')
 
         ax.grid()
-        ax.set_ylim(bottom=0, top=1e3)
+        #ax.set_ylim(bottom=0, top=65)
         ax.set_xlabel("Samples")
         ax.set_ylabel("Error (m)")
-        ax.set_title(f"RMS Position Uncertainty (Batch filter, GPS geometry)")
+        ax.set_title(f"RMS Position Uncertainty (Linear Kalman filter, GPS geometry)")
         ax.legend(handles=[mc, stat])
         plt.show()

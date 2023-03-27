@@ -182,7 +182,7 @@ def goodness_of_fit(xdata, ydata, xlabel, ylabel):
                     
 
 if __name__ == "__main__":
-    sats = parseGmatData("gmat/GPS_20161231_24sat_1day.txt", gmatReport=True)
+    sats = parseGmatData("data/const_eph/0_MoonOrb.txt", gmatReport=True)
     t = 100;        # evaluation time
     r = 1737.4;     # moon radius, km
     pos = np.array([np.sin(np.pi/12)*r, 0, -np.cos(np.pi/12)*r])
