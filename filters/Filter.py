@@ -67,7 +67,7 @@ class Filter(ABC):
         '''
         pass
 
-    def plot(self, ax, last=False, batch=True):
+    def plot(self, ax, last=False, batch=True, semilog=False):
         # Compute RMS position error
         t = [x / 3600 for x in self.t]   # get time in hours
         e = [0] * self.n
@@ -79,7 +79,8 @@ class Filter(ABC):
             e[j] = np.sqrt(np.dot(diff, diff))              # rms pos error
             std[j] = 3 * np.sqrt(var[0] + var[1] + var[2])  # std of est.
 
+        plotting = ax.semilogy if semilog else ax.plot  # optional semilog plots
         # Plot RMS position error
-        mc, = ax.plot(t, e, color='gray', linestyle='dotted', linewidth=1, label='Monte-Carlo run')
-        stat, = ax.plot(t, std, color='green', label='3σ error') if last else (None,)
+        mc, = plotting(t, e, color='gray', linestyle='dotted', linewidth=1, label='Monte-Carlo run')
+        stat, = plotting(t, std, color='green', label='3σ error') if last else (None,)
         return mc, stat

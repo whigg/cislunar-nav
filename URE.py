@@ -17,15 +17,16 @@ if __name__ == "__main__":
     var = 0
 
     # Dilution of precision
-    sats = parseGmatData("data/SattPositionsBaseline.txt")
-    #sats = parseGmatData("gmat/GPS_20161231_24sat_1day.txt", gmatReport=True)
+    #sats = parseGmatData("data/SattPositionsBaseline.txt")
+    sats = parseGmatData("data/const_eph/4_MoonOrb.txt", gmatReport=True)
     n = sats[0].end
     r = 1737.4      # radius of moon
     dop = np.zeros((n,))
+    pos = np.array([0.,0.,-r])
 
     for t in range(n):
-        visible = findVisibleSats(sats, t, elev=0)
-        H = computeDOP(np.array([0.,0.,-r]), visible, t)
+        visible, _ = findVisibleSats(pos, sats, t, elev=0)
+        H = computeDOP(pos, visible, t)
         dop[t] = sqrt(abs(H[0,0]) + abs(H[1,1]) + abs(H[2,2]))
 
     # Clock bias error
@@ -35,14 +36,14 @@ if __name__ == "__main__":
     # print(sqrt(vclock))
 
     # Receiver precision
-    #  Can't make Tc*d too fast for nominal receiver; Tc*d = 10.23 MHz
+    #  Can't make Tc*d too fast for true receiver; Tc*d = 10.23 MHz
     #  is a good choice as that is the current P(Y) chipping rate
     Tc = 1/(5.115e6)    # Hz, 5.115 Mcps for LunaNet signal 2
     d = 0.1             # correlation spacing [0.1,1] (lower reduces multipath)
     # Time signal is tracked, larger = better but if user is moving quickly
     # might start confusing measurements
-    T = 0.02              # s, averaging time
-    CN0 = 42              # dB-Hz, signal power over noise power spectral density
+    T = 0.02            # s, averaging time
+    CN0 = 42            # dB-Hz, signal power over noise power spectral density
     var += (c*Tc)**2 * (d / (4*T*CN0))
     print(f"receiver: {sqrt((c*Tc)**2 * (d / (4*T*CN0)))*1.96}\n")
 
@@ -64,9 +65,12 @@ if __name__ == "__main__":
     ax = plt.axes()
     ax.plot(np.linspace(0,24,n), ure * dop)
     ax.grid()
-    ax.set_ylim(bottom=0, top=200)   # cap y axis so plot is readable
+    ax.set_ylim(bottom=1, top=400)  # cap y axis so plot is readable
+    ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("95% Position Error (m)")
-    ax.set_title("UNE on lunar south pole using GPS geometry")
+    ax.set_title("UNE on lunar south pole, 8 satellites")
     plt.show()
+
+    print(min(dop))
     pass

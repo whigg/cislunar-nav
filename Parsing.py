@@ -182,8 +182,8 @@ def goodness_of_fit(xdata, ydata, xlabel, ylabel):
                     
 
 if __name__ == "__main__":
-    sats = parseGmatData("data/const_eph/0_MoonOrb.txt", gmatReport=True)
-    t = 100;        # evaluation time
+    sats = parseGmatData("data/const_eph/2_MoonOrb.txt", gmatReport=True)
+    t = 1;        # evaluation time
     r = 1737.4;     # moon radius, km
     pos = np.array([np.sin(np.pi/12)*r, 0, -np.cos(np.pi/12)*r])
     visible, R = findVisibleSats(pos, sats, t)
@@ -195,7 +195,7 @@ if __name__ == "__main__":
     ax.set_aspect('auto')
 
     # plot cone
-    elev = 5 * np.pi/180;   # elevation angle (5 deg)
+    elev = 0 * np.pi/180;   # elevation angle (5 deg)
     r = 1737.4              # km, volumetric mean radius of moon
     x,y = np.mgrid[-23000:23000:1000j, -23000:23000:1000j]    
     z = -r - np.tan(elev) * np.sqrt(x**2 + y**2)

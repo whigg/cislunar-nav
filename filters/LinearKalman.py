@@ -68,6 +68,7 @@ class LinearKalman(Filter):
             R = self.R(ti)
             # catch inf or negative vals
             R[(R == float('inf')) | (R < 0)] = sys.float_info.max
+            R[R == 0] = 0
 
             # Predict step
             x = A @ x + B @ self.u()    # \hat{x_{k|k-1}}
