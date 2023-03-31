@@ -5,9 +5,9 @@ from filters.Dynamics import *
 
 if __name__ == "__main__":
     # Data and dimensions
-    sats = parseGmatData("data/const_eph/7_MoonOrb.txt", gmatReport=True)
+    sats = parseGmatData("data/const_eph/6_MoonOrb.txt", gmatReport=True)
     n = sats[0].end
-    l = 3; m = 3; n = 126    
+    l = 3; m = 3  
         
     # Constants
     rad = 1737400                           # m, radius of moon
@@ -15,11 +15,11 @@ if __name__ == "__main__":
 
     fig = plt.figure()
     ax = plt.axes()
-    iter = 10
+    iter = 1
 
     for i in range(iter):
-        x0 = np.array([np.sin(np.pi/12)*rad, 0., -np.cos(np.pi/12)*rad])
-        xstar = np.array([0, 0, -rad])
+        x0 = np.array([rad*np.sin(np.pi/12), 0, -rad*np.cos(np.pi/12)])
+        xstar = np.array([0, 0, 0])
         x_true = np.zeros((m,n))
         x_nom  = np.zeros((m,n))
         y = np.zeros((l,n))
@@ -33,8 +33,8 @@ if __name__ == "__main__":
             x_true[:,j] = statPhi_true(w, t[j]) @ x0
 
             # Compute DOP at each step
-            visible, _ = findVisibleSats(x_true[:,j], sats, j, elev=0)
-            H = np.diag(computeDOP(np.array(x0 / 1000), visible, j))
+            visible, _ = findVisibleSats(x_true[:,j] / 1000, sats, j, elev=0)
+            H = np.diag(computeDOP(x_true[:,j] / 1000, visible, j))
             DOP[:,:,j] = np.diag(H[0:3])
 
             # Compute measurement
@@ -43,6 +43,7 @@ if __name__ == "__main__":
             r[(r == float('inf')) | (r < 0)] = sys.float_info.max
             r[r == 0] = 0
             y[:,j] = Y(x_true[:,j], r)
+
 
         #np.savetxt('test/true.csv', x_true, delimiter=',')
 

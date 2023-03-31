@@ -5,9 +5,9 @@ from filters.Dynamics import *
 
 if __name__ == "__main__":
     # Data and dimensions
-    sats = parseGmatData("data/const_eph/7_MoonOrb.txt", gmatReport=True)
+    sats = parseGmatData("data/const_eph/4_MoonOrb.txt", gmatReport=True)
     n = sats[0].end
-    l = 3; m = 3; n = 126    
+    l = 3; m = 3  
         
     # Constants
     rad = 1737400                           # m, radius of moon
@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     fig = plt.figure()
     ax = plt.axes()
-    iter = 10
+    iter = 1
 
     for i in range(iter):
         x0 = np.array([np.sin(np.pi/12)*rad, 0., -np.cos(np.pi/12)*rad])
@@ -49,18 +49,18 @@ if __name__ == "__main__":
 
         # run linear kalman filter
         with LinearKalman(t, x0, np.diag(vx0), x_true, statA, statB,
-                        linU, y, Ht_3x3(0), lambda z: linQ(statB(z), (3e-1)**2),
+                        linU, y, Ht_3x3(0), lambda z: linQ(statB(z), (3e03)**2),
                         lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)) as dyn:
             
             dyn.evaluate()
-            mc, stat = dyn.plot(ax, last=True if i == iter - 1 else False, batch=False, semilog=True)
+            mc, stat = dyn.plot(ax, last=True if i == iter - 1 else False, batch=False, semilog=False)
             # update initial guess
             print(dyn.x[:,-1])
             #np.savetxt('test/est.csv', dyn.x, delimiter=',')
 
 
     ax.grid()
-    ax.set_ylim(bottom=1, top=1e9)
+    ax.set_ylim(bottom=1, top=1e3)
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("Error (m)")

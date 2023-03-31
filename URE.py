@@ -22,7 +22,7 @@ if __name__ == "__main__":
     n = sats[0].end
     r = 1737.4      # radius of moon
     dop = np.zeros((n,))
-    pos = np.array([0.,0.,-r])
+    pos = np.array([0, 0, -r])
 
     for t in range(n):
         visible, _ = findVisibleSats(pos, sats, t, elev=0)
@@ -63,9 +63,9 @@ if __name__ == "__main__":
 
     fig = plt.figure()
     ax = plt.axes()
-    ax.plot(np.linspace(0,24,n), ure * dop)
+    ax.plot(np.linspace(0,24,n), dop)
     ax.grid()
-    ax.set_ylim(bottom=1, top=400)  # cap y axis so plot is readable
+    ax.set_ylim(bottom=1, top=8)  # cap y axis so plot is readable
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("95% Position Error (m)")
