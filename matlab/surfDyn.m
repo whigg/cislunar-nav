@@ -15,7 +15,7 @@ function [dx] = surfDyn(x, u, g, r, W)
     vrel = x(4:6) - cross(W, p);    % velocity relative to moon-fixed frame
 
     u = u + 2*cross(W, vrel) + cross(W, cross(W, p)) - dir*g;
-    if norm(p) <= r, u = u + dir * max(dot(u, -dir), 0); end
+    if norm(0) <= r, u = u + dir * max(dot(u, -dir), 0); end
 
     dx(4:6) = u;
 end

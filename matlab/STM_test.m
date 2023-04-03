@@ -8,7 +8,7 @@ g = 1.625e-3;                           % km/s, gravity of moon
 v0 = 0.042e-3;          % km/s, max speed of mars rover for reference
 v0 = 0;
 % 1-3 km, 4-6 km/s, initial position and velocity
-ang = 25;
+ang = 15;
 x0 = [r*sind(ang); 0; -r*cosd(ang); cosd(ang)*v0; w*r*sind(ang); sind(ang)*v0];
 
 n = 10;    % number of nodes
@@ -32,13 +32,13 @@ phi = @(t) [cos(w*t) -sin(w*t) 0        0         0 0;
 % end
 
 opts = odeset('RelTol', 1e-6, 'AbsTol', 1e-8);
-[t_nom, x_nom] = ode45( ...
-    @(ti,x) surfDyn(x, polyinterp(ti, x(1:3), t, pd), g, r, [0;0;w]), ...
-    [t(1) t(end)], x0, opts);
-
 % [t_nom, x_nom] = ode45( ...
-%     @(ti,x) surfDyn(x, zeros(3,1), g, r, [0;0;w]), ...
-%     [0 3600], x0, opts);
+%     @(ti,x) surfDyn(x, polyinterp(ti, x(1:3), t, pd), g, r, [0;0;w]), ...
+%     [t(1) t(end)], x0, opts);
+
+[t_nom, x_nom] = ode45( ...
+    @(ti,x) surfDyn(x, zeros(3,1), g, r, [0;0;w]), ...
+    [0 86400*12], x0, opts);
 
 %% postprocess to fix moon intersections
 x = x_nom';

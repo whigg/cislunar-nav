@@ -19,8 +19,8 @@ if __name__ == "__main__":
 
     for i in range(iter):
         x0 = np.array([np.sin(np.pi/12)*rad, 0., -np.cos(np.pi/12)*rad])
-        vx0 = np.array([15**2, 15**2, 15**2])
-        xstar = np.array([0, 0, -rad])
+        vx0 = np.array([100**2, 100**2, 100**2])
+        xstar = np.random.normal(loc=x0, scale=np.sqrt(vx0))
         x_true = np.zeros((m,n))
         x_nom  = np.zeros((m,n))
         y = np.zeros((l,n))
@@ -48,8 +48,8 @@ if __name__ == "__main__":
         #np.savetxt('test/true.csv', x_true, delimiter=',')
 
         # run linear kalman filter
-        with LinearKalman(t, x0, np.diag(vx0), x_true, statA, statB,
-                        linU, y, Ht_3x3(0), lambda z: linQ(statB(z), (3e03)**2),
+        with LinearKalman(t, xstar, np.diag(vx0), x_true, lambda t: statPhi(statA(w), t), statB,
+                        linU, y, Ht_3x3(0), lambda z: linQ(statB(z), (1e-6)**2),
                         lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)) as dyn:
             
             dyn.evaluate()
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
 
     ax.grid()
-    ax.set_ylim(bottom=1, top=1e3)
+    ax.set_ylim(bottom=1, top=100)
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("Error (m)")

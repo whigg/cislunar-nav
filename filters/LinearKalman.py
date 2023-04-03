@@ -33,9 +33,9 @@ class LinearKalman(Filter):
         self.Q = Q
         self.vx0 = vx0
 
+        self.x[:,0] = x0
         self.P[:,:,0] = vx0
         self.K = np.zeros((self.m,self.l,self.n))
-        self.e = self.x
 
 
     def __exit__(self, ex_type, ex_val, ex_traceback):
@@ -51,7 +51,6 @@ class LinearKalman(Filter):
         start = timeit.default_timer()
         looptime = []
         self._i = 0 # reset
-        self.x[:,0] = np.random.normal(loc=self.x0, scale=np.sqrt(np.diag(self.vx0)))
         self.step() # start at time step 1
 
         while self.i < self.n:
@@ -61,27 +60,28 @@ class LinearKalman(Filter):
 
             # Get local variables to reduce evaluations
             x = self.x[:,self.i-1]      # x_{k-1|k-1}
-            A = self.A(dt)              # F_{k}
+            A = self.A([self.t[self.i-1], ti], x)           # F_{k}
             B = self.B(dt)
             z = self.Y[:,self.i]
             P = self.P[:,:,self.i-1]    # P_{k-1|k-1}
             R = self.R(ti)
-            # catch inf or negative vals
-            R[(R == float('inf')) | (R < 0)] = sys.float_info.max
-            R[R == 0] = 0
+            R[R == float('inf')] = sys.float_info.max           # catch 'inf'
 
             # Predict step
-            x = A @ x + B @ self.u()    # \hat{x_{k|k-1}}
-            self.e[:,self.i] = x
+            x = A @ x + B @ self.u(ti, x)                       # \hat{x_{k|k-1}}
             P = A @ P @ np.transpose(A) + self.Q(dt)            # \hat{P_{k|k-1}}
 
             # Update step
-            S = self.Ht @ (P @ np.transpose(self.Ht)) + R         # S_{k}
+            S = self.Ht @ (P @ np.transpose(self.Ht)) + R       # S_{k}
             self.K[:,:,self.i] = P @ (np.transpose(self.Ht) @ np.linalg.inv(S))  # K_{k}
-            IKH = np.eye(self.m) - self.K[:,:,self.i] @ self.Ht       # (I - K_{k} * H_{k})
-            self.x[:,self.i] = IKH @ x + self.K[:,:,self.i] @ z # x_{k|k}
+            IKH = np.eye(self.m) - self.K[:,:,self.i] @ self.Ht # (I - K_{k} * H_{k})
+            x = IKH @ x + self.K[:,:,self.i] @ z                # x_{k|k}
+            p = x[0:3]
+            v = x[3:6]
+            if np.dot(p, v) < 0: v = v - np.dot(v, p) / np.dot(p, p) * p
+            self.x[:,self.i] = np.concatenate((p, v))
             self.P[:,:,self.i] = IKH @ P                        # P_{k|k}
-            self.y[:,self.i] = z - self.Ht @ self.x[:,self.i]    # y_{k|k}
+            self.y[:,self.i] = z - self.Ht @ self.x[:,self.i]   # y_{k|k}
 
             self.step()             # next time step
             looptime.append(timeit.default_timer() - loopstart)

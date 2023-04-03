@@ -4,10 +4,10 @@ from scipy.linalg import expm
 import spiceypy as spice
 from autograd import grad, jacobian
 from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
 
 # local imports
-# if __name__ == "__main__": from os import chdir; chdir('../')
-from URE import *
+if __name__ != "__main__": from URE import *
 
 '''
 Linear integration of a (6,) pos / vel state with acceleration input
@@ -27,7 +27,7 @@ def linQ(B, var):
     ''' State covariance matrix at time step i '''
     return B @ np.transpose(B) * var
 
-def linU():
+def linU(t):
     #return np.random.normal(loc=np.zeros((3,)), scale=1.5e-3)
     return np.zeros((3,))
 
@@ -89,8 +89,11 @@ def R(H, t):
     #  Typical multipath ranges from 1m in a benign environment to 5m in a highly
     #  reflective environment for GPS [Misra and Enge (2006), p177]
     var += (1)**2
-
-    return H * var  # measurement variance at given time step
+    
+    try:    # catch infinite value cases for H
+        return H * var  # measurement variance at given time step
+    except:
+        return H
 
 '''
 Stationary ground station dynamics (3,) position, rotating w/ moon
@@ -105,8 +108,13 @@ def statA(w):
     return A11
 
 def statB(dt):
-    ''' Acceleration state matrix with time step dt '''
+    ''' Acceleration state matrix with time step dt for (3,) state '''
     return np.array([[0.5*dt**2,0,0],[0,0.5*dt**2,0],[0,0,0.5*dt**2]])
+
+def statB_6x3(dt):
+    ''' Acceleration state matrix with time step dt for (6,) state '''
+    return np.array([[0.5*dt**2,0,0],[0,0.5*dt**2,0],[0,0,0.5*dt**2],
+        [dt, 0, 0],[0, dt, 0],[0, 0, dt]])
 
 def statPhi(A, t):
     ''' state transition matrix '''
@@ -172,58 +180,113 @@ def nbodydyn(sat, t0, t):
 '''
 Lunar surface user, continuous dynamics
 '''
-def surfDyn(x, u, g, r, W):
+def surfDyn(t, x, fu, g, r, W):
     '''
     dynamical equations for lunar surface user
     Input
      - x; state vector at current time [pos; vel], (6,)
-     - u; input acceleration (walk on planet)
+     - u; input acceleration function (walk on planet)
      - g; planetary acceleration
      - r; hard planetary radius
      - W; rotation rate vector of planet
     '''
-    dx = np.zeros(np.shape(x))
-    dx[0:3] = x[3:6]
+
+    u = fu(t)   # u at current time
 
     p = x[0:3]
+    v = x[3:6]
+    
     dir = p / np.linalg.norm(p)
-    vrel = x[3:6] - np.cross(W, p)      # velocity relative to moon-fixed frame
+    vrel = v - np.cross(W, p)      # velocity relative to moon-fixed frame
 
     u += 2*np.cross(W, vrel) + np.cross(W, np.cross(W, p)) - dir*g 
-    u += dir * max(np.dot(u, -dir), 0) if np.linalg.norm(p) <= r else 0
+    u += dir * max(np.dot(u, -dir), 0) # if np.linalg.norm(p) <= r else 0
 
-    dx[3:6] = u
-    return dx
+    return np.concatenate((v, u))
 
-def surfInt(dt, x0, u, g, r, W):
+def linSurfA(t, x, u, g, r, W):
+    fA = jacobian(lambda c: surfDyn(t[-1], c, u, g, r, W))      # dF_{k}/dt
+    return expm(fA(x) * (t[-1] - t[0]))
+
+def linSurfU(t, x, fu, g, r, W):
+    u = fu(t)   # u at current time
+    p = x[0:3]
+    v = x[3:6]
+    
+    dir = p / np.linalg.norm(p)
+    vrel = v - np.cross(W, p)      # velocity relative to moon-fixed frame
+    u += 2*np.cross(W, vrel) + np.cross(W, np.cross(W, p)) - dir*g
+    u += dir * max(np.dot(u, -dir), 0) # if np.linalg.norm(p) <= r else 0
+    return u
+
+
+def extQ(t, var):
+    ''' Process noise for extended Kalman filter '''
+    # return np.array([[0.5*t**2,0,0,0,0,0],[0,0.5*t**2,0,0,0,0],[0,0,0.5*t**2,0,0,0],
+    #     [0,0,0,t,0,0],[0,0,0,0,t,0],[0,0,0,0,0,t],]) * var\
+    return np.array([[1,0,0,0,0,0],[0,1,0,0,0,0],[0,0,1,0,0,0],
+        [0,0,0,1e-6,0,0],[0,0,0,0,1e-6,0],[0,0,0,0,0,1e-6],]) * var
+
+def integrate(f, t, x0):
     '''
-    Integrates surfDyn(...) given the time step dt; same inputs.
+    Integrates f(t,x) given the time range t; same inputs.
     '''
-    func = lambda _, x: surfDyn(x, u, g, r, W)
-    sol = solve_ivp(func, (0, dt), x0, t_eval=[0, dt], rtol=1e-6, atol=1e-8)
+    sol = solve_ivp(f, (t[0], t[-1]), x0, t_eval=t, rtol=1e-6, atol=1e-8)
     if sol.success:
-        return sol.y[:,-1]
+        return sol.y
     else:
         print("Integration Error: " + sol.message)
 
 
-def tester(dt, x0, *args):
-    A = np.array([[0,0,0,1,0,0],[0,0,0,0,1,0],[0,0,0,0,0,1],[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]])
-    func = lambda _, x: A @ x
-    sol = solve_ivp(func, [0, dt], x0, t_eval=[0, dt])
-    return sol.y[:,-1]
+def chebichev(n):
+    ''' returns n roots of the Chebichev polynomial in [-1,1] '''
+    return np.cos((2*np.linspace(1,n,n)-1)*np.pi/(2*n))
+
+def fit3d(t, y):
+    ''' fits a polynomial of degree length(t)-1 to each axis of y '''
+    n = len(t) - 1
+    p1 = np.poly1d(np.polyfit(t, y[0,:], n))
+    p2 = np.poly1d(np.polyfit(t, y[1,:], n))
+    p3 = np.poly1d(np.polyfit(t, y[2,:], n))
+
+    return lambda t: np.array([p1(t), p2(t), p3(t)])
+
+def getAccelFunc(t, n, std):
+    ''' defines an acceleration function given time span, number of nodes, std '''
+    ti = (np.flip(chebichev(n)) + 1)/2 * t[-1]
+    y = np.random.normal(0, std, (3,n))
+    return fit3d(ti, y)
+
 
 
 if __name__ == "__main__":
-
-    u = np.zeros((3,))
+    '''
+    u = lambda _: np.zeros((3,))
     r = 1737.4
     w = 2*np.pi / (27.3217 * 24 * 60 * 60)
     W = np.array([0,0,w])
     g = 1.625e-3
     v0 = 0
     x0 = np.array([r*np.sin(15*np.pi/180), 0, -r*np.cos(15*np.pi/180), np.cos(15*np.pi/180)*v0, w*r*np.sin(15*np.pi/180), np.sin(15*np.pi/180)*v0])
+    t = np.linspace(0, 24*60*60, 1440)
 
-    xf = surfInt(3600, x0, u, g, r, W)
+    func = lambda t, x: surfDyn(t, x, u, g, r, W)
+    x = integrate(func, t, x0)
     print(x0)
-    print(xf)
+    print(x[:,-1])
+    '''
+
+    t = np.linspace(0,86400,100)
+    fit = getAccelFunc(t, 10, 1)
+    yi = np.zeros((3,len(t)))
+
+    for i in range(0,len(t)):
+        yi[:,i] = fit(t[i])
+
+    fig = plt.figure()
+    ax = plt.axes()
+    ax.plot(t, yi[0,:])
+    # ax.scatter(ti, y[0,:])
+    plt.show()
+
+    

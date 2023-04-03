@@ -1,5 +1,5 @@
 # local imports
-from filters.ExtendedKalman import *
+from filters.LinearKalman import *
 from filters.Dynamics import *
 
 
@@ -31,9 +31,14 @@ if __name__ == "__main__":
 
         # Compute true trajectory
         t = np.linspace(0, 24*60*60, n)    # time steps (in seconds)
-        u = lambda _: np.zeros((3,))
         func = lambda t, x, u: surfDyn(t, x, u, g, rad, W)
-        x_true = integrate(lambda t, x: func(t, x, u), t, x0)
+        randWalk = getAccelFunc(t, 10, 1e-7)
+        x_true = integrate(lambda t, x: func(t, x, randWalk), t, x0)
+
+        # build state equations
+        # fA = lambda vt, x: linSurfA(vt, x, randWalk, g, rad, W)
+        fA = lambda vt, _: linA(vt[-1] - vt[0])
+        fu = lambda t, x: linSurfU(t, x, randWalk, g, rad, W)
 
         xstar = np.random.normal(loc=x0, scale=np.sqrt(vx0))
         xstar[0:3] = xstar[0:3] / np.linalg.norm(xstar[0:3]) * rad  # place on surface
@@ -59,8 +64,8 @@ if __name__ == "__main__":
         np.savetxt('matlab/true.csv', x_true, delimiter=',')
 
         # run linear kalman filter
-        with ExtendedKalman(t, xstar, np.diag(vx0), x_true, func,
-                        linU, y, Ht_3x6(0), lambda z: extQ(z, (1e-6)**2),
+        with LinearKalman(t, xstar, np.diag(vx0), x_true, fA, statB_6x3,
+                        fu, y, Ht_3x6(0), lambda z: linQ(statB_6x3(z), (1e-8)**2),
                         lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)/1e6) as dyn:
             
             dyn.evaluate()

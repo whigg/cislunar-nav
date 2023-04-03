@@ -1,6 +1,6 @@
 from Vector import Vector
 import re
-import numpy as np
+import autograd.numpy as np
 import matplotlib.pyplot as plt
 
 def parseGmatData(filename, gmatReport=False):
