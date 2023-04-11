@@ -4,8 +4,8 @@ from autograd import grad, jacobian
 from scipy.linalg import expm
 
 # local imports
-from filters.Filter import *
-from filters.Dynamics import integrate
+from .Filter import *
+from .Dynamics import integrate
 
 
 class ExtendedKalman(Filter):

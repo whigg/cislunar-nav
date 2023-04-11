@@ -7,7 +7,7 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 
 # local imports
-if __name__ != "__main__": from URE import *
+if __name__ != "__main__": from .lib.URE import *
 
 '''
 Linear integration of a (6,) pos / vel state with acceleration input

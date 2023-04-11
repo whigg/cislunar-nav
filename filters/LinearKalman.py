@@ -2,7 +2,7 @@
 import spiceypy as spice
 
 # local imports
-from filters.Filter import *
+from .Filter import *
 
 
 class LinearKalman(Filter):

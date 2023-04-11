@@ -1,5 +1,5 @@
 # local imports
-from filters.Filter import *
+from .Filter import *
 
 class Batch(Filter):
     '''
