@@ -92,20 +92,11 @@ def computeDOP(user, sats, time):
     '''
     num = len(sats)
     G = np.ones((num,4))
-    # Get latitude and longitude for ECI->ENU rotation
-    lat = np.pi/2 - np.arctan2(user[2], np.sqrt(user[1]**2 + user[2]**2))
-    lon = np.pi/2 + np.arctan2(user[1], user[0])
-
-    R1 = np.array([[1,0,0],[0,np.cos(lat),np.sin(lat)],[0,-np.sin(lat),np.cos(lat)]])
-    R2 = np.array([[np.cos(lon),np.sin(lon),0],[-np.sin(lon),np.cos(lon),0],[0,0,1]])
-    R = np.concatenate((R1@R2, np.zeros((3,1))), axis=1)  
-    R = np.concatenate((R, np.array([[0,0,0,1]])), axis=0)  # ECI->ENU rotation matrix
 
     for i in range(0,num):
         ik = (sats[i].vec(time) - user)
         G[i,0:3] = -ik / np.linalg.norm(ik)
     
-    G = G@np.transpose(R)
     try:
         return np.linalg.inv(np.transpose(G)@G)
     except np.linalg.LinAlgError: 
