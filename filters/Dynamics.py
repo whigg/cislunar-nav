@@ -251,11 +251,19 @@ def fit3d(t, y):
 
     return lambda t: np.array([p1(t), p2(t), p3(t)])
 
-def getAccelFunc(t, n, std):
-    ''' defines an acceleration function given time span, number of nodes, std '''
+def getAccelFuncs(t, n, std, std2):
+    '''
+    defines an acceleration function given time span, number of nodes, std
+    Input:
+     - t; time span on which to evaluate, [0 ... tf]
+     - n; number of chebichev nodes (how complex is the curve?)
+     - std; standard deviation of acceleration
+     - std2; standard deviation of error
+    '''
     ti = (np.flip(chebichev(n)) + 1)/2 * t[-1]
     y = np.random.normal(0, std, (3,n))
-    return fit3d(ti, y)
+    y2 = np.random.normal(loc=y, scale=std2)
+    return fit3d(ti, y), fit3d(ti, y2)
 
 
 
@@ -277,15 +285,18 @@ if __name__ == "__main__":
     '''
 
     t = np.linspace(0,86400,100)
-    fit = getAccelFunc(t, 10, 1)
+    fit1, fit2 = getAccelFuncs(t, 10, 1e-7, 1e-9)
     yi = np.zeros((3,len(t)))
+    yj = np.zeros((3,len(t)))
 
     for i in range(0,len(t)):
-        yi[:,i] = fit(t[i])
+        yi[:,i] = fit1(t[i])
+        yj[:,i] = fit2(t[i])
 
     fig = plt.figure()
     ax = plt.axes()
     ax.plot(t, yi[0,:])
+    ax.plot(t, yj[0,:])
     # ax.scatter(ti, y[0,:])
     plt.show()
 

@@ -61,7 +61,7 @@ class ExtendedKalman(Filter):
 
             # Get local variables to reduce evaluations
             x = self.x[:,self.i-1]                              # x_{k-1|k-1}
-            fA = jacobian(lambda c: self.f(dt, c, self.u))      # dF_{k}/dt
+            fA = jacobian(lambda c: self.f(ti, c, self.u))      # dF_{k}/dt
             A = expm(fA(x) * dt)                                # F_{k}
             # A = np.zeros(np.shape(A))
             z = self.Y[:,self.i]
@@ -71,7 +71,7 @@ class ExtendedKalman(Filter):
 
             # Predict step
             # Compute the new state \hat{x_{k|k-1}}
-            x = integrate(lambda a, b: self.f(a, b, self.u), [0, dt], x)[:,-1]
+            x = integrate(lambda a, b: self.f(a, b, self.u), [self.t[self.i-1], ti], x)[:,-1]
             P = A @ P @ np.transpose(A) + self.Q(dt)            # \hat{P_{k|k-1}}
 
             # Update step

@@ -22,11 +22,11 @@ grid on; axis equal;
 
 rad = 1737.400;             % km, lunar radius
 % moon
-% [I, map] = imread("lroc_color_poles_1k.jpg");
-% [xx, yy, zz] = ellipsoid(0, 0, 0, rad, rad, rad);
-% globe = surf(xx, yy, -zz);
-% set(globe, 'FaceColor', 'texturemap', 'CData', I, 'FaceAlpha', 1, ...
-%     'EdgeColor', 'none');
+[I, map] = imread("lroc_color_poles_1k.jpg");
+[xx, yy, zz] = ellipsoid(0, 0, 0, rad, rad, rad);
+globe = surf(xx, yy, -zz);
+set(globe, 'FaceColor', 'texturemap', 'CData', I, 'FaceAlpha', 1, ...
+    'EdgeColor', 'none');
 
 xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
 

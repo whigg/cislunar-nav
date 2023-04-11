@@ -23,10 +23,9 @@ if __name__ == "__main__":
     iter = 1
 
     for i in range(iter):
-        v0 = 0.00042
         x0 = np.array([rad*np.sin(ang*np.pi/180), 0, -rad*np.cos(ang*np.pi/180), 
-            np.cos(ang*np.pi/180)*v0, w*rad*np.sin(ang*np.pi/180), np.sin(ang*np.pi/180)*v0])
-        vx0 = np.array([1**2, 1**2, 1**2, 0**2, 0**2, 0**2])
+            0., w*rad*np.sin(ang*np.pi/180), 0.])
+        vx0 = np.array([10**2, 10**2, 10**2, 0.01**2, 0.01**2, 0.01**2])
         # vx0 = np.zeros(np.shape(vx0))
 
         # Compute true trajectory

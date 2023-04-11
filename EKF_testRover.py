@@ -1,5 +1,5 @@
 # local imports
-from filters.LinearKalman import *
+from filters.ExtendedKalman import *
 from filters.Dynamics import *
 
 
@@ -9,7 +9,7 @@ if __name__ == "__main__":
     n = sats[0].end
     l = 3; m = 6
 
-    np.random.seed(69)
+    # np.random.seed(69)
         
     # Constants
     rad = 1737.4                            # m, radius of moon
@@ -28,17 +28,12 @@ if __name__ == "__main__":
             np.cos(ang*np.pi/180)*v0, w*rad*np.sin(ang*np.pi/180), np.sin(ang*np.pi/180)*v0])
         vx0 = np.array([1**2, 1**2, 1**2, 0**2, 0**2, 0**2])
         # vx0 = np.zeros(np.shape(vx0))
-
+      
         # Compute true trajectory
         t = np.linspace(0, 24*60*60, n)    # time steps (in seconds)
         func = lambda t, x, u: surfDyn(t, x, u, g, rad, W)
         randWalk, randWalkErr = getAccelFuncs(t, 10, 1e-7, 1e-9)
         x_true = integrate(lambda t, x: func(t, x, randWalk), t, x0)
-
-        # build state equations
-        # fA = lambda vt, x: linSurfA(vt, x, randWalk, g, rad, W)
-        fA = lambda vt, _: linA(vt[-1] - vt[0])
-        fu = lambda t, x: linSurfU(t, x, randWalkErr, g, rad, W)
 
         xstar = np.random.normal(loc=x0, scale=np.sqrt(vx0))
         xstar[0:3] = xstar[0:3] / np.linalg.norm(xstar[0:3]) * rad  # place on surface
@@ -64,8 +59,8 @@ if __name__ == "__main__":
         np.savetxt('matlab/true.csv', x_true, delimiter=',')
 
         # run linear kalman filter
-        with LinearKalman(t, xstar, np.diag(vx0), x_true, fA, statB_6x3,
-                        fu, y, Ht_3x6(0), lambda z: linQ(statB_6x3(z), (1e-8)**2),
+        with ExtendedKalman(t, xstar, np.diag(vx0), x_true, func,
+                        randWalkErr, y, Ht_3x6(0), lambda z: linQ(statB_6x3(z), (5e-9)**2),
                         lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)/1e6) as dyn:
             
             dyn.evaluate()
