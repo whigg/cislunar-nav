@@ -1,5 +1,6 @@
 # library imports
 import os
+from cycler import cycler
 
 # local imports
 from filters.Batch import *
@@ -8,19 +9,32 @@ from filters.Dynamics import *
 
 if __name__ == "__main__":
     # Data and dimensions
-    sats = parseGmatData("data/LSIC/8sat_Literature.txt", gmatReport=True)
-    n = sats[0].end
-    l = 3; m = 3  
-        
+    dir = 'data/LSIC/'              # relative path to data files
+    files = []
+    for file in os.listdir(dir):    # create list of files in directory
+        f = os.path.join(dir, file)
+
+        if os.path.isfile(f):
+            files.append(f)
+            
     # Constants
+    l = 3; m = 3  
     rad = 1737400                           # m, radius of moon
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
 
+    # plotting
+    default_cycler = (cycler(color=['b','g','r','c','m']) + cycler(linestyle=['-','--',':','-.','-']))
+    plt.rc('axes', prop_cycle=default_cycler)
     fig = plt.figure()
     ax = plt.axes()
-    iter = 1
+    stdplot = []
+    labels = ['4 Sat*', '5 Sat', '6 Sat', '7 Sat', '8 Sat*']
 
-    for i in range(iter):
+    for i, file in enumerate(files):
+        # load data
+        sats = parseGmatData(file, gmatReport=True)
+        n = sats[0].end
+
         x0 = np.array([rad*np.sin(np.pi/12), 0, -rad*np.cos(np.pi/12)])
         xstar = np.array([0, 0, 0])
         x_true = np.zeros((m,n))
@@ -55,7 +69,8 @@ if __name__ == "__main__":
                 lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)) as batch:
             
             batch.evaluate()
-            mc, stat = batch.plot(ax, std=True, semilog=False)
+            _, stat = batch.plot(ax, mc=False, std=True, semilog=False)
+            stdplot.append(stat)
             # update initial guess
             print(batch.x[:,-1])
             #np.savetxt('test/est.csv', batch.x, delimiter=',')
@@ -66,10 +81,10 @@ if __name__ == "__main__":
 
 
     ax.grid()
-    ax.set_ylim(bottom=0, top=25)
+    ax.set_ylim(bottom=0, top=15)
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("Error (m)")
-    ax.set_title(f"3σ RMS Position Uncertainty")
-    ax.legend(handles=[mc, stat])
+    ax.set_title(f"3σ RMS Position Uncertainty, Batch Filter")
+    ax.legend(labels)
     plt.show()

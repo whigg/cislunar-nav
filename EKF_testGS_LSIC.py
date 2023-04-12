@@ -1,3 +1,7 @@
+# library imports
+import os
+from cycler import cycler
+
 # local imports
 from filters.ExtendedKalman import *
 from filters.Dynamics import *
@@ -5,24 +9,37 @@ from filters.Dynamics import *
 
 if __name__ == "__main__":
     # Data and dimensions
-    sats = parseGmatData("data/const_eph/4_MoonOrb.txt", gmatReport=True)
-    n = sats[0].end
-    l = 3; m = 6
+    dir = 'data/LSIC/'              # relative path to data files
+    files = []
+    for file in os.listdir(dir):    # create list of files in directory
+        f = os.path.join(dir, file)
+
+        if os.path.isfile(f):
+            files.append(f)
 
     np.random.seed(69)
         
     # Constants
+    l = 3; m = 6
     rad = 1737.4                            # m, radius of moon
     ang = 15
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
     W = np.array([0,0,w])
     g = 1.625e-3
 
+    # plotting
+    default_cycler = (cycler(color=['b','g','r','c','m']) + cycler(linestyle=['-','--',':','-.','-']))
+    plt.rc('axes', prop_cycle=default_cycler)
     fig = plt.figure()
     ax = plt.axes()
-    iter = 1
+    stdplot = []
+    labels = ['4 Sat*', '5 Sat', '6 Sat', '7 Sat', '8 Sat*']
 
-    for i in range(iter):
+    for i, file in enumerate(files):
+        # load data
+        sats = parseGmatData(file, gmatReport=True)
+        n = sats[0].end
+
         x0 = np.array([rad*np.sin(ang*np.pi/180), 0, -rad*np.cos(ang*np.pi/180), 
             0., w*rad*np.sin(ang*np.pi/180), 0.])
         vx0 = np.array([10**2, 10**2, 10**2, 0.01**2, 0.01**2, 0.01**2])
@@ -63,17 +80,19 @@ if __name__ == "__main__":
                         lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)/1e6) as dyn:
             
             dyn.evaluate()
-            mc, stat = dyn.plot(ax, last=True if i == iter - 1 else False, batch=False, semilog=False)
+            dyn.units = 1e3         # unit conversion for plotting
+            _, stat = dyn.plot(ax, mc=False, std=True, batch=False, semilog=False)
+            stdplot.append(stat)
             # update initial guess
             print(dyn.x[:,-1])
             np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
 
 
     ax.grid()
-    ax.set_ylim(bottom=0, top=0.2)
+    ax.set_ylim(bottom=0, top=50)
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
-    ax.set_ylabel("Error (km)")
-    ax.set_title(f"RMS Position Uncertainty (4 satellites)")
-    ax.legend(handles=[mc, stat])
+    ax.set_ylabel("Error (m)")
+    ax.set_title(f"3σ RMS Position Uncertainty, EKF")
+    ax.legend(labels)
     plt.show()
