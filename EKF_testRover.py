@@ -17,7 +17,7 @@ if __name__ == "__main__":
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
     W = np.array([0,0,w])
     g = 1.625e-3
-    std_accel = 5e-6 * g    # 5 micro-g's root Allan variance (60s integration time)
+    std_accel = 1e-9   # square root of Allan variance
 
     fig = plt.figure()
     ax = plt.axes()
@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
         # run extended kalman filter
         with ExtendedKalman(t, xstar, np.diag(vx0), x_true, func,
-                        randWalkErr, y, Ht_3x6(0), lambda z: linQ(statB_6x3(z), (std_accel * 3)**2),
+                        randWalkErr, y, Ht_3x6(0), lambda z: linQ(statB_6x3(z), (std_accel * 5)**2),
                         lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)/1e6) as dyn:
             
             dyn.evaluate()

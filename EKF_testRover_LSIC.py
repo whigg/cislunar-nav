@@ -26,7 +26,7 @@ if __name__ == "__main__":
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
     W = np.array([0,0,w])
     g = 1.625e-3
-    std_accel = 1e-5 * g    # 10 micro-g's root Allan variance (60s integration time)
+    std_accel = 1e-10    # root Allan variance
 
     # plotting
     default_cycler = (cycler(color=['b','g','r','c','m']) + cycler(linestyle=['-','--',':','-.','-']))
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         sats = parseGmatData(file, gmatReport=True)
         n = sats[0].end
 
-        v0 = 0.00042
+        v0 = 0.000033
         x0 = np.array([rad*np.sin(ang*np.pi/180), 0, -rad*np.cos(ang*np.pi/180), 
             np.cos(ang*np.pi/180)*v0, w*rad*np.sin(ang*np.pi/180), np.sin(ang*np.pi/180)*v0])
         vx0 = np.array([1**2, 1**2, 1**2, 0**2, 0**2, 0**2])
