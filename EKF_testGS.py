@@ -5,7 +5,7 @@ from filters.Dynamics import *
 
 if __name__ == "__main__":
     # Data and dimensions
-    sats = parseGmatData("data/const_eph/4_MoonOrb.txt", gmatReport=True)
+    sats = parseGmatData("data/LSIC/8sat_Literature.txt", gmatReport=True)
     n = sats[0].end
     l = 3; m = 6
 
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     W = np.array([0,0,w])
     g = 1.625e-3
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(7.5,5))
     ax = plt.axes()
     iter = 1
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
             r[r == float('inf')] = sys.float_info.max   # catch 'inf'
             y[:,j] = Y(x_true[:,j], r)
 
-        np.savetxt('matlab/true.csv', x_true, delimiter=',')
+        # np.savetxt('matlab/true.csv', x_true, delimiter=',')
 
         # run extended kalman filter
         with ExtendedKalman(t, xstar, np.diag(vx0), x_true, func,
@@ -63,17 +63,22 @@ if __name__ == "__main__":
                         lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)/1e6) as dyn:
             
             dyn.evaluate()
-            mc, stat = dyn.plot(ax, last=True if i == iter - 1 else False, batch=False, semilog=False)
+            dyn.units = 1e3         # unit conversion for plotting
+            mc, stat = dyn.plot(ax, std=True if i == iter - 1 else False, batch=False, semilog=False)
             # update initial guess
             print(dyn.x[:,-1])
-            np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
+
+            # print last 3-sigma error
+            var = np.diag(dyn.P[:,:,j])
+            print(3 * np.sqrt(var[0] + var[1] + var[2]))
+            # np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
 
 
     ax.grid()
-    ax.set_ylim(bottom=0, top=0.2)
+    ax.set_ylim(bottom=0, top=50)
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
-    ax.set_ylabel("Error (km)")
-    ax.set_title(f"RMS Position Uncertainty (4 satellites)")
+    ax.set_ylabel("Error (m)")
+    ax.set_title(f"RMS Position Uncertainty")
     ax.legend(handles=[mc, stat])
     plt.show()

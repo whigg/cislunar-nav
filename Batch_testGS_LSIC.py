@@ -14,7 +14,7 @@ if __name__ == "__main__":
     for file in os.listdir(dir):    # create list of files in directory
         f = os.path.join(dir, file)
 
-        if os.path.isfile(f):
+        if os.path.isfile(f) and 'New' in f:
             files.append(f)
             
     # Constants
@@ -23,12 +23,14 @@ if __name__ == "__main__":
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
 
     # plotting
-    default_cycler = (cycler(color=['b','g','r','c','m']) + cycler(linestyle=['-','--',':','-.','-']))
+    # default_cycler = (cycler(color=['b','g','r','c','m']) + cycler(linestyle=['-','--',':','-.','-']))
+    default_cycler = (cycler(color=['r','c','m','b','g']) + cycler(linestyle=[':','-.','-','-','--']))
     plt.rc('axes', prop_cycle=default_cycler)
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10,2.5))
     ax = plt.axes()
     stdplot = []
-    labels = ['4 Sat*', '5 Sat', '6 Sat', '7 Sat', '8 Sat*']
+    # labels = ['4 Satellites', '8 Satellites']
+    labels = ['5 Satellites', '6 Satellites']
 
     for i, file in enumerate(files):
         # load data

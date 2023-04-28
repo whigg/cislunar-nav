@@ -5,7 +5,7 @@ from filters.Dynamics import *
 
 if __name__ == "__main__":
     # Data and dimensions
-    sats = parseGmatData("data/LSIC/8sat_Literature.txt", gmatReport=True)
+    sats = parseGmatData("data/LSIC/6sat_New.txt", gmatReport=True)
     n = sats[0].end
     l = 3; m = 6
 
@@ -17,11 +17,11 @@ if __name__ == "__main__":
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
     W = np.array([0,0,w])
     g = 1.625e-3
-    std_accel = 1e-9   # square root of Allan variance
+    std_accel = 1e-10   # square root of Allan variance
 
     fig = plt.figure()
     ax = plt.axes()
-    iter = 1
+    iter = 5
  
 
     for i in range(iter):
@@ -58,7 +58,7 @@ if __name__ == "__main__":
             r[r == float('inf')] = sys.float_info.max   # catch 'inf'
             y[:,j] = Y(x_true[:,j], r)
 
-        np.savetxt('matlab/true.csv', x_true, delimiter=',')
+        # np.savetxt('matlab/true.csv', x_true, delimiter=',')
 
         # run extended kalman filter
         with ExtendedKalman(t, xstar, np.diag(vx0), x_true, func,
@@ -70,14 +70,14 @@ if __name__ == "__main__":
             mc, stat = dyn.plot(ax, std=True if i == iter - 1 else False, batch=False, semilog=False)
             # update initial guess
             print(dyn.x[:,-1])
-            np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
+            # np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
 
 
     ax.grid()
-    ax.set_ylim(bottom=0, top=200)
+    ax.set_ylim(bottom=0, top=50)
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("Error (m)")
-    ax.set_title(f"RMS Position Uncertainty")
+    ax.set_title(f"RMS Position Uncertainty, EKF")
     ax.legend(handles=[mc, stat])
     plt.show()

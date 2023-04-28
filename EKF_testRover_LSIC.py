@@ -14,7 +14,7 @@ if __name__ == "__main__":
     for file in os.listdir(dir):    # create list of files in directory
         f = os.path.join(dir, file)
 
-        if os.path.isfile(f) and 'Literature' in f:
+        if os.path.isfile(f): # and 'New' in f:
             files.append(f)
 
     np.random.seed(69)
@@ -29,13 +29,16 @@ if __name__ == "__main__":
     std_accel = 1e-10    # root Allan variance
 
     # plotting
-    default_cycler = (cycler(color=['b','g','r','c','m']) + cycler(linestyle=['-','--',':','-.','-']))
+    # default_cycler = (cycler(color=['b','g','r','c','m']) + cycler(linestyle=['-','--',':','-.','-']))
+    # default_cycler = (cycler(color=['r','c','m','b','g']) + cycler(linestyle=[':','-.','-','-','--']))
+    default_cycler = (cycler(color=['b','r','c','g','m']) + cycler(linestyle=['-',':','-.','--','-']))
     plt.rc('axes', prop_cycle=default_cycler)
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10,2.5))
     ax = plt.axes()
     stdplot = []
-    labels = ['4 Sat*', '8 Sat*']
-    # labels = ['5 Sat', '6 Sat']
+    # labels = ['4 Satellites', '8 Satellites']
+    # labels = ['5 Satellites', '6 Satellites']
+    labels = ['4 Satellites', '5 Satellites', '6 Satellites', '8 Satellites']
 
     for i, file in enumerate(files):
         # load data
@@ -92,7 +95,7 @@ if __name__ == "__main__":
 
 
     ax.grid()
-    ax.set_ylim(bottom=0, top=300)
+    ax.set_ylim(bottom=0, top=50)
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("Error (m)")

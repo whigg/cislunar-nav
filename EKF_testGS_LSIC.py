@@ -72,7 +72,7 @@ if __name__ == "__main__":
             r[r == float('inf')] = sys.float_info.max   # catch 'inf'
             y[:,j] = Y(x_true[:,j], r)
 
-        np.savetxt('matlab/true.csv', x_true, delimiter=',')
+        # np.savetxt('matlab/true.csv', x_true, delimiter=',')
 
         # run extended kalman filter
         with ExtendedKalman(t, xstar, np.diag(vx0), x_true, func,
@@ -85,7 +85,11 @@ if __name__ == "__main__":
             stdplot.append(stat)
             # update initial guess
             print(dyn.x[:,-1])
-            np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
+
+            # print last 3-sigma error
+            var = np.diag(dyn.P[:,:,j])
+            print(3 * np.sqrt(var[0] + var[1] + var[2]))
+            # np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
 
 
     ax.grid()

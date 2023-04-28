@@ -8,7 +8,7 @@ from filters.Dynamics import *
 
 if __name__ == "__main__":
     # Data and dimensions
-    sats = parseGmatData("data/LSIC/8sat_Literature.txt", gmatReport=True)
+    sats = parseGmatData("data/LSIC/6sat_New.txt", gmatReport=True)
     n = sats[0].end
     l = 3; m = 3  
         
@@ -16,7 +16,7 @@ if __name__ == "__main__":
     rad = 1737400                           # m, radius of moon
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
 
-    fig = plt.figure()
+    fig = plt.figure(figsize=(7.5,5))
     ax = plt.axes()
     iter = 1
 
@@ -55,7 +55,7 @@ if __name__ == "__main__":
                 lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)) as batch:
             
             batch.evaluate()
-            mc, stat = batch.plot(ax, std=True, semilog=False)
+            mc, stat = batch.plot(ax, std=True if i == iter - 1 else False, semilog=False)
             # update initial guess
             print(batch.x[:,-1])
             #np.savetxt('test/est.csv', batch.x, delimiter=',')
@@ -66,10 +66,10 @@ if __name__ == "__main__":
 
 
     ax.grid()
-    ax.set_ylim(bottom=0, top=25)
+    ax.set_ylim(bottom=0, top=15)
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("Error (m)")
-    ax.set_title(f"3σ RMS Position Uncertainty")
+    ax.set_title(f"RMS Position Uncertainty")
     ax.legend(handles=[mc, stat])
     plt.show()

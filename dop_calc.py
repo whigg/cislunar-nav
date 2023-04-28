@@ -11,14 +11,16 @@ if __name__ == "__main__":
 
     # Dilution of precision
     #sats = parseGmatData("data/SattPositionsBaseline.txt")
-    sats = parseGmatData("data/LSIC/6sat_New.txt", gmatReport=True)
+    sats = parseGmatData("data/LSIC/4sat_Literature.txt", gmatReport=True)
     n = sats[0].end
     r = 1737.4      # radius of moon
     dop = np.zeros((n,))
     pos = np.array([0, 0, -r])
+    nvis = np.zeros((n,))
 
     for t in range(n):
         visible, _ = findVisibleSats(pos, sats, t, elev=0)
+        nvis[t] = len(visible)
         H = computeDOP(pos, visible, t)
         dop[t] = sqrt(abs(H[0,0]) + abs(H[1,1]) + abs(H[2,2]))
 
@@ -56,14 +58,32 @@ if __name__ == "__main__":
 
     fig = plt.figure()
     ax = plt.axes()
-    ax.plot(np.linspace(0,24,n), dop)
+    ax.plot(np.linspace(0,24,n), dop * ure)
     ax.grid()
-    ax.set_ylim(bottom=1, top=20)  # cap y axis so plot is readable
+    ax.set_ylim(bottom=0, top=300)  # cap y axis so plot is readable
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("95% Position Error (m)")
-    ax.set_title("UNE on lunar south pole, 8 satellites")
+    ax.set_title("UNE on lunar south pole, 4 satellites")
     plt.show()
 
     print(min(dop))
+    '''
+
+    fig = plt.figure()
+    ax1, ax2 = fig.subplots(2,1)
+    ax1.plot(np.linspace(0,24,n), nvis)
+    ax1.grid()
+    ax1.set_xlim(left=0, right=24)
+    ax1.set_ylabel("Visible satellites")
+    ax1.set_title("Visible Satellites and PDOP for Lunar South Pole")
+
+    ax2.plot(np.linspace(0,24,n), dop)
+    ax2.grid()
+    ax2.set_ylim(bottom=0, top=15)
+    ax2.set_xlim(left=0, right=24)
+    ax2.set_xlabel("Time (hrs)")
+    ax2.set_ylabel("PDOP")
+    plt.show()
+    '''
     pass
