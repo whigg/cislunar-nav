@@ -3,8 +3,8 @@ import os
 from cycler import cycler
 
 # local imports
-from filters.ExtendedKalman import *
-from filters.Dynamics import *
+from libs.ExtendedKalman import *
+from libs.Dynamics import *
 
 
 if __name__ == "__main__":
@@ -26,32 +26,37 @@ if __name__ == "__main__":
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
     W = np.array([0,0,w])
     g = 1.625e-3
+    std_accel = 1e-10    # root Allan variance
 
     # plotting
-    default_cycler = (cycler(color=['b','g','r','c','m','darkorange']) + cycler(linestyle=['-','--',':','-.','-','--']))
-    # default_cycler = (cycler(color=['r','c','m','b','g']) + cycler(linestyle=[':','-.','-','-','--']))
+    # default_cycler = (cycler(color=['b','g','r','c','m','darkorange']) + cycler(linestyle=['-','--',':','-.','-','--']))
+    default_cycler = (cycler(color=['r','c','m','b','g']) + cycler(linestyle=[':','-.','-','-','--']))
     plt.rc('axes', prop_cycle=default_cycler)
-    fig = plt.figure(figsize=(10,4))
+    fig = plt.figure(figsize=(10,2.5))
     ax = plt.axes()
     stdplot = []
     # labels = ['Khon1-4', 'Khon1-6']
-    labels = ['4Sat', '5Sat', '6Sat', '6Sat,Opt', '8Sat', '8Sat,Opt']
+    # labels = ['4Sat', '5Sat', '6Sat', '6Sat,Opt', '8Sat', '8Sat,Opt']
+    labels = ['8Sat', '8Sat,Opt']
+
+    # files = [files[0]]
 
     for i, file in enumerate(files):
         # load data
         sats = parseGmatData(file, gmatReport=True)
         n = sats[0].end
 
+        v0 = 0.000033
         x0 = np.array([rad*np.sin(ang*np.pi/180), 0, -rad*np.cos(ang*np.pi/180), 
-            0., w*rad*np.sin(ang*np.pi/180), 0.])
-        vx0 = np.array([10**2, 10**2, 10**2, 0.01**2, 0.01**2, 0.01**2])
+            np.cos(ang*np.pi/180)*v0, w*rad*np.sin(ang*np.pi/180), np.sin(ang*np.pi/180)*v0])
+        vx0 = np.array([1**2, 1**2, 1**2, 0**2, 0**2, 0**2])
         # vx0 = np.zeros(np.shape(vx0))
-
+      
         # Compute true trajectory
         t = np.linspace(0, 24*60*60, n)    # time steps (in seconds)
-        u = lambda _: np.zeros((3,))
         func = lambda t, x, u: surfDyn(t, x, u, g, rad, W)
-        x_true = integrate(lambda t, x: func(t, x, u), t, x0)
+        randWalk, randWalkErr = getAccelFuncs(t, 10, 1e-7, std_accel)  
+        x_true = integrate(lambda t, x: func(t, x, randWalk), t, x0)
 
         xstar = np.random.normal(loc=x0, scale=np.sqrt(vx0))
         xstar[0:3] = xstar[0:3] / np.linalg.norm(xstar[0:3]) * rad  # place on surface
@@ -74,12 +79,12 @@ if __name__ == "__main__":
             r[r == float('inf')] = sys.float_info.max   # catch 'inf'
             y[:,j] = Y(x_true[:,j], r)
 
-        # np.savetxt('matlab/true.csv', x_true, delimiter=',')
+        np.savetxt('matlab/true.csv', x_true, delimiter=',')
 
         # run extended kalman filter
         with ExtendedKalman(t, xstar, np.diag(vx0), x_true, func,
-                        linU, y, Ht_3x6(0), lambda z: extQ(z, (0e-6)**2),
-                        lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z, rss = 9.081 * 3/1.96)/1e6) as dyn:
+                        randWalkErr, y, Ht_3x6(0), lambda z: linQ(statB_6x3(z), (std_accel * 3)**2),
+                        lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z, rss = 9.081 * 3/1.96, receiver=False)/1e6) as dyn:
             
             dyn.evaluate()
             dyn.units = 1e3         # unit conversion for plotting
@@ -87,18 +92,18 @@ if __name__ == "__main__":
             stdplot.append(stat)
             # update initial guess
             print(dyn.x[:,-1])
+            np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
 
-            # print last 3-sigma error
+            # print best 3-sigma error
             var = np.diag(dyn.P[:,:,j])
             print(3 * np.sqrt(var[0] + var[1] + var[2]))
-            # np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
 
 
     ax.grid()
-    ax.set_ylim(bottom=0, top=50)
+    ax.set_ylim(bottom=0, top=15)
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("Error (m)")
-    ax.set_title(f"3σ RMS Position Uncertainty, EKF")
+    ax.set_title(f"Lunar Rover 3σ RMS Position Uncertainty, EKF")
     ax.legend(labels)
     plt.show()
