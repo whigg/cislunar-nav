@@ -1,6 +1,6 @@
 # local imports
-from filters.ExtendedKalman import *
-from filters.Dynamics import *
+from libs.ExtendedKalman import *
+from libs.Dynamics import *
 
 
 if __name__ == "__main__":

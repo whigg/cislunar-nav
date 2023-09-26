@@ -1,41 +1,55 @@
+# library imports
+import os
+from cycler import cycler
+
 # local imports
-from filters.ExtendedKalman import *
-from filters.Dynamics import *
+from libs.ExtendedKalman import *
+from libs.Dynamics import *
 
 
 if __name__ == "__main__":
     # Data and dimensions
-    sats = parseGmatData("data/LSIC/8sat_Literature.txt", gmatReport=True)
-    n = sats[0].end
-    l = 3; m = 6
+    dir = 'data/LSIC/'              # relative path to data files
+    files = []
+    for file in os.listdir(dir):    # create list of files in directory
+        f = os.path.join(dir, file)
+
+        if os.path.isfile(f):
+            files.append(f)
 
     np.random.seed(69)
         
     # Constants
+    l = 3; m = 6
     rad = 1737.4                            # m, radius of moon
     ang = 15
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
     W = np.array([0,0,w])
     g = 1.625e-3
-    std_accel = 1e-9   # square root of Allan variance
 
+    # plotting
+    default_cycler = (cycler(color=['b','g','r','c','m']) + cycler(linestyle=['-','--',':','-.','-']))
+    plt.rc('axes', prop_cycle=default_cycler)
     fig = plt.figure()
     ax = plt.axes()
-    iter = 1
- 
+    stdplot = []
+    labels = ['4 Sat*', '5 Sat', '6 Sat', '7 Sat', '8 Sat*']
 
-    for i in range(iter):
-        v0 = 0.00042
+    for i, file in enumerate(files):
+        # load data
+        sats = parseGmatData(file, gmatReport=True)
+        n = sats[0].end
+
         x0 = np.array([rad*np.sin(ang*np.pi/180), 0, -rad*np.cos(ang*np.pi/180), 
-            np.cos(ang*np.pi/180)*v0, w*rad*np.sin(ang*np.pi/180), np.sin(ang*np.pi/180)*v0])
-        vx0 = np.array([1**2, 1**2, 1**2, 0**2, 0**2, 0**2])
+            0., w*rad*np.sin(ang*np.pi/180), 0.])
+        vx0 = np.array([10**2, 10**2, 10**2, 0.01**2, 0.01**2, 0.01**2])
         # vx0 = np.zeros(np.shape(vx0))
-      
+
         # Compute true trajectory
         t = np.linspace(0, 24*60*60, n)    # time steps (in seconds)
+        u = lambda _: np.zeros((3,))
         func = lambda t, x, u: surfDyn(t, x, u, g, rad, W)
-        randWalk, randWalkErr = getAccelFuncs(t, 10, 1e-7, std_accel)
-        x_true = integrate(lambda t, x: func(t, x, randWalk), t, x0)
+        x_true = integrate(lambda t, x: func(t, x, u), t, x0)
 
         xstar = np.random.normal(loc=x0, scale=np.sqrt(vx0))
         xstar[0:3] = xstar[0:3] / np.linalg.norm(xstar[0:3]) * rad  # place on surface
@@ -62,22 +76,23 @@ if __name__ == "__main__":
 
         # run extended kalman filter
         with ExtendedKalman(t, xstar, np.diag(vx0), x_true, func,
-                        randWalkErr, y, Ht_3x6(0), lambda z: linQ(statB_6x3(z), (std_accel * 5)**2),
+                        linU, y, Ht_3x6(0), lambda z: extQ(z, (1e-6)**2),
                         lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)/1e6) as dyn:
             
             dyn.evaluate()
             dyn.units = 1e3         # unit conversion for plotting
-            mc, stat = dyn.plot(ax, std=True if i == iter - 1 else False, batch=False, semilog=False)
+            _, stat = dyn.plot(ax, mc=False, std=True, batch=False, semilog=False)
+            stdplot.append(stat)
             # update initial guess
             print(dyn.x[:,-1])
             np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
 
 
     ax.grid()
-    ax.set_ylim(bottom=0, top=200)
+    ax.set_ylim(bottom=0, top=50)
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("Error (m)")
-    ax.set_title(f"RMS Position Uncertainty")
-    ax.legend(handles=[mc, stat])
+    ax.set_title(f"3σ RMS Position Uncertainty, EKF")
+    ax.legend(labels)
     plt.show()

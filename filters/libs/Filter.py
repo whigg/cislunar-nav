@@ -5,7 +5,7 @@ import autograd.numpy as np
 from abc import ABC, abstractmethod
 
 # local imports
-from .libs.Parsing import *
+from .Parsing import *
 
 class Filter(ABC):
     '''
