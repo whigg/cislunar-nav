@@ -8,7 +8,7 @@ sats = sats.data;
 n = size(sats, 2) / 3;
 
 %% plot
-figure(1);
+f1 = figure(1);
 for i = 1:n
     j = (i-1)*3;    % set of coords
     plot3(sats(:,j+1), sats(:,j+2), sats(:,j+3), 'b', 'LineWidth', 2);
