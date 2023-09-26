@@ -17,8 +17,6 @@ if __name__ == "__main__":
         if os.path.isfile(f):
             files.append(f)
 
-    np.random.seed(4020)            # fixed seed
-
     # plotting
     default_cycler = (cycler(color=['navy','darkgreen','blue','green','cyan','lime']) + cycler(linestyle=['-','--','-','--','-','--']))
     # default_cycler = (cycler(color=['b','g','r','c','m','darkorange']) + cycler(linestyle=['-','--',':','-.','-','--']))
@@ -31,12 +29,11 @@ if __name__ == "__main__":
 
     # create and run simulation
     sim = NavSim(files, plot, user='GS', alg='BATCH', debug=True)
-    sim.odErr = 100
-    sim.run()
-    sim.odErr = 10
-    sim.run()
-    sim.odErr = 1
-    sim.run()
+    cases = [100, 10, 1]
+    for case in cases:
+        sim.odErr = case
+        np.random.seed(4020)        # fixed seed
+        sim.run()
 
     # generate plot
     ax.grid()
