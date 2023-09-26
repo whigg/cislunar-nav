@@ -3,7 +3,7 @@ clc, clear, close all;
 
 %% init
 r = 1737.4;     % km, moon radius
-sats = importdata("../data/LSIC/8sat_Optimized.txt");
+sats = importdata("../data/LSIC/6sat_New.txt");
 sats = sats.data;
 n = size(sats, 2) / 3;
 
@@ -24,8 +24,6 @@ globe = surf(xx, yy, -zz);
 set(globe, 'FaceColor', 'texturemap', 'CData', I, 'FaceAlpha', 1, ...
     'EdgeColor', 'none');
 
-set(f1, 'Color', 'w');
-set(gca, 'Visible', 'off');
-hold off; grid on; axis equal;
+hold off; axis equal; axis off;
 xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
-legend(["Orbit", "Satellite"], 'location', 'best');
+legend(["Orbit", "Satellite"], "location", "best");

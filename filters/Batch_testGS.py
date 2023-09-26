@@ -3,8 +3,8 @@ import os
 from cycler import cycler
 
 # local imports
-from filters.Batch import *
-from filters.Dynamics import *
+from libs.Batch import *
+from libs.Dynamics import *
 
 
 if __name__ == "__main__":

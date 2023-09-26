@@ -3,8 +3,8 @@ import numpy as np
 from math import sqrt
 
 # local imports
-from filters.libs.Parsing import *
-from filters.libs.URE import *
+from libs.Parsing import *
+from libs.URE import *
 
 if __name__ == "__main__":
     var = 0
