@@ -1,0 +1,407 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2023-07-17 12:07:08
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Khon1;
+GMAT Khon1.DateFormat = UTCGregorian;
+GMAT Khon1.Epoch = '20 Jul 2023 16:00:00.000';
+GMAT Khon1.CoordinateSystem = MoonMJ2000Eq;
+GMAT Khon1.DisplayStateType = Keplerian;
+GMAT Khon1.SMA = 6541.399999999977;
+GMAT Khon1.ECC = 0.599999999999999;
+GMAT Khon1.INC = 56.20000000000033;
+GMAT Khon1.RAAN = 360;
+GMAT Khon1.AOP = 89.99999999999999;
+GMAT Khon1.TA = 8.537736462515939e-07;
+GMAT Khon1.DryMass = 80;
+GMAT Khon1.Cd = 2.1;
+GMAT Khon1.Cr = 1.75;
+GMAT Khon1.DragArea = 1.8;
+GMAT Khon1.SRPArea = 2.5;
+GMAT Khon1.SPADDragScaleFactor = 1;
+GMAT Khon1.SPADSRPScaleFactor = 1;
+GMAT Khon1.NAIFId = -10000001;
+GMAT Khon1.NAIFIdReferenceFrame = -9000001;
+GMAT Khon1.OrbitColor = Red;
+GMAT Khon1.TargetColor = Teal;
+GMAT Khon1.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT Khon1.CdSigma = 1e+70;
+GMAT Khon1.CrSigma = 1e+70;
+GMAT Khon1.Id = 'SatId';
+GMAT Khon1.Attitude = CoordinateSystemFixed;
+GMAT Khon1.SPADSRPInterpolationMethod = Bilinear;
+GMAT Khon1.SPADSRPScaleFactorSigma = 1e+70;
+GMAT Khon1.SPADDragInterpolationMethod = Bilinear;
+GMAT Khon1.SPADDragScaleFactorSigma = 1e+70;
+GMAT Khon1.ModelFile = 'aura.3ds';
+GMAT Khon1.ModelOffsetX = 0;
+GMAT Khon1.ModelOffsetY = 0;
+GMAT Khon1.ModelOffsetZ = 0;
+GMAT Khon1.ModelRotationX = 0;
+GMAT Khon1.ModelRotationY = 0;
+GMAT Khon1.ModelRotationZ = 0;
+GMAT Khon1.ModelScale = 1;
+GMAT Khon1.AttitudeDisplayStateType = 'Quaternion';
+GMAT Khon1.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Khon1.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT Khon1.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Khon2;
+GMAT Khon2.DateFormat = UTCGregorian;
+GMAT Khon2.Epoch = '20 Jul 2023 16:00:00.000';
+GMAT Khon2.CoordinateSystem = MoonMJ2000Eq;
+GMAT Khon2.DisplayStateType = Keplerian;
+GMAT Khon2.SMA = 6543.980000000043;
+GMAT Khon2.ECC = 0.600000000000002;
+GMAT Khon2.INC = 56.2;
+GMAT Khon2.RAAN = 360;
+GMAT Khon2.AOP = 90.0000000000002;
+GMAT Khon2.TA = 178.6399999999996;
+GMAT Khon2.DryMass = 80;
+GMAT Khon2.Cd = 2.1;
+GMAT Khon2.Cr = 1.75;
+GMAT Khon2.DragArea = 1.8;
+GMAT Khon2.SRPArea = 2.5;
+GMAT Khon2.SPADDragScaleFactor = 1;
+GMAT Khon2.SPADSRPScaleFactor = 1;
+GMAT Khon2.NAIFId = -10000001;
+GMAT Khon2.NAIFIdReferenceFrame = -9000001;
+GMAT Khon2.OrbitColor = Red;
+GMAT Khon2.TargetColor = Teal;
+GMAT Khon2.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT Khon2.CdSigma = 1e+70;
+GMAT Khon2.CrSigma = 1e+70;
+GMAT Khon2.Id = 'SatId';
+GMAT Khon2.Attitude = CoordinateSystemFixed;
+GMAT Khon2.SPADSRPInterpolationMethod = Bilinear;
+GMAT Khon2.SPADSRPScaleFactorSigma = 1e+70;
+GMAT Khon2.SPADDragInterpolationMethod = Bilinear;
+GMAT Khon2.SPADDragScaleFactorSigma = 1e+70;
+GMAT Khon2.ModelFile = 'aura.3ds';
+GMAT Khon2.ModelOffsetX = 0;
+GMAT Khon2.ModelOffsetY = 0;
+GMAT Khon2.ModelOffsetZ = 0;
+GMAT Khon2.ModelRotationX = 0;
+GMAT Khon2.ModelRotationY = 0;
+GMAT Khon2.ModelRotationZ = 0;
+GMAT Khon2.ModelScale = 1;
+GMAT Khon2.AttitudeDisplayStateType = 'Quaternion';
+GMAT Khon2.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Khon2.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT Khon2.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Khon3;
+GMAT Khon3.DateFormat = UTCGregorian;
+GMAT Khon3.Epoch = '20 Jul 2023 16:00:00.000';
+GMAT Khon3.CoordinateSystem = MoonMJ2000Eq;
+GMAT Khon3.DisplayStateType = Keplerian;
+GMAT Khon3.SMA = 6537.919999999935;
+GMAT Khon3.ECC = 0.599999999999997;
+GMAT Khon3.INC = 56.20000000000032;
+GMAT Khon3.RAAN = 0;
+GMAT Khon3.AOP = 90.00000000000001;
+GMAT Khon3.TA = 223.4099999999999;
+GMAT Khon3.DryMass = 80;
+GMAT Khon3.Cd = 2.1;
+GMAT Khon3.Cr = 1.75;
+GMAT Khon3.DragArea = 1.8;
+GMAT Khon3.SRPArea = 2.5;
+GMAT Khon3.SPADDragScaleFactor = 1;
+GMAT Khon3.SPADSRPScaleFactor = 1;
+GMAT Khon3.NAIFId = -10000001;
+GMAT Khon3.NAIFIdReferenceFrame = -9000001;
+GMAT Khon3.OrbitColor = Red;
+GMAT Khon3.TargetColor = Teal;
+GMAT Khon3.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT Khon3.CdSigma = 1e+70;
+GMAT Khon3.CrSigma = 1e+70;
+GMAT Khon3.Id = 'SatId';
+GMAT Khon3.Attitude = CoordinateSystemFixed;
+GMAT Khon3.SPADSRPInterpolationMethod = Bilinear;
+GMAT Khon3.SPADSRPScaleFactorSigma = 1e+70;
+GMAT Khon3.SPADDragInterpolationMethod = Bilinear;
+GMAT Khon3.SPADDragScaleFactorSigma = 1e+70;
+GMAT Khon3.ModelFile = 'aura.3ds';
+GMAT Khon3.ModelOffsetX = 0;
+GMAT Khon3.ModelOffsetY = 0;
+GMAT Khon3.ModelOffsetZ = 0;
+GMAT Khon3.ModelRotationX = 0;
+GMAT Khon3.ModelRotationY = 0;
+GMAT Khon3.ModelRotationZ = 0;
+GMAT Khon3.ModelScale = 1;
+GMAT Khon3.AttitudeDisplayStateType = 'Quaternion';
+GMAT Khon3.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Khon3.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT Khon3.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Khon4;
+GMAT Khon4.DateFormat = UTCGregorian;
+GMAT Khon4.Epoch = '20 Jul 2023 16:00:00.000';
+GMAT Khon4.CoordinateSystem = MoonMJ2000Eq;
+GMAT Khon4.DisplayStateType = Keplerian;
+GMAT Khon4.SMA = 6541.400000000099;
+GMAT Khon4.ECC = 0.6000000000000052;
+GMAT Khon4.INC = 56.20000000000039;
+GMAT Khon4.RAAN = 180;
+GMAT Khon4.AOP = 90.0000000000002;
+GMAT Khon4.TA = 79.98999999999994;
+GMAT Khon4.DryMass = 80;
+GMAT Khon4.Cd = 2.1;
+GMAT Khon4.Cr = 1.75;
+GMAT Khon4.DragArea = 1.8;
+GMAT Khon4.SRPArea = 2.5;
+GMAT Khon4.SPADDragScaleFactor = 1;
+GMAT Khon4.SPADSRPScaleFactor = 1;
+GMAT Khon4.NAIFId = -10000001;
+GMAT Khon4.NAIFIdReferenceFrame = -9000001;
+GMAT Khon4.OrbitColor = Red;
+GMAT Khon4.TargetColor = Teal;
+GMAT Khon4.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT Khon4.CdSigma = 1e+70;
+GMAT Khon4.CrSigma = 1e+70;
+GMAT Khon4.Id = 'SatId';
+GMAT Khon4.Attitude = CoordinateSystemFixed;
+GMAT Khon4.SPADSRPInterpolationMethod = Bilinear;
+GMAT Khon4.SPADSRPScaleFactorSigma = 1e+70;
+GMAT Khon4.SPADDragInterpolationMethod = Bilinear;
+GMAT Khon4.SPADDragScaleFactorSigma = 1e+70;
+GMAT Khon4.ModelFile = 'aura.3ds';
+GMAT Khon4.ModelOffsetX = 0;
+GMAT Khon4.ModelOffsetY = 0;
+GMAT Khon4.ModelOffsetZ = 0;
+GMAT Khon4.ModelRotationX = 0;
+GMAT Khon4.ModelRotationY = 0;
+GMAT Khon4.ModelRotationZ = 0;
+GMAT Khon4.ModelScale = 1;
+GMAT Khon4.AttitudeDisplayStateType = 'Quaternion';
+GMAT Khon4.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Khon4.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT Khon4.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Khon5;
+GMAT Khon5.DateFormat = UTCGregorian;
+GMAT Khon5.Epoch = '20 Jul 2023 16:00:00.000';
+GMAT Khon5.CoordinateSystem = MoonMJ2000Eq;
+GMAT Khon5.DisplayStateType = Keplerian;
+GMAT Khon5.SMA = 6543.980000000041;
+GMAT Khon5.ECC = 0.6000000000000025;
+GMAT Khon5.INC = 56.20000000000005;
+GMAT Khon5.RAAN = 180;
+GMAT Khon5.AOP = 89.99999999999982;
+GMAT Khon5.TA = 186.3200000000001;
+GMAT Khon5.DryMass = 80;
+GMAT Khon5.Cd = 2.1;
+GMAT Khon5.Cr = 1.75;
+GMAT Khon5.DragArea = 1.8;
+GMAT Khon5.SRPArea = 2.5;
+GMAT Khon5.SPADDragScaleFactor = 1;
+GMAT Khon5.SPADSRPScaleFactor = 1;
+GMAT Khon5.NAIFId = -10000001;
+GMAT Khon5.NAIFIdReferenceFrame = -9000001;
+GMAT Khon5.OrbitColor = Red;
+GMAT Khon5.TargetColor = Teal;
+GMAT Khon5.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT Khon5.CdSigma = 1e+70;
+GMAT Khon5.CrSigma = 1e+70;
+GMAT Khon5.Id = 'SatId';
+GMAT Khon5.Attitude = CoordinateSystemFixed;
+GMAT Khon5.SPADSRPInterpolationMethod = Bilinear;
+GMAT Khon5.SPADSRPScaleFactorSigma = 1e+70;
+GMAT Khon5.SPADDragInterpolationMethod = Bilinear;
+GMAT Khon5.SPADDragScaleFactorSigma = 1e+70;
+GMAT Khon5.ModelFile = 'aura.3ds';
+GMAT Khon5.ModelOffsetX = 0;
+GMAT Khon5.ModelOffsetY = 0;
+GMAT Khon5.ModelOffsetZ = 0;
+GMAT Khon5.ModelRotationX = 0;
+GMAT Khon5.ModelRotationY = 0;
+GMAT Khon5.ModelRotationZ = 0;
+GMAT Khon5.ModelScale = 1;
+GMAT Khon5.AttitudeDisplayStateType = 'Quaternion';
+GMAT Khon5.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Khon5.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT Khon5.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Khon6;
+GMAT Khon6.DateFormat = UTCGregorian;
+GMAT Khon6.Epoch = '20 Jul 2023 16:00:00.000';
+GMAT Khon6.CoordinateSystem = MoonMJ2000Eq;
+GMAT Khon6.DisplayStateType = Keplerian;
+GMAT Khon6.SMA = 6537.919999999939;
+GMAT Khon6.ECC = 0.5999999999999984;
+GMAT Khon6.INC = 56.20000000000027;
+GMAT Khon6.RAAN = 180;
+GMAT Khon6.AOP = 90.00000000000001;
+GMAT Khon6.TA = 211.7199999999999;
+GMAT Khon6.DryMass = 80;
+GMAT Khon6.Cd = 2.1;
+GMAT Khon6.Cr = 1.75;
+GMAT Khon6.DragArea = 1.8;
+GMAT Khon6.SRPArea = 2.5;
+GMAT Khon6.SPADDragScaleFactor = 1;
+GMAT Khon6.SPADSRPScaleFactor = 1;
+GMAT Khon6.NAIFId = -10000001;
+GMAT Khon6.NAIFIdReferenceFrame = -9000001;
+GMAT Khon6.OrbitColor = Red;
+GMAT Khon6.TargetColor = Teal;
+GMAT Khon6.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT Khon6.CdSigma = 1e+70;
+GMAT Khon6.CrSigma = 1e+70;
+GMAT Khon6.Id = 'SatId';
+GMAT Khon6.Attitude = CoordinateSystemFixed;
+GMAT Khon6.SPADSRPInterpolationMethod = Bilinear;
+GMAT Khon6.SPADSRPScaleFactorSigma = 1e+70;
+GMAT Khon6.SPADDragInterpolationMethod = Bilinear;
+GMAT Khon6.SPADDragScaleFactorSigma = 1e+70;
+GMAT Khon6.ModelFile = 'aura.3ds';
+GMAT Khon6.ModelOffsetX = 0;
+GMAT Khon6.ModelOffsetY = 0;
+GMAT Khon6.ModelOffsetZ = 0;
+GMAT Khon6.ModelRotationX = 0;
+GMAT Khon6.ModelRotationY = 0;
+GMAT Khon6.ModelRotationZ = 0;
+GMAT Khon6.ModelScale = 1;
+GMAT Khon6.AttitudeDisplayStateType = 'Quaternion';
+GMAT Khon6.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Khon6.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT Khon6.EulerAngleSequence = '321';
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Luna;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Luna};
+GMAT DefaultProp_ForceModel.PointMasses = {Earth, Sun};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.RelativisticCorrection = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Luna.Degree = 16;
+GMAT DefaultProp_ForceModel.GravityField.Luna.Order = 16;
+GMAT DefaultProp_ForceModel.GravityField.Luna.StmLimit = 100;
+GMAT DefaultProp_ForceModel.GravityField.Luna.PotentialFile = 'LP165P.cof';
+GMAT DefaultProp_ForceModel.GravityField.Luna.TideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-12;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 60;
+GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem MoonMJ2000Eq;
+GMAT MoonMJ2000Eq.Origin = Luna;
+GMAT MoonMJ2000Eq.Axes = MJ2000Eq;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create OrbitView DefaultOrbitView;
+GMAT DefaultOrbitView.SolverIterations = Current;
+GMAT DefaultOrbitView.UpperLeft = [ 0.2752941176470588 0.08533653846153846 ];
+GMAT DefaultOrbitView.Size = [ 0.4823529411764706 0.6310096153846154 ];
+GMAT DefaultOrbitView.RelativeZOrder = 154;
+GMAT DefaultOrbitView.Maximized = false;
+GMAT DefaultOrbitView.Add = {Khon1, Khon2, Khon3, Khon4, Luna};
+GMAT DefaultOrbitView.CoordinateSystem = MoonMJ2000Eq;
+GMAT DefaultOrbitView.DrawObject = [ true true true true true ];
+GMAT DefaultOrbitView.DataCollectFrequency = 1;
+GMAT DefaultOrbitView.UpdatePlotFrequency = 50;
+GMAT DefaultOrbitView.NumPointsToRedraw = 0;
+GMAT DefaultOrbitView.ShowPlot = true;
+GMAT DefaultOrbitView.MaxPlotPoints = 20000;
+GMAT DefaultOrbitView.ShowLabels = true;
+GMAT DefaultOrbitView.ViewPointReference = Luna;
+GMAT DefaultOrbitView.ViewPointVector = [ 200000 0 0 ];
+GMAT DefaultOrbitView.ViewDirection = Luna;
+GMAT DefaultOrbitView.ViewScaleFactor = 1;
+GMAT DefaultOrbitView.ViewUpCoordinateSystem = MoonMJ2000Eq;
+GMAT DefaultOrbitView.ViewUpAxis = Z;
+GMAT DefaultOrbitView.EclipticPlane = Off;
+GMAT DefaultOrbitView.XYPlane = Off;
+GMAT DefaultOrbitView.WireFrame = Off;
+GMAT DefaultOrbitView.Axes = On;
+GMAT DefaultOrbitView.Grid = Off;
+GMAT DefaultOrbitView.SunLine = Off;
+GMAT DefaultOrbitView.UseInitialView = On;
+GMAT DefaultOrbitView.StarCount = 7000;
+GMAT DefaultOrbitView.EnableStars = On;
+GMAT DefaultOrbitView.EnableConstellations = Off;
+
+Create GroundTrackPlot DefaultGroundTrackPlot;
+GMAT DefaultGroundTrackPlot.SolverIterations = Current;
+GMAT DefaultGroundTrackPlot.UpperLeft = [ 0 0.4735576923076923 ];
+GMAT DefaultGroundTrackPlot.Size = [ 0.2511764705882353 0.4819711538461539 ];
+GMAT DefaultGroundTrackPlot.RelativeZOrder = 137;
+GMAT DefaultGroundTrackPlot.Maximized = false;
+GMAT DefaultGroundTrackPlot.Add = {Khon1, Khon2, Khon3, Khon4};
+GMAT DefaultGroundTrackPlot.DataCollectFrequency = 1;
+GMAT DefaultGroundTrackPlot.UpdatePlotFrequency = 50;
+GMAT DefaultGroundTrackPlot.NumPointsToRedraw = 0;
+GMAT DefaultGroundTrackPlot.ShowPlot = true;
+GMAT DefaultGroundTrackPlot.MaxPlotPoints = 20000;
+GMAT DefaultGroundTrackPlot.CentralBody = Luna;
+GMAT DefaultGroundTrackPlot.TextureMap = 'Moon_HermesCelestiaMotherlode.jpg';
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.UpperLeft = [ 0 0 ];
+GMAT ReportFile1.Size = [ 0 0 ];
+GMAT ReportFile1.RelativeZOrder = 0;
+GMAT ReportFile1.Maximized = false;
+GMAT ReportFile1.Filename = 'D:\Documents\Georgia Tech\_PNT\cislunar-nav\data\LSIC\6sat_Optimized.txt';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.Add = {Khon1.MoonMJ2000Eq.X, Khon1.MoonMJ2000Eq.Y, Khon1.MoonMJ2000Eq.Z, Khon2.MoonMJ2000Eq.X, Khon2.MoonMJ2000Eq.Y, Khon2.MoonMJ2000Eq.Z, Khon3.MoonMJ2000Eq.X, Khon3.MoonMJ2000Eq.Y, Khon3.MoonMJ2000Eq.Z, Khon4.MoonMJ2000Eq.X, Khon4.MoonMJ2000Eq.Y, Khon4.MoonMJ2000Eq.Z, Khon5.MoonMJ2000Eq.X, Khon5.MoonMJ2000Eq.Y, Khon5.MoonMJ2000Eq.Z, Khon6.MoonMJ2000Eq.X, Khon6.MoonMJ2000Eq.Y, Khon6.MoonMJ2000Eq.Z};
+GMAT ReportFile1.WriteHeaders = true;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.FixedWidth = true;
+GMAT ReportFile1.Delimiter = ' ';
+GMAT ReportFile1.ColumnWidth = 23;
+GMAT ReportFile1.WriteReport = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate Synchronized DefaultProp(Khon5, Khon1, Khon2, Khon3, Khon4, Khon6) {Khon1.ElapsedDays = 1};

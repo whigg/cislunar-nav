@@ -1,5 +1,6 @@
 # library imports
 import os
+from cycler import cycler
 
 # local imports
 from filters.Batch import *
@@ -8,19 +9,35 @@ from filters.Dynamics import *
 
 if __name__ == "__main__":
     # Data and dimensions
-    sats = parseGmatData("data/LSIC/6sat_New.txt", gmatReport=True)
-    n = sats[0].end
-    l = 3; m = 3  
-        
+    dir = 'data/LSIC/'              # relative path to data files
+    files = []
+    for file in os.listdir(dir):    # create list of files in directory
+        f = os.path.join(dir, file)
+
+        if os.path.isfile(f):
+            files.append(f)
+            
     # Constants
+    l = 3; m = 3  
     rad = 1737400                           # m, radius of moon
     w = 2*np.pi / (27.3217 * 24*60*60)      # rad/s, rotation rate of moon
 
-    fig = plt.figure(figsize=(7.5,5))
+    # plotting
+    # default_cycler = (cycler(color=['b','g','r','c','m','darkorange']) + cycler(linestyle=['-','--',':','-.','-','--']))
+    default_cycler = (cycler(color=['r','c','m','b','g']) + cycler(linestyle=[':','-.','-','-','--']))
+    plt.rc('axes', prop_cycle=default_cycler)
+    fig = plt.figure(figsize=(10,2.5))
     ax = plt.axes()
-    iter = 1
+    stdplot = []
+    # labels = ['Khon1-4', 'Khon1-6']
+    # labels = ['4Sat', '5Sat', '6Sat', '6Sat,Opt', '8Sat', '8Sat,Opt']
+    labels = ['8Sat', '8Sat,Opt']
 
-    for i in range(iter):
+    for i, file in enumerate(files):
+        # load data
+        sats = parseGmatData(file, gmatReport=True)
+        n = sats[0].end
+
         x0 = np.array([rad*np.sin(np.pi/12), 0, -rad*np.cos(np.pi/12)])
         xstar = np.array([0, 0, 0])
         x_true = np.zeros((m,n))
@@ -52,10 +69,11 @@ if __name__ == "__main__":
 
         # run batch filter
         with Batch(t, xstar, x_true, lambda t: statPhi(statA(w), t), y, G, Ht_3x3,
-                lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)) as batch:
+                lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z, rss = 9.081 * 3/1.96)) as batch:
             
             batch.evaluate()
-            mc, stat = batch.plot(ax, std=True if i == iter - 1 else False, semilog=False)
+            _, stat = batch.plot(ax, mc=False, std=True, semilog=False)
+            stdplot.append(stat)
             # update initial guess
             print(batch.x[:,-1])
             #np.savetxt('test/est.csv', batch.x, delimiter=',')
@@ -70,6 +88,6 @@ if __name__ == "__main__":
     ax.set_xlim(left=0, right=24)   # bound to actual limits
     ax.set_xlabel("Time (hrs)")
     ax.set_ylabel("Error (m)")
-    ax.set_title(f"RMS Position Uncertainty")
-    ax.legend(handles=[mc, stat])
+    ax.set_title(f"Ground Station 3σ RMS Position Uncertainty, Batch Filter")
+    ax.legend(labels)
     plt.show()
