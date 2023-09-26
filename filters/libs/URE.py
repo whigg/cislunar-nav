@@ -42,7 +42,7 @@ if __name__ == "__main__":
     d = 0.1             # correlation spacing [0.1,1] (lower reduces multipath)
     # Time signal is tracked, larger = better but if user is moving quickly
     # might start confusing measurements
-    T = 0.02            # s, averaging time
+    T = 0.05            # s, averaging time
     CN0 = 42            # dB-Hz, signal power over noise power spectral density
     var += (c*Tc)**2 * (d / (4*T*CN0))
     print(f"receiver: {sqrt((c*Tc)**2 * (d / (4*T*CN0)))*1.96}\n")

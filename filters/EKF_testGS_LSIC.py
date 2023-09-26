@@ -28,12 +28,14 @@ if __name__ == "__main__":
     g = 1.625e-3
 
     # plotting
-    default_cycler = (cycler(color=['b','g','r','c','m']) + cycler(linestyle=['-','--',':','-.','-']))
+    default_cycler = (cycler(color=['b','g','r','c','m','darkorange']) + cycler(linestyle=['-','--',':','-.','-','--']))
+    # default_cycler = (cycler(color=['r','c','m','b','g']) + cycler(linestyle=[':','-.','-','-','--']))
     plt.rc('axes', prop_cycle=default_cycler)
-    fig = plt.figure()
+    fig = plt.figure(figsize=(10,4))
     ax = plt.axes()
     stdplot = []
-    labels = ['4 Sat*', '5 Sat', '6 Sat', '7 Sat', '8 Sat*']
+    # labels = ['Khon1-4', 'Khon1-6']
+    labels = ['4Sat', '5Sat', '6Sat', '6Sat,Opt', '8Sat', '8Sat,Opt']
 
     for i, file in enumerate(files):
         # load data
@@ -72,12 +74,12 @@ if __name__ == "__main__":
             r[r == float('inf')] = sys.float_info.max   # catch 'inf'
             y[:,j] = Y(x_true[:,j], r)
 
-        np.savetxt('matlab/true.csv', x_true, delimiter=',')
+        # np.savetxt('matlab/true.csv', x_true, delimiter=',')
 
         # run extended kalman filter
         with ExtendedKalman(t, xstar, np.diag(vx0), x_true, func,
-                        linU, y, Ht_3x6(0), lambda z: extQ(z, (1e-6)**2),
-                        lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z)/1e6) as dyn:
+                        linU, y, Ht_3x6(0), lambda z: extQ(z, (0e-6)**2),
+                        lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z, rss = 9.081 * 3/1.96)/1e6) as dyn:
             
             dyn.evaluate()
             dyn.units = 1e3         # unit conversion for plotting
@@ -85,7 +87,11 @@ if __name__ == "__main__":
             stdplot.append(stat)
             # update initial guess
             print(dyn.x[:,-1])
-            np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
+
+            # print last 3-sigma error
+            var = np.diag(dyn.P[:,:,j])
+            print(3 * np.sqrt(var[0] + var[1] + var[2]))
+            # np.savetxt('matlab/est.csv', dyn.x, delimiter=',')
 
 
     ax.grid()
