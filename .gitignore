@@ -1,13 +1,13 @@
 # Ignore training datasets
-/gmat/training/*
-/data/training/*
-/data/kernels/*
+/python/gmat/training/*
+/python/data/training/*
+/python/data/kernels/*
 # Re-add templates and README
-!/gmat/training/temp_MoonOrb.script
-!/data/training/temp_MoonOrb.txt
-!/data/kernels/README.md
+!/python/gmat/training/temp_MoonOrb.script
+!/python/data/training/temp_MoonOrb.txt
+!/python/data/kernels/README.md
 
-# ignore large SPICE kernels
+# ignore large SPICE kernel(s)
 de430.bsp
 
 #### Python .gitignore template below ####
