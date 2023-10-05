@@ -1,3 +1,11 @@
+% surfaceUserTrajDesign.m
+% Author: Mark Hartigan
+% Date  : October 5, 2023
+% Description:
+%    Generate, propagate, and plot a trajectory for a lunar surface user.
+%    This script is deprecated, a similar algorithm is run during
+%    navigation simulations in Python instead.
+
 %% reset
 clc, clear, close all;
 

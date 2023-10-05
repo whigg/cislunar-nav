@@ -1,4 +1,4 @@
-function [] = constellation_metrics(data)
+function constellation_metrics(data)
 %CONSTELLATION_METRICS generates evaluation metrics about a given lunar
 %constellation. m data points are provided for k satellites.
 % Input:
