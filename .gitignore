@@ -7,6 +7,9 @@
 !/data/training/temp_MoonOrb.txt
 !/data/kernels/README.md
 
+# ignore large SPICE kernels
+de430.bsp
+
 #### Python .gitignore template below ####
 # Byte-compiled / optimized / DLL files
 __pycache__/
