@@ -81,16 +81,16 @@ class Filter(ABC):
         # Compute RMS position error
         t = [x / 3600 for x in self.t]   # get time in hours
         e = [0] * self.n
-        std = [0] * self.n
+        dev = [0] * self.n
         for j in range(0,self.n):
             diff  = np.copy(self.x[0:3,j])
             diff -= self.x_true[0:3,0] if batch else self.x_true[0:3,j]
             var = np.diag(self.P[:,:,j])
             e[j] = np.linalg.norm(diff) * self.units                    # rms pos error
-            std[j] = 3 * np.sqrt(var[0] + var[1] + var[2]) * self.units # std of est.
+            dev[j] = 3 * np.sqrt(var[0] + var[1] + var[2]) * self.units # std of est.
 
         plotting = ax.semilogy if semilog else ax.plot  # optional semilog plots
         # Plot RMS position error
         mc, = plotting(t, e, color='gray', linestyle='dotted', linewidth=1, label='Monte-Carlo run') if mc else (None,)
-        stat, = plotting(t, std, label='3σ error') if std else (None,)
+        stat, = plotting(t, dev, label='3σ error') if std else (None,)
         return mc, stat
