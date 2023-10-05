@@ -53,19 +53,25 @@ def Ht_3x3(X):
     # X must be estimate of state, not true state
     return np.eye(3)
 
-def R(H, t):
+def R(H, t, rss=100, receiver=True):
     '''
     measurement covariance matrix
 
     Input:
         - H; dilution of precision matrix
         - t; current time
+        - rss; 3-sigma RSS position error of node
+        - receiver; include receiver noise?
     '''
 
     # Clock bias error
     #  GPS SPS spec: UTCOE < 30ns 95% - 15.3ns 1-sigma
     c = 299792458   # m/s, speed of light
-    var = (t * c)**2*hvar(t*700)
+    # var = (t * c)**2*hvar(t*700)
+    E = lambda t, a: 1/2 * a * t**2
+    a = 9e-10 / (86400*30)
+    var = 0.5 * 3.5e-16 * t**2
+    # var = (E(t % 13146, a) * c)**2
     # print(sqrt(vclock))
 
     # Receiver precision
@@ -77,12 +83,13 @@ def R(H, t):
     # might start confusing measurements
     T = 0.02            # s, averaging time
     CN0 = 42            # dB-Hz, signal power over noise power spectral density
-    var += (c*Tc)**2 * (d / (4*T*CN0))
+    var += (c*Tc)**2 * (d / (4*T*CN0)) if receiver else 0
+    # var += 2^2 if receiver else 0
 
     # Node uncertainty
     #  Assuming each node tracks its position autotrueously, it will have some 
     #  associated covariance which is propagated onto the user
-    rss = 13.9              # 3-sigma of RSS position errors
+    #  rss is the 3-sigma of RSS position errors
     var += (rss / 3)**2     # mean corresponds to the 50th pctl., 0.675std
 
     # Multipath
