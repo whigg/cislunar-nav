@@ -1,7 +1,6 @@
 %% reset
 clc, clear, close all;
-addpath('data\');       % add data directory to path
-addpath('..\Initial Metrics\');
+addpath(genpath(pwd));
 format long g;          % display long numbers, no scientific notation
 
 %% init
