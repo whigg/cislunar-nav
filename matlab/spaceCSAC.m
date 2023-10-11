@@ -1,5 +1,6 @@
 %% reset
-clc, clear, close all
+clc, clear, close all;
+addpath(genpath(pwd));
 
 %% init
 a_hi = 9e-10 / (86400 * 30);

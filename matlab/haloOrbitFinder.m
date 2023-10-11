@@ -7,6 +7,7 @@
 
 %% reset
 clc, clear, close all;
+addpath(genpath(pwd));
 
 %% init
 G = 6.67430e-20;    % km^3/(kg*s^2), gravitational constant
