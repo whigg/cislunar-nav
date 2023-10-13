@@ -1,3 +1,10 @@
+% TAOptimization.m
+% Author: Mark Hartigan
+% Date  : October 13, 2023
+% Description:
+%    Script to optimize Intuitive Machines' Khon data 
+
+
 %% reset
 clc, clear, close all;
 addpath(genpath(pwd));
