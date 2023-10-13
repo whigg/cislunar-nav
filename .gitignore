@@ -9,6 +9,8 @@
 
 # ignore large SPICE kernel(s)
 de430.bsp
+# ignore CUI Intuitive Machines data
+NSNS-DRM*
 
 #### Python .gitignore template below ####
 # Byte-compiled / optimized / DLL files
