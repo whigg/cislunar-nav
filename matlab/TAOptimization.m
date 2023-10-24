@@ -2,7 +2,8 @@
 % Author: Mark Hartigan
 % Date  : October 13, 2023
 % Description:
-%    Script to optimize Intuitive Machines' Khon data 
+%    Script to optimize Intuitive Machines' Khon constellation based on the
+%    specified objective function perf_index().
 
 
 %% reset

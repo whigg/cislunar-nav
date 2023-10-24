@@ -1,3 +1,9 @@
+% khonInitialMetrics.m
+% Author: Mark Hartigan
+% Date  : October 13, 2023
+% Description:
+%    Computes initial performance metrics for the Khon PNT constellation.
+
 %% reset
 clc, clear, close all;
 addpath(genpath(pwd));
@@ -70,4 +76,4 @@ data = [t' xk'];
 %% metrics
 UNE(data);
 
-constellation_metrics(data);
+% constellation_metrics(data);

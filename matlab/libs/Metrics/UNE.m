@@ -1,5 +1,6 @@
 function [] = UNE(data)
-%UNE generates a plot of the user navigation error for given data.
+%UNE generates a plot of the user navigation error at lunar south pole for 
+%given data.
 % Input:
 %  - data; time history of satellite positions (m x (1 + 3*n)) [s, km...]
 
@@ -14,10 +15,8 @@ end
 
 t = t - t(1);                   % set t0 = 0
 
-% CSAC information
-a_hi = 9e-10 / (86400 * 30);
-E = @(t, a) 1/2 * a * t.^2;
-c = 299792458;
+sise1 = SISE(t, 10);
+sise2 = SISE(t, 100);
 
 % dilution of precision @ south pole
 une1 = zeros(size(t));
@@ -25,10 +24,8 @@ une2 = zeros(size(t));
 for k=1:m
     H = diag(computeDOP([0; 0; -r], sats, k));
     dop = sqrt(abs(sum(H(1:3))));
-    uere1 = sqrt((E(mod(t(k),13146), a_hi)*c)^2 + 1.96^2 + 10^2);
-    uere2 = sqrt((E(mod(t(k),13146), a_hi)*c)^2 + 1.96^2 + 65^2);
-    une1(k) = dop * uere1;
-    une2(k) = dop * uere2;
+    une1(k) = dop * sise1(k);
+    une2(k) = dop * sise2(k);
 end
 
 figure();

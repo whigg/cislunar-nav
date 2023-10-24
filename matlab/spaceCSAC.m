@@ -1,3 +1,10 @@
+% spaceCSAC.m
+% Author: Mark Hartigan
+% Date  : October 13, 2023
+% Description:
+%    Plots statistics about the Microsemi Space CSAC to be used in the Khon
+%    satellites.
+
 %% reset
 clc, clear, close all;
 addpath(genpath(pwd));
