@@ -76,4 +76,4 @@ data = [t' xk'];
 %% metrics
 UNE(data);
 
-% constellation_metrics(data);
+constellation_metrics(data);
