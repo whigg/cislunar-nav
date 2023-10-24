@@ -1,13 +1,34 @@
-function [visible, R] = visibleSats(pos, sats, time, elev)
+function [visible,zcone,R] = visibleSats(pos,sats,time,elev)
 %VISIBLESATS Compute number of satellites visible to the user (on lunar
 %surface).
 %   Checks if satellite is below visibility cone -- rotates all points not
-%   on the south pole to end up on the south pole.
+%   on the south pole to end up on the south pole. Then the tangent
+%   geometry is given by:
+%                      __ /|
+%            pos  __ /     |
+%            __ /          | r_moon
+%       __ / angle        _|
+%     /____)_____________|_|
+%   The moon is modeled as a perfect sphere with radius 1736 km (polar
+%   radius of moon). Then the view cone is computed and given a degree
+%   offset specified by elev.
+%   
+%   Inputs: (dims),[units]
+%    - pos ;(3x1),[km] position of user w.r.t. moon centered inertial
+%           frame; norm must be greater than 1736 KM (not inside moon)
+%    - sats;(nx3xm),[km] positions of m satellites over n time steps
+%    - time;(1x1),[N/A] index of time step to evaluate sats at
+%    - elev;(1x1),[rad] elevation angle offset of view cone
+%   Output:
+%    - visible;(1x?),[N/A] indices of visible satellites at time
+%    - zcone; function handle to compute in-bounds / out cone
+%    - R   ;(3x3),[N/A] rotation matrix to ?-?-Down frame
 
 if nargin < 4, elev = 5 * pi/180; end   % default elevation is 5 deg
 
-r = 1737.4; % km
-zcone = @(x,y) -r - tan(elev) * norm([x y]);
+r = 1736.0; % km, polar radius of moon (concerned w/ south pole mostly)
+ang = asin(r/norm(pos));
+zcone = @(x,y) -norm(pos) + tan((pi/2 - ang) - elev) * norm([x y]);
 
 rv = [0 0 -r]';
 % get Euler axis and angle for rotation

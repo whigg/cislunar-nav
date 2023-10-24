@@ -1,5 +1,5 @@
-function [H] = computeDOP(pos, sats, time)
-%COMPUTEDOP Compute the dilution of precision of the current geometry.
+function [GDOP] = GDOP(pos, sats, time)
+%GDOP Compute the geometric dilution of precision of the current geometry.
 %   Inputs:
 %    - pos;  inertial user position
 %    - sats; 3D satellite arrays
@@ -15,6 +15,7 @@ for i = 1:num
 end
 
 H = inv(G'*G);
-
+% take absolute value because sometimes diagonals are negative
+GDOP = sqrt(sum(abs(diag(H))));
 end
 

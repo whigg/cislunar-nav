@@ -22,8 +22,7 @@ sise2 = SISE(t, 100);
 une1 = zeros(size(t));
 une2 = zeros(size(t));
 for k=1:m
-    H = diag(computeDOP([0; 0; -r], sats, k));
-    dop = sqrt(abs(sum(H(1:3))));
+    dop = PDOP([0; 0; -r], sats, k);
     une1(k) = dop * sise1(k);
     une2(k) = dop * sise2(k);
 end

@@ -1,5 +1,5 @@
-function constellation_metrics(data)
-%CONSTELLATION_METRICS generates evaluation metrics about a given lunar
+function constellationMetrics(data)
+%CONSTELLATIONMETRICS generates evaluation metrics about a given lunar
 %constellation. m data points are provided for k satellites.
 % Input:
 %  - data; time history of satellite positions (m x (1 + 3*n)) [s, km...]
@@ -94,9 +94,8 @@ set(gcf,'position',[750,500,750,400])
 nvis = zeros(size(t));
 dop = zeros(size(t));
 for k=1:m
-    H = diag(computeDOP([0; 0; -r], sats, k));
+    dop(k)  = GDOP([0; 0; -r], sats, k);
     nvis(k) = length(visibleSats([0; 0; -r], sats, k));
-    dop(k) = sqrt(abs(sum(H(1:3)))); 
 end
 
 figure();
@@ -112,7 +111,7 @@ plot((t-t(1)) * 24 / 86400, dop, 'LineWidth', 1.5);
 hold on;
 axis([0 ((t(end)-t(1)) * 24 / 86400) 0 10]);
 grid on;
-xlabel("Time (hrs)"); ylabel("Dilution of Precision");
-title("Dilution of Precision at the Lunar South Pole");
+xlabel("Time (hrs)"); ylabel("Geometric Dilution of Precision");
+title("Geometric Dilution of Precision at the Lunar South Pole");
 set(gcf, 'position', [500, 250, 750, 500]);
 end
