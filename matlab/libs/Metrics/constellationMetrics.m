@@ -1,19 +1,9 @@
-function constellationMetrics(data)
+function constellationMetrics(sats, t)
 %CONSTELLATIONMETRICS generates evaluation metrics about a given lunar
 %constellation. m data points are provided for k satellites.
-% Input:
-%  - data; time history of satellite positions (m x (1 + 3*n)) [s, km...]
-
-t = data(:,1);                  % time history
-m = length(t);                  % number of data points
-n = (size(data,2) - 1) / 3;     % number of satellites
-r = 1737.4; % km
-sats = zeros(m, 3, n);
-for num = 1:n
-    sats(:,:,num) = data(:,2 + 3*(num-1):1 + 3*num);
-end
-
-% sats = sats(:,:,1:4);
+%   Inputs: (dims),[units]
+%    - sats; (nx3xm),[km] positions of m satellites over n time steps
+%    - t   ; (nx1),[s] time steps
 
 f1 = figure();
 set(f1, 'Color', 'w');
