@@ -1,21 +1,35 @@
-function [PDOP] = PDOP(pos, sats, time)
+function [PDOP,visible] = PDOP(pos,sats)
 %PDOP Compute the positional dilution of precision of the current geometry.
 %   Inputs:
-%    - pos;  inertial user position
-%    - sats; 3D satellite arrays
-%    - time; index of sats to examine
+%    - pos ; (3x1),[km] position at which to compute PDOP
+%    - sats; (nx3xm),[km] positions of m satellites over n time steps
+%   Outputs:
+%    - PDOP; (nx1),[N/A] PDOP per time step
+%    - visible; (nxm),[N/A] indices of visible satellites are nonzero
 
-vis = visibleSats(pos, sats, time);
-num = length(vis);
-G = ones(num, 4);
+visible = visibleSats(pos, sats);
+PDOP = NaN(size(visible, 1), 1);
+nvis = sum(visible ~= 0, 2);
 
-for i = 1:num
-    ik = sats(time,:,vis(i)) - pos';
-    G(i,1:3) = ik / norm(ik);
+% temporarily suppress nearly singular matrix messages (from H)
+warning('off', 'MATLAB:nearlySingularMatrix');
+for i=1:length(PDOP)
+    if nvis(i) < 4
+        PDOP(i) = inf;
+    else
+        vis = visible(i, visible(i,:) ~= 0);
+        G = ones(nvis(i), 4);
+        
+        for j = 1:nvis(i)
+            ik = sats(i,:,vis(j)) - pos';
+            G(j,1:3) = ik / norm(ik);
+        end
+    
+        H = inv(G'*G);
+        % take absolute value because sometimes diagonals are negative
+        PDOP(i) = sqrt(sum(abs(diag(H))));
+    end
 end
-
-H = inv(G'*G);
-% take absolute value because sometimes diagonals are negative
-PDOP = sqrt(sum(abs(diag(H(1:3,1:3)))));    % ignore TDOP (H(4,4))
+warning('on', 'MATLAB:nearlySingularMatrix');
 end
 
