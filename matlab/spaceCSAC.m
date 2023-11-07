@@ -10,7 +10,7 @@ clc, clear, close all;
 addpath(genpath(pwd));
 
 %% init
-a_hi = 9e-10 / (86400 * 30);
+a_hi = 9e-10 / (86400 * 30);    
 a_lo = 6e-10 / (86400 * 30);
 E = @(t, a) 1/2 * a * t.^2;
 t = 1:1:3600*24;
