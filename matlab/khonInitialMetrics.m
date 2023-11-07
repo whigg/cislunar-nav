@@ -41,7 +41,7 @@ t = t0:step:t0 + 86400 * days;
 xk1 = Khon1(t); xk2 = Khon2(t); xk3 = Khon3(t);
 xk4 = Khon4(t); xk5 = Khon5(t); xk6 = Khon6(t);
 % xk = [xk2; xk3; xk4; xk5; xk6];
-xk = [xk2; xk3; xk4];
+xk = [xk2; xk3; xk4; xk5; xk6];
 
 %% write data
 data = [t' xk'];
@@ -66,7 +66,7 @@ end
 pos = [0; 0; -moon.R];          % position of user
 
 %% coverage
-[pct, pts, covered] = coverageLNSP(sats, 'SV1', 3);
+[pct, pts, covered] = coverageLNSP(sats, 'SV2', 4);
 plotCoverage(pts, covered);
 plotCoverage(pts, covered, true);
 fprintf("Percent coverage of service volume: %.2f\n", pct*100);
