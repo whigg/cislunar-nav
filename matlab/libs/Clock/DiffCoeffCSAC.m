@@ -29,6 +29,19 @@ a_lo = 6e-10 / (86400 * 30);        % Hz/Hz/s, lower end of aging rate a
 A = [1./taus taus];
 b = stds.^2 - a_hi^2 / 2 * taus.^2;
 coeff = [(A' * A) \ A' * b; a_hi^2 / 2];
+
+% % plot model to confirm it's working
+% t = linspace(taus(1), taus(end), 1000)';
+% mdl = sqrt([1./t t t.^2] * coeff);
+% 
+% figure();
+% loglog(t, mdl, 'LineWidth', 1.5);
+% hold on;
+% scatter(taus, stds, 'rx');
+% hold off; grid on;
+% xlabel('\tau (s)'); ylabel('\sigma_y');
+% title('Microsemi Space CSAC Allan Deviation Fit');
+
 [s1, s2, s3] = AllanToDiffCoeff(coeff);
 end
 

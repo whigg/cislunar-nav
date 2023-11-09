@@ -32,7 +32,7 @@ n = length(t);                  % number of time steps
 STM = Phi(dt);                  % time step state transition matrix
 
 % state vector (phase deviation, frequency deviation, frequency drift)
-Xcsac = zeros(3,n);
+Xcsac = zeros(3,n); Xcsac(3,1) = a_hi;  % add aging rate
 Xuso  = zeros(3,n);
 Xrafs = zeros(3,n);
 varCsac = zeros(1,n);           % variance of phase deviation
@@ -62,14 +62,14 @@ end
 
 %% plot CSAC clock bias over one day
 figure();
-plot(t ./ 3600, abs(Xcsac(1,:)) * c, 'LineWidth', 1.5, 'Color', '#0072BD');
+plot(t ./ 3600, abs(Xcsac(1,:)), 'LineWidth', 1.5, 'Color', '#0072BD');
 hold on;
-plot(t ./ 3600, 3*sqrt(varCsac) * c, '--', 'LineWidth', 1.5, 'Color', '#0072BD');
-plot(t ./ 3600, 1/2 * a_hi * t.^2 * c, '-.', 'LineWidth', 1.5);
+plot(t ./ 3600, 3*sqrt(varCsac), '--', 'LineWidth', 1.5, 'Color', '#0072BD');
+plot(t ./ 3600, 1/2 * a_hi * t.^2, '-.', 'LineWidth', 1.5);
 hold off; grid on; xlim([0 t(end)/3600]);
 xlabel('Time (hrs)');
-ylabel('Phase deviation / clock bias error (m)');
-legend(["Sample run", "3\sigma bound", "Old model (only aging)"], ...
+ylabel('Phase deviation / clock bias error (s)');
+legend(["Monte-Carlo run", "3\sigma bound", "Old model (only aging)"], ...
     'location', 'northwest');
 title('Microsemi Space CSAC Timing Performance');
 
