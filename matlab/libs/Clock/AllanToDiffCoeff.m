@@ -8,6 +8,8 @@ function [s1,s2,s3] = AllanToDiffCoeff(B)
 %
 %   Inputs: (dims),[units]
 %    - B; (1x3),[?] coefficients of Allan variance formula above
+%   Output:
+%    - s; (1x3),[?] diffusion coefficients
 
 s1 = sqrt(B(1));            % diffusion coefficient of white noise
 s2 = sqrt(3 * B(2));        % ^ of random walk frequency noise

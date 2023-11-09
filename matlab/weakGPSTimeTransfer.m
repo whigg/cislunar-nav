@@ -21,23 +21,24 @@ file = 'G_2023-10-27_300_oc2_060.pos';
 [t, moon, earth, sun, sats, satdata] = load_trajectories(file);
 M = length(sats);       % number of satellites total
 
-a = 6142;               % km, semi-major axis
-e = 0.57;               % eccentricity
-i = 127*pi/180;         % rad, inclination
-RAAN = 0;               % rad, right ascension of the ascending node
-w = 90*pi/180;          % rad, argument of perilune
-f = 180*pi/180;         % rad, true anomaly
+% Khon 2 orbital parameters
+a = 11069.1;            % km, semi-major axis
+e = 0.781;              % eccentricity
+i = 91.75*pi/180;       % rad, inclination
+RAAN = -4.19*pi/180;    % rad, right ascension of the ascending node
+w = 93.09*pi/180;       % rad, argument of perilune
+f = 185.5*pi/180;       % rad, true anomaly
 [r, v] = oe2rv(a, e, i, RAAN, w, f, moon.GM);
 x0_ = [r; v; 0];        % initial true state vector
 P0 = [1 1 1 .001 .001 .001 1]';
-% x0 = random('Normal', x0_, P0, [7,1]);    % initial guess
-x0 = [  -0.839588747338385
-          5804.62075368182
-         -7702.26646054383
-         0.468536281857995
-       0.00012404980000329
-       0.00143669662271881
-                         0];
+x0 = random('Normal', x0_, P0, [7,1]);    % initial guess
+% x0 = [  -0.839588747338385
+%           5804.62075368182
+%          -7702.26646054383
+%          0.468536281857995
+%        0.00012404980000329
+%        0.00143669662271881
+%                          0];
 P0 = diag(P0.^2);
 
 %% true trajectory
@@ -54,13 +55,16 @@ F = @(t,x) moondyn(t, x, moon, earth, sun);
 [~, x_nom] = ode45(F, t, x0, opts);   % nominal trajectory
 x_nom = x_nom';   % keep with convention of cols = time steps
 
+%%% DON'T FORGET TO REMOVE %%%%
+x_true = x_nom;
+
 % compute pseudoranges
 psr = compute_psr(t, x_true, sats, earth, max_a);
 
 %% Batch filter
 phi = @(ti,x) expm(grad(@(y) F(ti, y), x, 7) * (ti - t(1)));    % STM
 
-iter = 10;                      % number of iterations
+iter = 0;                      % number of iterations
 dX = zeros(size(x0));
 W = 1/(0.01^2);                 % relative weight of measurement
 
@@ -99,17 +103,17 @@ end
 fprintf("Initial offset: %.3f m\n", norm(x0_(1:3) - x0(1:3,end))*1000);
 fprintf("Maximum offset: %.3f m\n", maxOffset(x_true(1:3,:)', x_nom(1:3,:)')*1000);
 
-%% plot errors
-figure();
-err = sqrt(sum((x_true(1:3,:) - x_nom(1:3,:)).^2, 1));
-plot(t - t(1), err);
-grid on; xlabel("Time (s)"); ylabel("Distance (km)");
-
-figure();
-errIter = sqrt(sum((x0(1:3,:) - x0_(1:3)).^2, 1));
-plot(0:i, errIter(1:end)*1000);
-grid on;
-xlabel("Iterations"); ylabel("Initial position error (m)");
+% %% plot errors
+% figure();
+% err = sqrt(sum((x_true(1:3,:) - x_nom(1:3,:)).^2, 1));
+% plot(t - t(1), err);
+% grid on; xlabel("Time (s)"); ylabel("Distance (km)");
+% 
+% figure();
+% errIter = sqrt(sum((x0(1:3,:) - x0_(1:3)).^2, 1));
+% plot(0:i, errIter(1:end)*1000);
+% grid on;
+% xlabel("Iterations"); ylabel("Initial position error (m)");
 
 %% plot relative orbits
 figure();
@@ -139,8 +143,8 @@ figure();
 
 plot3(x_true(1,:), x_true(2,:), x_true(3,:), 'c', 'Linewidth', 2); hold on;
 
-x_ef = earth.x(t(end)); x_ef = x_ef(1:3);
-x_sf = sun.x(t(end)); x_sf = x_sf(1:3);
+x_ef = earth.x(t(177)); x_ef = x_ef(1:3);
+x_sf = sun.x(t(177)); x_sf = x_sf(1:3);
 
 % show GPS satellites
 for i=1:M
@@ -148,8 +152,8 @@ for i=1:M
 %     plot3(satdata(i).x(1,:) + x_ef(1), satdata(i).x(2,:) + x_ef(2), ...
 %           satdata(i).x(3,:) + x_ef(3), 'r', 'LineWidth', 1);
     % visible GPS sats
-    if psr(i,end) ~= 0
-        pt = sats{i}(t(end));
+    if psr(i,177) ~= 0
+        pt = sats{i}(t(177));
         scatter3(pt(1), pt(2), pt(3), 'go', 'Linewidth', 2);
     end
 end
@@ -204,7 +208,8 @@ set(globe, 'FaceColor', 'texturemap', 'CData', flip(Iearth,1), 'FaceAlpha', 1, .
     'EdgeColor', 'none');
 hold off; axis equal;
 xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
-legend(subset);
+% legend(subset);
+title('24-hour flight paths of GPS satellites, 2023-10-27');
 
 %% cleanup
 cspice_unload(kernels);
