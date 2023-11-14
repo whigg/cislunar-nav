@@ -14,12 +14,9 @@ earth.GM = cspice_bodvrd('EARTH','GM',1);
 sun.GM   = cspice_bodvrd('SUN','GM',1);
 
 % SPICE planetary data
-getpos = @(x) x(1:3);   % anonymous function to get pos from state vector
-
 % [km; km/s] position and velocity of Earth/Sun w.r.t. the moon
-% calling getpos() to strip velocity of planets since it's never needed
-earth.x = @(t) getpos(cspice_spkezr('EARTH', t, 'J2000', 'NONE', 'MOON'));
-sun.x   = @(t) getpos(cspice_spkezr('SUN'  , t, 'J2000', 'NONE', 'MOON'));
+earth.x = @(t) cspice_spkezr('EARTH', t, 'J2000', 'NONE', 'MOON');
+sun.x   = @(t) cspice_spkezr('SUN'  , t, 'J2000', 'NONE', 'MOON');
 moon.x  = @(t) zeros(3,1);
 
 % GPS data
@@ -34,24 +31,25 @@ else
         'Bad file extension: only .SP3 and .pos supported.'));
 end
 
-figure();
-plot3(satdata(1).x(1,:), satdata(1).x(2,:), satdata(1).x(3,:));
-hold on;
-% earth
-[Iearth, ~] = imread("data/flat_earth_Largest_still.0330.jpg");
-[xx, yy, zz] = ellipsoid(0, 0, 0, earth.R, earth.R, earth.R);
-globe = surf(xx, yy, zz);
-set(globe, 'FaceColor', 'texturemap', 'CData', flip(Iearth,1), 'FaceAlpha', 1, ...
-    'EdgeColor', 'none');
-hold off; axis equal;
-xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
+% figure();
+% plot3(satdata(1).x(1,:), satdata(1).x(2,:), satdata(1).x(3,:));
+% hold on;
+% % earth
+% [Iearth, ~] = imread("data/flat_earth_Largest_still.0330.jpg");
+% [xx, yy, zz] = ellipsoid(0, 0, 0, earth.R, earth.R, earth.R);
+% globe = surf(xx, yy, zz);
+% set(globe, 'FaceColor', 'texturemap', 'CData', flip(Iearth,1), 'FaceAlpha', 1, ...
+%     'EdgeColor', 'none');
+% hold off; axis equal;
+% xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
 
 % generate interpolatory functions for all GPS satellites
 sats = cell(length(satdata), 1);
 for i=1:length(sats)
-    pps = spline(t, satdata(i).x);      % piecewise polynomial structure
+    pps = spline(t, satdata(i).x(1:3,:));       % piecewise polynomial structure
+    ppsv = spline(t, satdata(i).x(4:6,:));      % piecewise polynomial structure
     % spline interpolation func; add earth position vector at t
-    sats{i} = @(t) ppval(pps, t) + earth.x(t);
+    sats{i} = @(t) [ppval(pps, t); ppval(ppsv, t)] + earth.x(t);
 end
 end
 

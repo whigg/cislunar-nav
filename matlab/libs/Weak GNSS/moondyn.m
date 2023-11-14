@@ -8,8 +8,10 @@ function [dxdt] = moondyn(t, x, moon, earth, sun)
 %    - sun  ; planet struct {'GM': [km^3/s^2]; 'x': @(t) [km; km/s]}
 
 r = x(1:3);         % position of satellite from moon
-r_e = earth.x(t);   % position of earth from moon
-r_s = sun.x(t);     % position of sun from moon
+r_e = earth.x(t);   % state of earth from moon
+r_e = r_e(1:3);     % position ^
+r_s = sun.x(t);     % state of sun from moon
+r_s = r_s(1:3);     % position ^
 
 % point mass of moon, earth, and sun
 f = -moon.GM / norm(r)^3 * r;
