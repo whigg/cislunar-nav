@@ -20,7 +20,7 @@ sats = repmat(struct('dt', zeros(1,M), 'x', zeros(6,M)), N, 1);
 
 
 for k=1:size(data, 1)                       % iterate over row data
-    i = (data(k,1) - data(1,1)) / 60 + 1;   % time index
+    i = find(t == data(k,1), 1);            % time index
     j = satidx(textdata{k,2});              % sat index from name
     % get ECEF to ECI rotation matrix after converting past J2000 to JD
     R = ECEF2ECI(t(i) / 86400 + 2451545);

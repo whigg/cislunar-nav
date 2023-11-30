@@ -17,6 +17,9 @@ V = zeros(3, 3, n);
 if strcmp(clk, 'CSAC')
     [s1, s2, s3] = DiffCoeffCSAC();
     X(3,1) = 9e-10 / (86400 * 30);  % Hz/Hz/s, upper end of aging rate a
+    s1 = s1*1.5;
+    s2 = s2*1.5;
+    s3 = X(3,1)*.5;
 elseif strcmp(clk, 'RAFS')
     [s1, s2, s3] = DiffCoeffRAFS();
 elseif strcmp(clk, 'USO')
@@ -32,7 +35,7 @@ Phi = @(tau) [1 tau tau^2/2;
 % covariance matrix of error associated w/ Wiener processes
 Q = @(s1,s2,s3,tau) ...
      [s1^2*tau + s2^2/3*tau^3 + s3^2/20*tau^5 s2^2/2*tau^2 + s3^2/8*tau^4 s3^2/6*tau^3;
-      s2^2/2*tau^2 + s3^2/8^tau^4             s2^2*tau + s3^2/3*tau^3     s3^2/2*tau^2;
+      s2^2/2*tau^2 + s3^2/8*tau^4             s2^2*tau + s3^2/3*tau^3     s3^2/2*tau^2;
       s3^2/6*tau^3                            s3^2/2*tau^2                s3^2*tau     ];
 
 for i=2:n
@@ -40,7 +43,7 @@ for i=2:n
     STM = Phi(dt);
 
     % innovation vector, J ~ N(0,Q)
-    J = mvnrnd([0 0 0], Q(s1, s2, s3, dt))';
+    J = mvnrnd([0 0 0], Q(s1, s2, s3, dt), 1)';
     V(:,:,i) = Q(s1, s2, s3, t(i)); % covariance of X at t(i)
     X(:,i) = STM * X(:,i-1) + J;
 end
