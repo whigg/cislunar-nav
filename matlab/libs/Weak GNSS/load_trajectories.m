@@ -1,4 +1,4 @@
-function [t, moon, earth, sun, sats, satdata] = load_trajectories(file)
+function [T, moon, earth, sun, sats, satdata] = load_trajectories(file)
 %LOAD_TRAJECTORIES Creates callable functions for all the necessary
 %planetary and GPS satellite trajectories over the time span specified in
 %the provided SP3 or POS file.
@@ -6,7 +6,7 @@ function [t, moon, earth, sun, sats, satdata] = load_trajectories(file)
 %    - file; relative path to the .sp3 or .pos file
 
 moon.R  = 1734;         % km, equatorial radius of moon
-earth.R = 6378;         % km, equatorial radius of earth
+earth.R = 6378; % + 965;   % km, equatorial radius of earth + ionosphere
 sun.R   = 695700;       % km, radius of sun
 
 moon.GM  = cspice_bodvrd('MOON','GM',1);
@@ -21,10 +21,10 @@ moon.x  = @(t) zeros(3,1);
 
 % GPS data
 if endsWith(file, '.sp3') || endsWith(file, '.SP3')
-    [t, satdata] = read_sp3(file);      % get GPS sp3 data for 2023-04-25
-    t = (t - 2451545) * 86400;          % JD to seconds past J2000
+    [T, satdata] = read_sp3(file);      % get GPS sp3 data for 2023-04-25
+    T = (T - 2451545) * 86400;          % JD to seconds past J2000
 elseif endsWith(file, '.pos')
-    [t, satdata] = read_pos(file);      % get GPS pos data from JPL GDGPS
+    [T, satdata] = read_pos(file);      % get GPS pos data from JPL GDGPS
     % time already in seconds past j2000
 else
     throw(MException('load_trajectories:fileParsing', ...
@@ -46,8 +46,8 @@ end
 % generate interpolatory functions for all GPS satellites
 sats = cell(length(satdata), 1);
 for i=1:length(sats)
-    pps = spline(t, satdata(i).x(1:3,:));       % piecewise polynomial structure
-    ppsv = spline(t, satdata(i).x(4:6,:));      % piecewise polynomial structure
+    pps = spline(T, satdata(i).x(1:3,:));       % piecewise polynomial structure
+    ppsv = spline(T, satdata(i).x(4:6,:));      % piecewise polynomial structure
     % spline interpolation func; add earth position vector at t
     sats{i} = @(t) [ppval(pps, t); ppval(ppsv, t)] + earth.x(t);
 end

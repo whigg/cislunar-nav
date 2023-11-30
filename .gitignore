@@ -7,8 +7,9 @@
 !/python/data/training/temp_MoonOrb.txt
 !/python/data/kernels/README.md
 
-# ignore large SPICE kernel(s)
+# ignore large SPICE kernel(s) and GPS data
 de430.bsp
+*.pos
 # ignore CUI Intuitive Machines data
 NSNS-DRM*
 
