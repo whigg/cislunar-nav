@@ -9,6 +9,32 @@ clc, clear, close all;
 addpath(genpath(pwd));
 format long g;          % display long numbers, no scientific notation
 
+%% SET OPTIONS HERE
+% Choose the operating increment here by setting the IOC constant to either
+% 'A', 'B', or 'C'. These correspond to the LunaNet Service Providers
+% increments. Alternatively, do not set IOC and instead set nsats, links,
+% and volume directly.
+IOC = 'C';
+
+if strcmp(IOC, 'A')
+    nsats = 1;
+    links = 1;
+    volume = 'SV1';
+elseif strcmp(IOC, 'B')
+    nsats = 3;
+    links = 2;
+    volume = 'SV1';
+elseif strcmp(IOC, 'C')
+    nsats = 5;
+    links = 4;
+    volume = 'SV2';
+end
+
+% OVERWRITE PARAMETERS DOWN HERE IF DESIRED
+% nsats = 1;          % number of satellites to consider (min 1, max 5)
+% links = 1;          % make sure always <= nsats
+% volume = 'SV1';     % options are 'SV1', 'SV2', or 'SV3'
+
 %% init
 t0 = convertTo(datetime('2-Feb-2027 00:00:00'), 'juliandate');
 t0 = (t0 - 2451545) * 86400;    % JD to seconds past J2000
@@ -40,19 +66,12 @@ step = 60*days; % seconds
 t = t0:step:t0 + 86400 * days;
 xk1 = Khon1(t); xk2 = Khon2(t); xk3 = Khon3(t);
 xk4 = Khon4(t); xk5 = Khon5(t); xk6 = Khon6(t);
-% xk = [xk2; xk3; xk4; xk5; xk6];
 xk = [xk2; xk3; xk4; xk5; xk6];
-
-%% write data
-data = [t' xk'];
-
-% fid = fopen('Khon_4sat_1day.txt', 'w');
-% for i=1:size(data,1)
-%     fprintf(fid, '%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f\n', data(i,2:end));
-% end
-% fclose(fid);
+xk = xk(1:3*nsats, :);
 
 %% format data for metrics
+data = [t' xk'];
+
 % format into usable shape by metric utilities
 t = t';                         % convert to column vector
 m = length(t);                  % number of data points
@@ -66,13 +85,16 @@ end
 pos = [0; 0; -moon.R];          % position of user
 
 %% coverage
-[pct, pts, covered] = coverageLNSP(sats, 'SV2', 4);
+[pct, pts, covered] = coverageLNSP(sats, volume, links);
 plotCoverage(pts, covered);
 plotCoverage(pts, covered, true);
-fprintf("Percent coverage of service volume: %.2f\n", pct*100);
+fprintf("Percent coverage of service volume: %.2f%%\n", pct*100);
 
 %% other metrics
-plotGDOP(pos, sats, t);         % geometric dilution of precision
 plotSISE(t);                    % signal-in-space errors
-plotUNE(pos, sats, t);          % plot user navigation error
 plotTrajectories(sats);         % plot relative orbits
+% GDOP portion of plot not relevant for nsats < 4
+plotGDOP(pos, sats, t);         % geometric dilution of precision
+% plot user navigation error only if user can directly compute position
+% from measurements (i.e. nsats >= 4)
+if nsats >= 4, plotUNE(pos, sats, t); end   
