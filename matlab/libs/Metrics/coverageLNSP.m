@@ -63,7 +63,9 @@ for i=1:l           % iterate over every eval point
     end
 end
 
-% proportion of time SV is covered (all points have coverage)
-CVG = sum(sum(covered, 2) == l) / n; 
+% % proportion of time SV is covered (all points have coverage)
+% CVG = sum(sum(covered, 2) == l) / n; 
+% proportion of time SV is covered (min point)
+CVG = min(sum(covered, 1) / n);
 end
 
