@@ -41,18 +41,29 @@ title('Microsemi Space CSAC Timing Performance');
 
 %% comparison of CSAC, USO, and RAFS
 figure();
-% individual Monte-Carlo runs
-semilogy(t ./ 3600, abs(Xuso(1,:)) * c , 'LineWidth', 1.5, 'Color', '#D95319');
-hold on;
-semilogy(t ./ 3600, abs(Xcsac(1,:)) * c, 'LineWidth', 1.5, 'Color', '#0072BD');
-semilogy(t ./ 3600, abs(Xrafs(1,:)) * c, 'LineWidth', 1.5, 'Color', '#EDB120');
+% % individual Monte-Carlo runs
+% semilogy(t ./ 3600, abs(Xuso(1,:)) * c , 'LineWidth', 1.5, 'Color', '#D95319');
+% hold on;
+% semilogy(t ./ 3600, abs(Xcsac(1,:)) * c, 'LineWidth', 1.5, 'Color', '#0072BD');
+% semilogy(t ./ 3600, abs(Xrafs(1,:)) * c, 'LineWidth', 1.5, 'Color', '#EDB120');
+% % 3-sigma bounds
+% semilogy(t ./ 3600, 3*sqrt(varUso) * c , '--', 'LineWidth', 2, 'Color', '#D95319');
+% semilogy(t ./ 3600, 3*sqrt(varCsac) * c, '--', 'LineWidth', 2, 'Color', '#0072BD');
+% semilogy(t ./ 3600, 3*sqrt(varRafs) * c, '--', 'LineWidth', 2, 'Color', '#EDB120');
+% hold off; grid on; xlim([0 t(end)/3600]);
+% xlabel('Time (hrs)');
+% ylabel('Phase deviation / clock bias error (m)');
+% legend(["USO MC run", "CSAC MC run", "RAFS MC run", "USO 3\sigma bound", ...
+%         "CSAC 3\sigma bound", "RAFS 3\sigma bound"], 'location', 'best', 'NumColumns', 2);
+% title('Comparison of Different Clock Timing Performances');
+
 % 3-sigma bounds
-semilogy(t ./ 3600, 3*sqrt(varUso) * c , '--', 'LineWidth', 2, 'Color', '#D95319');
+semilogy(t ./ 3600, 3*sqrt(varUso) * c , '-', 'LineWidth', 2, 'Color', '#D95319');
+hold on
 semilogy(t ./ 3600, 3*sqrt(varCsac) * c, '--', 'LineWidth', 2, 'Color', '#0072BD');
-semilogy(t ./ 3600, 3*sqrt(varRafs) * c, '--', 'LineWidth', 2, 'Color', '#EDB120');
+semilogy(t ./ 3600, 3*sqrt(varRafs) * c, '-.', 'LineWidth', 2, 'Color', '#EDB120');
 hold off; grid on; xlim([0 t(end)/3600]);
 xlabel('Time (hrs)');
-ylabel('Phase deviation / clock bias error (m)');
-legend(["USO MC run", "CSAC MC run", "RAFS MC run", "USO 3\sigma bound", ...
-        "CSAC 3\sigma bound", "RAFS 3\sigma bound"], 'location', 'best', 'NumColumns', 2);
-title('Comparison of Different Clock Timing Performances');
+ylabel(' 3\sigma clock bias error (m)');
+legend(["USO", "CSAC", "RAFS"], 'location', 'southeast');
+title('Comparison of Clock Timing Performances');
