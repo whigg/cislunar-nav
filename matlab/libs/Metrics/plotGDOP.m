@@ -14,14 +14,14 @@ t = t - t(1);                   % set t0 = 0
 figure();
 subplot(2,1,1);                                     % plot visible sats
 plot(t / 86400, nvis, 'LineWidth', 1.5);
-axis([0 (t(end) / 86400) 0 8]);
+axis([0 (t(end) / 86400) 0 5]);
 grid on;
 ylabel("# of Satellites in View");
 title("Satellites in View of User");
 
 subplot(2,1,2);                                     % plot GDOP
 plot(t / 86400, dop, 'LineWidth', 1.5);
-axis([0 (t(end) / 86400) 0 10]);
+axis([0 (t(end) / 86400) 1 6]);
 grid on;
 xlabel("Time (days)"); ylabel("Geometric Dilution of Precision");
 title("Geometric Dilution of Precision for User");
