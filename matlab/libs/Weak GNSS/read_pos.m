@@ -24,7 +24,9 @@ for k=1:size(data, 1)                       % iterate over row data
     j = satidx(textdata{k,2});              % sat index from name
     % get ECEF to ECI rotation matrix after converting past J2000 to JD
     R = ECEF2ECI(t(i) / 86400 + 2451545);
-    sats(j).x(:,i) = data(k,3:8)';          % assign pos/vel vectors
+    X = R * data(k,3:5)';
+    dX = R * data(k,6:8)';
+    sats(j).x(:,i) = [X; dX];          % assign pos/vel vectors
     % sats(j).x(:,i) = R * data(k,3:5)';
 end
 end

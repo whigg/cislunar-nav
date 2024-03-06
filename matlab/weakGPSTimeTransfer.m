@@ -135,6 +135,7 @@ hold off; grid on;
 xlabel("Time (days)"); ylabel("Clock bias (m)");
 title("Onboard clock bias error from Kalman filter");
 legend(["MC Run", "3\sigma bound", "View outage"], 'location', 'best');
+ylim([-20 20]);
 
 % Plot satellites in view each day
 figure();
@@ -183,34 +184,34 @@ xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
 legend(["Spacecraft Trajectory", "GNSS Satellite"], 'location', 'best', ...
     'TextColor', 'w');
 
-% %% plot all GNSS satellites and affiliation
-% figure();
-% subset = [];
-% 
-% % show GPS satellites
-% for i=1:M
-%     % GPS trajectories
-%     if i == 1
-%         p = plot3(satdata(i).x(1,:) + x_ef(1), satdata(i).x(2,:) + x_ef(2), ...
-%               satdata(i).x(3,:) + x_ef(3), 'Color', 'g', 'LineWidth', ...
-%               1, 'DisplayName', 'GPS');
-%         subset = [subset p];
-%         hold on;
-%     else
-%         plot3(satdata(i).x(1,:) + x_ef(1), satdata(i).x(2,:) + x_ef(2), ...
-%               satdata(i).x(3,:) + x_ef(3), 'Color', 'g', 'LineWidth', 1);
-%     end
-% end
-% 
-% % earth
-% [xx, yy, zz] = ellipsoid(x_ef(1), x_ef(2), x_ef(3), earth.R, earth.R, earth.R);
-% globe = surf(xx, yy, zz);
-% set(globe, 'FaceColor', 'texturemap', 'CData', flip(Iearth,1), 'FaceAlpha', 1, ...
-%     'EdgeColor', 'none');
-% hold off; axis equal;
-% xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
-% % legend(subset);
-% title('24-hour flight paths of GPS satellites, 2023-10-27');
-% 
-% %% cleanup
-% cspice_unload(imdata, gendata);
+%% plot all GNSS satellites and affiliation
+figure();
+subset = [];
+
+% show GPS satellites
+for i=1:M
+    % GPS trajectories
+    if i == 1
+        p = plot3(satdata(i).x(1,:) + x_ef(1), satdata(i).x(2,:) + x_ef(2), ...
+              satdata(i).x(3,:) + x_ef(3), 'Color', 'g', 'LineWidth', ...
+              1, 'DisplayName', 'GPS');
+        subset = [subset p];
+        hold on;
+    else
+        plot3(satdata(i).x(1,:) + x_ef(1), satdata(i).x(2,:) + x_ef(2), ...
+              satdata(i).x(3,:) + x_ef(3), 'Color', 'g', 'LineWidth', 1);
+    end
+end
+
+% earth
+[xx, yy, zz] = ellipsoid(x_ef(1), x_ef(2), x_ef(3), earth.R, earth.R, earth.R);
+globe = surf(xx, yy, zz);
+set(globe, 'FaceColor', 'texturemap', 'CData', flip(Iearth,1), 'FaceAlpha', 1, ...
+    'EdgeColor', 'none');
+hold off; axis equal;
+xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
+% legend(subset);
+title('24-hour flight paths of GPS satellites, 2023-10-27');
+
+%% cleanup
+cspice_unload([imdata, gendata]);
