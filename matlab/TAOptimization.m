@@ -34,20 +34,21 @@ ephfun.Khon1 = @(t) cspice_spkezr('Khon-1', t, 'J2000', 'NONE', 'MOON');
 ephfun.Khon2 = @(t) cspice_spkezr('Khon-2', t, 'J2000', 'NONE', 'MOON');
 ephfun.Khon3 = @(t) cspice_spkezr('Khon-3', t, 'J2000', 'NONE', 'MOON');
 ephfun.Khon4 = @(t) cspice_spkezr('Khon-4', t, 'J2000', 'NONE', 'MOON');
+ephfun.Khon5 = @(t) cspice_spkezr('Khon-5', t, 'J2000', 'NONE', 'MOON');
+ephfun.Khon6 = @(t) cspice_spkezr('Khon-6', t, 'J2000', 'NONE', 'MOON');
 
 xk1 = ephfun.Khon1(t0); xk2 = ephfun.Khon2(t0);
 xk3 = ephfun.Khon3(t0); xk4 = ephfun.Khon4(t0);
+xk5 = ephfun.Khon5(t0); xk6 = ephfun.Khon6(t0);
 
-[oe.a1, oe.e1, ~, ~, ~, oe.f1] = rv2oe(xk1(1:3), xk1(4:6), moon.GM);
 [oe.a2, oe.e2, ~, ~, ~, oe.f2] = rv2oe(xk2(1:3), xk2(4:6), moon.GM);
 [oe.a3, oe.e3, ~, ~, ~, oe.f3] = rv2oe(xk3(1:3), xk3(4:6), moon.GM);
 [oe.a4, oe.e4, ~, ~, ~, oe.f4] = rv2oe(xk4(1:3), xk4(4:6), moon.GM);
 
-t = t0:60:t0+86400;     % 1 day, time steps every minute
-x1 = ephfun.Khon1(t);
+t = t0:3600:t0+14*86400;    % 14 days, time steps every hour
 
 %% optimization
-warning('off', 'MATLAB:nearlySingularMatrix');
+% warning('off', 'MATLAB:nearlySingularMatrix');
 % function to optimize
 F = @(z) perf_index(z, t, x1, ephfun, oe, moon);
 

@@ -17,23 +17,30 @@ tab = array2table([pts' CVGs'], 'VariableNames', {'X', 'Y', 'Z', 'CVG'});
 % start plotting
 figure();
 % eval points
-scatter3(tab, 'X', 'Y', 'Z', 'filled', 'ColorVariable', 'CVG');
+scatter3(tab, 'X', 'Y', 'Z', 'filled', 'ColorVariable', 'CVG', ...
+    'HandleVisibility', 'off');
 hold on;
+
+% plot minimum point in red
+[~, I] = min(CVGs);
+scatter3(pts(1,I), pts(2,I), pts(3,I), 'r', 'filled', ...
+    'DisplayName', 'Least Coverage');
 
 % optional moon plotting, makes actual data hard to see
 if moon
     [I, ~] = imread("lroc_color_poles_1k.jpg");
     r = 1736;                           % km, moon polar radius
     [xx, yy, zz] = ellipsoid(0, 0, 0, r, r, r);
-    globe = surf(xx, yy, -zz);
+    globe = surf(xx, yy, -zz, 'HandleVisibility', 'off');
     set(globe, 'FaceColor', 'texturemap', 'CData', I, 'FaceAlpha', 1, ...
         'EdgeColor', 'none');
 end
 
 hold off; grid on; axis equal;
 xlabel('x (km)'); ylabel('y (km)'); zlabel('z (km)');
+legend('location', 'best');
 c = colorbar;
-c.Label.String = 'Coverage (%)';
+c.Label.String = 'Coverage (% of Earth day)';
 clim([0 100]);                          % limit colorbar to 0-100%
 end
 
