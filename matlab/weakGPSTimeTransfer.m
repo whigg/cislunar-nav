@@ -122,7 +122,7 @@ nview = sum(psr_res ~= 0);
 
 
 % Plot monte-carlo run and performance of clock bias error
-figure();
+h1 = figure();
 plot(tdays, Xclk(1,:) - X(1,:), 'LineWidth', 1);
 hold on;
 plot(tdays,  sqrt(var_bias) * 3, 'g--', 'LineWidth', 1);
@@ -132,16 +132,21 @@ plotViewOutages(tdays, nview, ylim);
 % plot(tdays, X(1,:));
 % plot(tdays, sum(psr_res) ./ sum(psr_res ~= 0));
 hold off; grid on;
-xlabel("Time (days)"); ylabel("Clock bias (m)");
-title("Onboard clock bias error from Kalman filter");
-legend(["MC Run", "3\sigma bound", "View outage"], 'location', 'best');
+xlabel("Time (days)", 'FontSize', 10);
+ylabel("Clock bias (m)", 'FontSize', 10);
+title("Onboard clock bias error from Kalman filter", 'FontSize', 10);
+legend(["MC Run", "3\sigma bound", "View outage"], ...
+    'location', 'best', 'FontSize', 10);
+fontname(h2, "Times New Roman");
 
 % Plot satellites in view each day
-figure();
+h2 = figure();
 plot(tdays, nview, 'LineWidth', 1);
 grid on;
-xlabel("Time (days)"); ylabel("Visible GPS satellites");
-title("Number of visible GPS satellites over time");
+xlabel("Time (days)", 'FontSize', 10);
+ylabel("Visible GPS satellites", 'FontSize', 10);
+title("Number of visible GPS satellites over time", 'FontSize', 10);
+fontname(h2, "Times New Roman");
 
 %% render scene
 figure();

@@ -17,9 +17,9 @@ V = zeros(3, 3, n);
 if strcmp(clk, 'CSAC')
     [s1, s2, s3] = DiffCoeffCSAC();
     X(3,1) = 9e-10 / (86400 * 30);  % Hz/Hz/s, upper end of aging rate a
-    s1 = s1*1.5;
-    s2 = s2*1.5;
-    s3 = X(3,1)*.5;
+    s1 = s1;
+    s2 = s2;
+    % s3 = 0;%X(3,1);
 elseif strcmp(clk, 'RAFS')
     [s1, s2, s3] = DiffCoeffRAFS();
 elseif strcmp(clk, 'USO')
