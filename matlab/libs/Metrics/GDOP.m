@@ -27,7 +27,7 @@ for i=1:length(GDOP)
     
         H = inv(G'*G);
         % take absolute value because sometimes diagonals are negative
-        GDOP(i) = sqrt(sum(abs(diag(H))));
+        GDOP(i) = sqrt(abs(sum(diag(H))));
     end
 end
 warning('on', 'MATLAB:nearlySingularMatrix');

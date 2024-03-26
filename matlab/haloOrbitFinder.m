@@ -24,12 +24,16 @@ mu = m2 / (m1 + m2);
 r1_norm = 6378 / r_12;  % normalized earth radius
 r2_norm = 1737 / r_12;  % normalized moon radius
 peri = (75139 + 1737) / r_12;   % normalized perilune
+% distances are normalized to earth-moon distance = 1
 x0 = 1 - cosd(45) * peri;       % initial x position
 z0 = -sind(45) * peri;           % initial z position
+x0 = 1.689362948405347e+04 / r_12 + 1;
+z0 = 7.650638537071974e+04 / r_12;
+dy0 = 0.030743648874393 / r_12 * 537966;
 
 %% integration and optimization settings
 phi0 = eye(6);      % initial STM
-X0 = [x0 0 z0 0 0.2 0 reshape(phi0, 1, 36)]';
+X0 = [x0 0 z0 0 dy0 0 reshape(phi0, 1, 36)]';
 % X0 = [1.057222 0 0.300720 0 -0.238026 0 reshape(phi0, 1, 36)]';
 opts = odeset('Events', @periodevent, 'RelTol', 1e-13, 'AbsTol', 1e-13);
 
@@ -77,8 +81,8 @@ xlabel('x'); ylabel('y'); zlabel('z');
 title("L1 and L2 Halo Orbits (CR3BP)");
 
 % planets
-% [xx1, yy1, zz1] = ellipsoid(0, 0, 0, r1_norm, r1_norm, r1_norm);    % earth
-% earth = surf(xx1, yy1, zz1);
+[xx1, yy1, zz1] = ellipsoid(0, 0, 0, r1_norm, r1_norm, r1_norm);    % earth
+earth = surf(xx1, yy1, zz1);
 [xx2, yy2, zz2] = ellipsoid(1, 0, 0, r2_norm, r2_norm, r2_norm);    % moon
 moon = surf(xx2, yy2, zz2);
 
@@ -86,6 +90,7 @@ moon = surf(xx2, yy2, zz2);
 L1 = 3.275011930135282e+05;
 tu = (2*pi / w) / T(end);   % seconds per unit of time
 xf = (X0(1)-1) * r_12; zf = X0(3) * r_12; dyf = X0(5) * r_12 / tu;
+[xf 0 zf 0 dyf 0]
 
 %% functions
 function [value, isterminal, direction] = periodevent(~, x)

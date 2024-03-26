@@ -49,10 +49,12 @@ semilogy(t ./ 3600, abs(Xuso(1,:)) * c , 'LineWidth', 1.5, 'Color', '#D95319');
 hold on;
 semilogy(t ./ 3600, abs(Xcsac(1,:)) * c, 'LineWidth', 1.5, 'Color', '#0072BD');
 semilogy(t ./ 3600, abs(Xrafs(1,:)) * c, 'LineWidth', 1.5, 'Color', '#EDB120');
+
 % 3-sigma bounds
-semilogy(t ./ 3600, 3*sqrt(varUso) * c , '--', 'LineWidth', 2, 'Color', '#D95319');
+semilogy(t ./ 3600, 3*sqrt(varUso) * c , '-', 'LineWidth', 2, 'Color', '#D95319');
+hold on
 semilogy(t ./ 3600, 3*sqrt(varCsac) * c, '--', 'LineWidth', 2, 'Color', '#0072BD');
-semilogy(t ./ 3600, 3*sqrt(varRafs) * c, '--', 'LineWidth', 2, 'Color', '#EDB120');
+semilogy(t ./ 3600, 3*sqrt(varRafs) * c, '-.', 'LineWidth', 2, 'Color', '#EDB120');
 hold off; grid on; xlim([0 t(end)/3600]);
 xlabel('Time (hrs)', 'FontSize', 10);
 ylabel('Phase deviation / clock bias error (m)', 'FontSize', 10);
