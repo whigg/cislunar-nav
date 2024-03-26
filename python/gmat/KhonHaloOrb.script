@@ -1,0 +1,162 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2024-03-06 09:55:34
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft Khon5;
+GMAT Khon5.DateFormat = UTCGregorian;
+GMAT Khon5.Epoch = '02 Feb 2027 00:00:00.000';
+GMAT Khon5.CoordinateSystem = CRTBP;
+GMAT Khon5.DisplayStateType = Cartesian;
+GMAT Khon5.X = -62999.73899999998;
+GMAT Khon5.Y = 1.023181539494544e-12;
+GMAT Khon5.Z = -65927.58300000003;
+GMAT Khon5.VX = -3.794707603699266e-19;
+GMAT Khon5.VY = 0.1121659999999999;
+GMAT Khon5.VZ = -3.794707603699266e-19;
+GMAT Khon5.DryMass = 850;
+GMAT Khon5.Cd = 2.2;
+GMAT Khon5.Cr = 1.8;
+GMAT Khon5.DragArea = 15;
+GMAT Khon5.SRPArea = 1;
+GMAT Khon5.SPADDragScaleFactor = 1;
+GMAT Khon5.SPADSRPScaleFactor = 1;
+GMAT Khon5.NAIFId = -10000001;
+GMAT Khon5.NAIFIdReferenceFrame = -9000001;
+GMAT Khon5.OrbitColor = Red;
+GMAT Khon5.TargetColor = Teal;
+GMAT Khon5.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT Khon5.CdSigma = 1e+70;
+GMAT Khon5.CrSigma = 1e+70;
+GMAT Khon5.Id = 'SatId';
+GMAT Khon5.Attitude = CoordinateSystemFixed;
+GMAT Khon5.SPADSRPInterpolationMethod = Bilinear;
+GMAT Khon5.SPADSRPScaleFactorSigma = 1e+70;
+GMAT Khon5.SPADDragInterpolationMethod = Bilinear;
+GMAT Khon5.SPADDragScaleFactorSigma = 1e+70;
+GMAT Khon5.ModelFile = 'aura.3ds';
+GMAT Khon5.ModelOffsetX = 0;
+GMAT Khon5.ModelOffsetY = 0;
+GMAT Khon5.ModelOffsetZ = 0;
+GMAT Khon5.ModelRotationX = 0;
+GMAT Khon5.ModelRotationY = 0;
+GMAT Khon5.ModelRotationZ = 0;
+GMAT Khon5.ModelScale = 1;
+GMAT Khon5.AttitudeDisplayStateType = 'Quaternion';
+GMAT Khon5.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT Khon5.AttitudeCoordinateSystem = EarthMJ2000Eq;
+GMAT Khon5.EulerAngleSequence = '321';
+
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel MoonProp_ForceModel;
+GMAT MoonProp_ForceModel.CentralBody = Earth;
+GMAT MoonProp_ForceModel.PrimaryBodies = {Earth};
+GMAT MoonProp_ForceModel.PointMasses = {Luna};
+GMAT MoonProp_ForceModel.Drag = None;
+GMAT MoonProp_ForceModel.SRP = Off;
+GMAT MoonProp_ForceModel.RelativisticCorrection = On;
+GMAT MoonProp_ForceModel.ErrorControl = RSSStep;
+GMAT MoonProp_ForceModel.GravityField.Earth.Degree = 0;
+GMAT MoonProp_ForceModel.GravityField.Earth.Order = 0;
+GMAT MoonProp_ForceModel.GravityField.Earth.StmLimit = 100;
+GMAT MoonProp_ForceModel.GravityField.Earth.PotentialFile = 'JGM3.cof';
+GMAT MoonProp_ForceModel.GravityField.Earth.TideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator MoonProp;
+GMAT MoonProp.FM = MoonProp_ForceModel;
+GMAT MoonProp.Type = RungeKutta89;
+GMAT MoonProp.InitialStepSize = 60;
+GMAT MoonProp.Accuracy = 9.999999999999999e-12;
+GMAT MoonProp.MinStep = 0.001;
+GMAT MoonProp.MaxStep = 2700;
+GMAT MoonProp.MaxStepAttempts = 50;
+GMAT MoonProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem MoonICRF;
+GMAT MoonICRF.Origin = Luna;
+GMAT MoonICRF.Axes = ICRF;
+
+Create CoordinateSystem CRTBP;
+GMAT CRTBP.Origin = Luna;
+GMAT CRTBP.Axes = ObjectReferenced;
+GMAT CRTBP.XAxis = R;
+GMAT CRTBP.ZAxis = N;
+GMAT CRTBP.Primary = Earth;
+GMAT CRTBP.Secondary = Luna;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create OrbitView HaloOrbitView;
+GMAT HaloOrbitView.SolverIterations = Current;
+GMAT HaloOrbitView.UpperLeft = [ -0.3981132075471698 0.1121134020618557 ];
+GMAT HaloOrbitView.Size = [ 1.282075471698113 0.9110824742268041 ];
+GMAT HaloOrbitView.RelativeZOrder = 255;
+GMAT HaloOrbitView.Maximized = false;
+GMAT HaloOrbitView.Add = {Khon5, Luna, Earth};
+GMAT HaloOrbitView.CoordinateSystem = CRTBP;
+GMAT HaloOrbitView.DrawObject = [ true true true ];
+GMAT HaloOrbitView.DataCollectFrequency = 1;
+GMAT HaloOrbitView.UpdatePlotFrequency = 50;
+GMAT HaloOrbitView.NumPointsToRedraw = 0;
+GMAT HaloOrbitView.ShowPlot = true;
+GMAT HaloOrbitView.MaxPlotPoints = 20000;
+GMAT HaloOrbitView.ShowLabels = true;
+GMAT HaloOrbitView.ViewPointReference = Luna;
+GMAT HaloOrbitView.ViewPointVector = [ 300000 0 0 ];
+GMAT HaloOrbitView.ViewDirection = Luna;
+GMAT HaloOrbitView.ViewScaleFactor = 1;
+GMAT HaloOrbitView.ViewUpCoordinateSystem = CRTBP;
+GMAT HaloOrbitView.ViewUpAxis = Z;
+GMAT HaloOrbitView.EclipticPlane = Off;
+GMAT HaloOrbitView.XYPlane = Off;
+GMAT HaloOrbitView.WireFrame = Off;
+GMAT HaloOrbitView.Axes = On;
+GMAT HaloOrbitView.Grid = Off;
+GMAT HaloOrbitView.SunLine = Off;
+GMAT HaloOrbitView.UseInitialView = On;
+GMAT HaloOrbitView.StarCount = 7000;
+GMAT HaloOrbitView.EnableStars = On;
+GMAT HaloOrbitView.EnableConstellations = Off;
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.UpperLeft = [ 0 0 ];
+GMAT ReportFile1.Size = [ 0 0 ];
+GMAT ReportFile1.RelativeZOrder = 0;
+GMAT ReportFile1.Maximized = false;
+GMAT ReportFile1.Filename = 'D:\Documents\Georgia Tech\_PNT\cislunar-nav\python\gmat\KhonHaloOrb.txt';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.Add = {Khon5.A1ModJulian, Khon5.CRTBP.X, Khon5.CRTBP.Y, Khon5.CRTBP.Z, Khon5.CRTBP.VX, Khon5.CRTBP.VY, Khon5.CRTBP.VZ};
+GMAT ReportFile1.WriteHeaders = true;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.FixedWidth = true;
+GMAT ReportFile1.Delimiter = ' ';
+GMAT ReportFile1.ColumnWidth = 23;
+GMAT ReportFile1.WriteReport = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate MoonProp(Khon5) {Khon5.ElapsedDays = 28};

@@ -23,7 +23,7 @@ function [visible,R] = visibleSats(pos,sats,elev)
 %    - zcone; function handle to compute in-bounds / out cone
 %    - R   ;(3x3),[N/A] rotation matrix to ?-?-Down frame
 
-if nargin < 4, elev = 5 * pi/180; end   % default elevation is 5 deg
+if nargin < 3, elev = 5 * pi/180; end   % default elevation is 5 deg
 
 r = 1736.0; % km, polar radius of moon (concerned w/ south pole mostly)
 tht = asin(r/norm(pos));
