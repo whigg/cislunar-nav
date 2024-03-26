@@ -87,7 +87,7 @@ def R(H, t, rss=100, receiver=True):
     # var += 2^2 if receiver else 0
 
     # Node uncertainty
-    #  Assuming each node tracks its position autotrueously, it will have some 
+    #  Assuming each node tracks its position autonomously, it will have some 
     #  associated covariance which is propagated onto the user
     #  rss is the 3-sigma of RSS position errors
     var += (rss / 3)**2     # mean corresponds to the 50th pctl., 0.675std
@@ -96,6 +96,9 @@ def R(H, t, rss=100, receiver=True):
     #  Typical multipath ranges from 1m in a benign environment to 5m in a highly
     #  reflective environment for GPS [Misra and Enge (2006), p177]
     var += (1)**2
+
+    # overwrite for NSN discussion work (num from Raytheon analysis)
+    var = 4.4**2 + 1 + 1
     
     try:    # catch infinite value cases for H
         return H * var  # measurement variance at given time step

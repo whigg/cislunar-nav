@@ -1,4 +1,4 @@
-function [CVG,pts,covered] = coverageLNSP(sats,SV,links,maxDOP)
+function [CVG,minIdx,pts,covered] = coverageLNSP(dt,sats,SV,links,maxDOP)
 %COVERAGELNSP Computes the coverage a constellation achieves in a given
 %service volume as a proportion of the total evaluation time.
 %   Per LunaNet Service Provider specifications (ESC-LCRNS-REQ-0090), the 
@@ -8,6 +8,7 @@ function [CVG,pts,covered] = coverageLNSP(sats,SV,links,maxDOP)
 %   for links >= 4 can be specified.
 %
 %   Inputs: (dims),[units]
+%    - dt    ; (1x1),[s] seconds between steps; must be equal
 %    - sats  ; (nx3xm),[km] positions of m satellites over n time steps --
 %              time span covered should be 1 Earth month
 %    - SV    ; (1x1),[N/A] string of service volume selected -- options are
@@ -16,6 +17,7 @@ function [CVG,pts,covered] = coverageLNSP(sats,SV,links,maxDOP)
 %    - maxDOP; (1x1),[N/A] optional (default 6), max GDOP if links >=4
 %   Output:
 %    - CVG   ; (1x1),[N/A] proportion of time SV is covered, from 0 to 1
+%    - minIdx; (1x1),[N/A] index of start of worst day
 %    - pts   ; (3xl),[km] points coverage was evaluated at
 %    - covered;(nxl),[N/A] data product for plotting
 
@@ -36,7 +38,7 @@ else                        % catch invalid arguments for SV
           '%s is not a valid argument for SV. See documentation.', SV));
 end
 
-if nargin < 4, maxDOP = 6; end  % default maxDOP to 6 if not provided
+if nargin < 5, maxDOP = 6; end  % default maxDOP to 6 if not provided
 
 % generate evaluation points and trim to SV latitude
 [X,Y,Z] = mySphere(l);
@@ -65,7 +67,16 @@ end
 
 % % proportion of time SV is covered (all points have coverage)
 % CVG = sum(sum(covered, 2) == l) / n; 
-% proportion of time SV is covered (min point)
-CVG = min(sum(covered, 1) / n);
+% % proportion of time SV is covered (min point) over one month
+% CVG = min(sum(covered, 1) / n);
+% worst 24h period of coverage (in pct)
+steps = floor(86400 / dt) + 1;              % time steps in 1 day
+CVG = zeros(n-steps+1,1);
+for i = 1:(n-steps+1)
+    % coverage over day
+    CVG(i) = min(sum(covered(i:(i+steps-1),:), 1) / steps);
+end
+
+[CVG, minIdx] = min(CVG);
 end
 

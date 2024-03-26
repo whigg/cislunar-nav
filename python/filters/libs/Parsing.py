@@ -3,13 +3,12 @@ import re
 import autograd.numpy as np
 import matplotlib.pyplot as plt
 
-def parseGmatData(filename, gmatReport=False):
+def parseGmatData(filename, gmatReport=False, head=True):
     '''
     Parse position data and sort into Satellite objects
      filename - full relative path to file
     '''
     
-    head = True
     sats = []
     with open(filename) as data:
         if gmatReport:
