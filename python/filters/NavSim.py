@@ -56,7 +56,7 @@ class NavSim:
 
         rad = 1737.4    # km, radius of moon
         m = 6           # state vector dimension
-        ang = 15
+        ang = 10
         W = np.array([0,0,self.w])
         g = 1.625e-3    # km/s^2, gravity of moon
 
@@ -81,7 +81,7 @@ class NavSim:
 
             elif self.user == 'ROVER':
                 v0 = 0.000033
-                std_accel = 1e-10    # root Allan variance
+                std_accel = 8e-11    # root Allan variance
                 x0 = np.array([rad*np.sin(ang*np.pi/180), 0, -rad*np.cos(ang*np.pi/180), 
                     np.cos(ang*np.pi/180)*v0, self.w*rad*np.sin(ang*np.pi/180), np.sin(ang*np.pi/180)*v0])
                 vx0 = np.array([1**2, 1**2, 1**2, 0**2, 0**2, 0**2])
@@ -92,7 +92,7 @@ class NavSim:
                 x_true = integrate(lambda t, x: func(t, x, randWalk), t, x0)
 
                 # state covariance
-                Q = lambda z: linQ(statB_6x3(z), (std_accel * 3)**2)
+                Q = lambda z: linQ(statB_6x3(z), (std_accel * 4)**2)
 
             xstar = np.random.normal(loc=x0, scale=np.sqrt(vx0))
             xstar[0:3] = xstar[0:3] / np.linalg.norm(xstar[0:3]) * rad  # place on surface
@@ -100,18 +100,22 @@ class NavSim:
 
             # Dilution of precision
             DOP = np.zeros((self.l,self.l,n))
+            # track visible sats
+            self.t = t
+            self.nvis = np.zeros((n,1))
 
             for j in range(n):
 
                 # Compute DOP at each step
                 visible, _ = findVisibleSats(x_true[0:3,j], sats, j, elev=0)
+                self.nvis[j] = len(visible)
                 H = np.copy(np.diag(computeDOP(np.array(x0[0:3]), visible, j)))
                 # catch negative vals
                 H[H <= 0] = float('inf')
                 DOP[:,:,j] = np.diag(H[0:3])
 
                 # Compute measurement
-                r = R(DOP[:,:,j], t[j])/1e6     # adjust to km
+                r = R(DOP[:,:,j], t[j], rss=self.odErr, receiver=False)/1e6     # adjust to km
                 r[r == float('inf')] = sys.float_info.max   # catch 'inf'
                 y[:,j] = Y(x_true[:,j], r)
 
@@ -141,8 +145,9 @@ class NavSim:
             # load data
             sats = parseGmatData(file, gmatReport=True)
             n = sats[0].end
+            lat = 10
 
-            x0 = np.array([rad*np.sin(np.pi/12), 0, -rad*np.cos(np.pi/12)])
+            x0 = np.array([rad*np.sin(lat*np.pi/180), 0, -rad*np.cos(lat*np.pi/180)])
             xstar = np.array([0, 0, 0])
             x_true = np.zeros((m,n))
             x_nom  = np.zeros((m,n))
@@ -151,18 +156,24 @@ class NavSim:
             # Dilution of precision
             DOP = np.zeros((self.l,self.l,n))
             t = np.linspace(0, 24*60*60, n)    # time steps (in seconds)
+            # track visible sats
+            self.t = t
+            self.nvis = np.zeros((n,1))
 
             for j in range(n):
                 # Compute true trajectory
-                x_true[:,j] = statPhi_true(self.w, t[j]) @ x0
+                # x_true[:,j] = statPhi_true(self.w, t[j]) @ x0
+                # STATIC IN THE MOON ME FRAME
+                x_true[:,j] = x0
 
                 # Compute DOP at each step
                 visible, _ = findVisibleSats(x_true[:,j] / 1000, sats, j, elev=0)
+                self.nvis[j] = len(visible)
                 H = np.diag(computeDOP(x_true[:,j] / 1000, visible, j))
                 DOP[:,:,j] = np.diag(H[0:3])
 
                 # Compute measurement
-                r = R(DOP[:,:,j], t[j])
+                r = R(DOP[:,:,j], t[j], rss=self.odErr, receiver=False)
                 # catch inf or negative vals
                 r[(r == float('inf')) | (r < 0)] = sys.float_info.max
                 r[r == 0] = 0
@@ -172,7 +183,7 @@ class NavSim:
             #np.savetxt('test/true.csv', x_true, delimiter=',')
 
             # run batch filter
-            with Batch(t, xstar, x_true, lambda t: statPhi(statA(self.w), t), y, G, Ht_3x3,
+            with Batch(t, xstar, x_true, lambda t: np.eye(3), y, G, Ht_3x3,
                     lambda z: R(DOP[:,:,np.where(t == z)[0][0]], z, rss = self.odErr, receiver=False)) as batch:
                 
                 batch.evaluate()

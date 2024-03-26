@@ -46,7 +46,7 @@ Xclk = Xclk .* c;                       % convert from time to distance
 R_GPS = diag([9.7/1.96; .006/1.96].^2);
 UERE = @(i) mvnrnd([0 0], R_GPS*(1.^2))' + Xclk(1:2,i);
 % IM expected OD error ~10m, ~1cm/s (?) 3-sigma
-R_IM  = diag([10/3; .01/3].^2);
+R_IM  = diag([4.0; .001/3].^2);
 EPHE = @(~) mvnrnd([0 0], R_IM)';
 
 [psr_meas, psrr_meas] = compute_psr(t, x_true, sats, earth, moon, max_a, UERE);
@@ -113,12 +113,21 @@ end
 %% Plots and statistics
 clc, close all;                     % reset since this block is run a lot
 
+% statistics of clock bias
 diff = Xclk(1,:) - X(1,:);
 fprintf("3-sigma bound of Monte-Carlo run: %.3f m\n", std(diff) * 3);
 var_bias = reshape(Pt(1,1,:), [], 1);
 bnds = sqrt(var_bias) * 3;
 fprintf("Median 3-sigma bound of filter: %.3f m\n", median(bnds));
 nview = sum(psr_res ~= 0);
+
+% statistics of clock drift rate
+diff2 = Xclk(2,:) - X(2,:);
+fprintf("3-sigma bound of Monte-Carlo run: %.3f mm/s\n", std(diff2) * 3e3);
+var_drift = reshape(Pt(2,2,:), [], 1);
+bnds2 = sqrt(var_drift) * 3e3;
+fprintf("Median 3-sigma bound of filter: %.3f mm/s\n", median(bnds2));
+
 
 
 % Plot monte-carlo run and performance of clock bias error
@@ -188,34 +197,34 @@ xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
 legend(["Spacecraft Trajectory", "GNSS Satellite"], 'location', 'best', ...
     'TextColor', 'w');
 
-% %% plot all GNSS satellites and affiliation
-% figure();
-% subset = [];
-% 
-% % show GPS satellites
-% for i=1:M
-%     % GPS trajectories
-%     if i == 1
-%         p = plot3(satdata(i).x(1,:) + x_ef(1), satdata(i).x(2,:) + x_ef(2), ...
-%               satdata(i).x(3,:) + x_ef(3), 'Color', 'g', 'LineWidth', ...
-%               1, 'DisplayName', 'GPS');
-%         subset = [subset p];
-%         hold on;
-%     else
-%         plot3(satdata(i).x(1,:) + x_ef(1), satdata(i).x(2,:) + x_ef(2), ...
-%               satdata(i).x(3,:) + x_ef(3), 'Color', 'g', 'LineWidth', 1);
-%     end
-% end
-% 
-% % earth
-% [xx, yy, zz] = ellipsoid(x_ef(1), x_ef(2), x_ef(3), earth.R, earth.R, earth.R);
-% globe = surf(xx, yy, zz);
-% set(globe, 'FaceColor', 'texturemap', 'CData', flip(Iearth,1), 'FaceAlpha', 1, ...
-%     'EdgeColor', 'none');
-% hold off; axis equal;
-% xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
-% % legend(subset);
-% title('24-hour flight paths of GPS satellites, 2023-10-27');
-% 
-% %% cleanup
-% cspice_unload(imdata, gendata);
+%% plot all GNSS satellites and affiliation
+figure();
+subset = [];
+
+% show GPS satellites
+for i=1:M
+    % GPS trajectories
+    if i == 1
+        p = plot3(satdata(i).x(1,:) + x_ef(1), satdata(i).x(2,:) + x_ef(2), ...
+              satdata(i).x(3,:) + x_ef(3), 'Color', 'g', 'LineWidth', ...
+              1, 'DisplayName', 'GPS');
+        subset = [subset p];
+        hold on;
+    else
+        plot3(satdata(i).x(1,:) + x_ef(1), satdata(i).x(2,:) + x_ef(2), ...
+              satdata(i).x(3,:) + x_ef(3), 'Color', 'g', 'LineWidth', 1);
+    end
+end
+
+% earth
+[xx, yy, zz] = ellipsoid(x_ef(1), x_ef(2), x_ef(3), earth.R, earth.R, earth.R);
+globe = surf(xx, yy, zz);
+set(globe, 'FaceColor', 'texturemap', 'CData', flip(Iearth,1), 'FaceAlpha', 1, ...
+    'EdgeColor', 'none');
+hold off; axis equal;
+xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
+% legend(subset);
+title('24-hour flight paths of GPS satellites, 2023-10-27');
+
+%% cleanup
+cspice_unload([imdata, gendata]);
