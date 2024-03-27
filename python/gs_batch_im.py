@@ -2,10 +2,16 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 from cycler import cycler
 
 # local imports
 from filters.NavSim import *
+
+font = {'family' : 'serif',
+        'serif'  : 'Times New Roman',
+        'size'   : 10}
+matplotlib.rc('font', **font)
 
 if __name__ == '__main__':
     # Data
@@ -17,8 +23,8 @@ if __name__ == '__main__':
     #     if os.path.isfile(f):
     #         files.append(f)
 
-    files.append(os.path.join(dir, 'Khon2-7_MOON_ME.txt'))
-    title = 'Khon 2-7'
+    files.append(os.path.join(dir, 'Khon2-6_MOON_ME.txt'))
+    title = 'Khon 2-6'
 
     # plotting
     # default_cycler = (cycler(color=['navy','darkgreen','blue','green','cyan','lime']) + cycler(linestyle=['-','--','-','--','-','--']))
