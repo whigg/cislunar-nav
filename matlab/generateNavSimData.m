@@ -46,9 +46,9 @@ step = 1; % seconds
 t = t0:step:t0 + 86400 * days;
 xk1 = Khon1(t); xk2 = Khon2(t); xk3 = Khon3(t);
 xk4 = Khon4(t); xk5 = Khon5(t); xk6 = Khon6(t); xk7 = Khon7(t);
-xk = [xk2; xk3; xk4; xk5; xk6; xk7];
+xk = [xk2; xk3; xk4; xk5; xk6];
 
 %% format data and write to file
 data = xk';
-writematrix(data, 'D:/Documents/Georgia Tech/_PNT/cislunar-nav/python/data/IM/Khon2-7_MOON_ME.txt', 'Delimiter', 'tab');
+writematrix(data, 'D:/Documents/Georgia Tech/_PNT/cislunar-nav/python/data/IM/Khon2-6_MOON_ME.txt', 'Delimiter', 'tab');
 
