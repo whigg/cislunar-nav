@@ -75,6 +75,11 @@ xk4 = Khon4(t); xk5 = Khon5(t); xk6 = Khon6(t); xk7 = Khon7(t);
 xk = [xk2; xk3; xk4; xk5; xk6; xk7];
 xk = xk(1:3*nsats, :);
 
+for i=1:n
+    R = cspice_pxform('J2000', 'MOON_ME', t(i));
+    x(:,i) = R * x(:,i);
+end
+
 % MANUALLY CHANGE SATELLITE SETUP HERE
 % xk = [xk1; xk2; xk3; xk4; xk5; xk6];  % include all 6 sats as nav
 
