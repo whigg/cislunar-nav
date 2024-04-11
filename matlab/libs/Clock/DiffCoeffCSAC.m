@@ -43,7 +43,7 @@ hold off; grid on;
 xlabel('\tau (s)', 'FontSize', fsz);
 ylabel('\sigma_y', 'FontSize', fsz);
 title('Microsemi Space CSAC Allan Deviation Fit', 'FontSize', fsz);
-legend(["Allan deviation fit", "Datasheet info"], "location", "northeast", ...
+legend(["Model fit", "From datasheet"], "location", "northeast", ...
     'FontSize', fsz);
 fontname(h1, "Times New Roman");
 
