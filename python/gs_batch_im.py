@@ -10,7 +10,7 @@ from filters.NavSim import *
 
 font = {'family' : 'serif',
         'serif'  : 'Times New Roman',
-        'size'   : 10}
+        'size'   : 12}
 matplotlib.rc('font', **font)
 
 if __name__ == '__main__':

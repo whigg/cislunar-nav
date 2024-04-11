@@ -42,7 +42,7 @@ Khon7 = @(t) getpos(cspice_spkezr('Khon-7', t, 'MOON_ME', 'NONE', 'MOON'));
 
 %% build trajectories
 days = 1;
-step = 1; % seconds
+step = 60; % seconds
 t = t0:step:t0 + 86400 * days;
 xk1 = Khon1(t); xk2 = Khon2(t); xk3 = Khon3(t);
 xk4 = Khon4(t); xk5 = Khon5(t); xk6 = Khon6(t); xk7 = Khon7(t);

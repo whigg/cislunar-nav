@@ -31,16 +31,21 @@ b = stds.^2 - a_hi^2 / 2 * taus.^2;
 coeff = [(A' * A) \ A' * b; a_hi^2 / 2];
 
 % % plot model to confirm it's working
-% t = linspace(taus(1), taus(end), 1000)';
-% mdl = sqrt([1./t t t.^2] * coeff);
-% 
-% figure();
-% loglog(t, mdl, 'LineWidth', 1.5);
-% hold on;
-% scatter(taus, stds, 'rx');
-% hold off; grid on;
-% xlabel('\tau (s)'); ylabel('\sigma_y');
-% title('Microsemi Space CSAC Allan Deviation Fit');
+t = linspace(taus(1), taus(end), 1000)';
+mdl = sqrt([1./t t t.^2] * coeff);
+
+h1 = figure();
+fsz = 12;
+loglog(t, mdl, 'LineWidth', 1.5);
+hold on;
+scatter(taus, stds, 'rx');
+hold off; grid on;
+xlabel('\tau (s)', 'FontSize', fsz);
+ylabel('\sigma_y', 'FontSize', fsz);
+title('Microsemi Space CSAC Allan Deviation Fit', 'FontSize', fsz);
+legend(["Allan deviation fit", "Datasheet info"], "location", "northeast", ...
+    'FontSize', fsz);
+fontname(h1, "Times New Roman");
 
 [s1, s2, s3] = AllanToDiffCoeff(coeff);
 end

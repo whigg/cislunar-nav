@@ -89,6 +89,9 @@ sats = zeros(m, 3, n);
 for num = 1:n
     sats(:,:,num) = data(:,2 + 3*(num-1):1 + 3*num);
 end
+ 
+% [sats,dt] = reshape_report("data/8sat_adapted_2NRHO_Report_1month.txt");
+% t = (0:size(sats,1)-1)*dt + t0;
 
 pos = [0; 0; -moon.R];          % position of user
 
