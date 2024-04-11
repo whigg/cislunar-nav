@@ -10,6 +10,7 @@ addpath(genpath(pwd));
 format long g;          % display long numbers, no scientific notation
 
 %% var init
+fsz = 12;               % pt, font size
 max_a = 40 * pi/180;    % rad, maximum off-boresight angle link can close
 c = 299792458;          % m/s, speed of light
 
@@ -141,20 +142,20 @@ plotViewOutages(tdays, nview, ylim);
 % plot(tdays, X(1,:));
 % plot(tdays, sum(psr_res) ./ sum(psr_res ~= 0));
 hold off; grid on;
-xlabel("Time (days)", 'FontSize', 10);
-ylabel("Clock bias (m)", 'FontSize', 10);
-title("Onboard clock bias error from Kalman filter", 'FontSize', 10);
+xlabel("Time (days)", 'FontSize', fsz);
+ylabel("Clock bias (m)", 'FontSize', fsz);
+title("Onboard clock bias error from Kalman filter", 'FontSize', fsz);
 legend(["MC Run", "3\sigma bound", "View outage"], ...
-    'location', 'best', 'FontSize', 10);
-fontname(h2, "Times New Roman");
+    'location', 'best', 'FontSize', fsz);
+fontname(h1, "Times New Roman");
 
 % Plot satellites in view each day
 h2 = figure();
 plot(tdays, nview, 'LineWidth', 1);
 grid on;
-xlabel("Time (days)", 'FontSize', 10);
-ylabel("Visible GPS satellites", 'FontSize', 10);
-title("Number of visible GPS satellites over time", 'FontSize', 10);
+xlabel("Time (days)", 'FontSize', fsz);
+ylabel("Visible GPS satellites", 'FontSize', fsz);
+title("Number of visible GPS satellites over time", 'FontSize', fsz);
 fontname(h2, "Times New Roman");
 
 %% render scene
