@@ -12,6 +12,7 @@ de430.bsp
 *.pos
 # ignore CUI Intuitive Machines data
 NSNS-DRM*
+/matlab/spice/nsns/*
 
 #### MATLAB .gitignore template below ####
 # Windows default autosave extension

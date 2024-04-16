@@ -1,0 +1,151 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2023-07-17 12:07:08
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft ELFO;
+GMAT ELFO.DateFormat = UTCGregorian;
+GMAT ELFO.Epoch = '27 Oct 2023 00:00:00.000';
+GMAT ELFO.CoordinateSystem = MoonMJ2000Eq;
+GMAT ELFO.DisplayStateType = Keplerian;
+GMAT ELFO.SMA = 6541.399999999977;
+GMAT ELFO.ECC = 0.599999999999999;
+GMAT ELFO.INC = 56.20000000000033;
+GMAT ELFO.RAAN = 360;
+GMAT ELFO.AOP = 89.99999999999999;
+GMAT ELFO.TA = 8.537736462515939e-07;
+GMAT ELFO.DryMass = 80;
+GMAT ELFO.Cd = 2.1;
+GMAT ELFO.Cr = 1.75;
+GMAT ELFO.DragArea = 1.8;
+GMAT ELFO.SRPArea = 2.5;
+GMAT ELFO.SPADDragScaleFactor = 1;
+GMAT ELFO.SPADSRPScaleFactor = 1;
+GMAT ELFO.NAIFId = -10000001;
+GMAT ELFO.NAIFIdReferenceFrame = -9000001;
+GMAT ELFO.OrbitColor = Red;
+GMAT ELFO.TargetColor = Teal;
+GMAT ELFO.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT ELFO.CdSigma = 1e+70;
+GMAT ELFO.CrSigma = 1e+70;
+GMAT ELFO.Id = 'SatId';
+GMAT ELFO.Attitude = CoordinateSystemFixed;
+GMAT ELFO.SPADSRPInterpolationMethod = Bilinear;
+GMAT ELFO.SPADSRPScaleFactorSigma = 1e+70;
+GMAT ELFO.SPADDragInterpolationMethod = Bilinear;
+GMAT ELFO.SPADDragScaleFactorSigma = 1e+70;
+GMAT ELFO.ModelFile = 'aura.3ds';
+GMAT ELFO.ModelOffsetX = 0;
+GMAT ELFO.ModelOffsetY = 0;
+GMAT ELFO.ModelOffsetZ = 0;
+GMAT ELFO.ModelRotationX = 0;
+GMAT ELFO.ModelRotationY = 0;
+GMAT ELFO.ModelRotationZ = 0;
+GMAT ELFO.ModelScale = 1;
+GMAT ELFO.AttitudeDisplayStateType = 'Quaternion';
+GMAT ELFO.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT ELFO.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT ELFO.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Luna;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Luna};
+GMAT DefaultProp_ForceModel.PointMasses = {Earth, Sun};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.RelativisticCorrection = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Luna.Degree = 16;
+GMAT DefaultProp_ForceModel.GravityField.Luna.Order = 16;
+GMAT DefaultProp_ForceModel.GravityField.Luna.StmLimit = 100;
+GMAT DefaultProp_ForceModel.GravityField.Luna.PotentialFile = 'LP165P.cof';
+GMAT DefaultProp_ForceModel.GravityField.Luna.TideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-12;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 60;
+GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem MoonMJ2000Eq;
+GMAT MoonMJ2000Eq.Origin = Luna;
+GMAT MoonMJ2000Eq.Axes = MJ2000Eq;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create OrbitView DefaultOrbitView;
+GMAT DefaultOrbitView.SolverIterations = Current;
+GMAT DefaultOrbitView.UpperLeft = [ 0.2752941176470588 0.08533653846153846 ];
+GMAT DefaultOrbitView.Size = [ 0.4823529411764706 0.6310096153846154 ];
+GMAT DefaultOrbitView.RelativeZOrder = 154;
+GMAT DefaultOrbitView.Maximized = false;
+GMAT DefaultOrbitView.Add = {ELFO, Luna};
+GMAT DefaultOrbitView.CoordinateSystem = MoonMJ2000Eq;
+GMAT DefaultOrbitView.DrawObject = [ true true true true true ];
+GMAT DefaultOrbitView.DataCollectFrequency = 1;
+GMAT DefaultOrbitView.UpdatePlotFrequency = 50;
+GMAT DefaultOrbitView.NumPointsToRedraw = 0;
+GMAT DefaultOrbitView.ShowPlot = true;
+GMAT DefaultOrbitView.MaxPlotPoints = 20000;
+GMAT DefaultOrbitView.ShowLabels = true;
+GMAT DefaultOrbitView.ViewPointReference = Luna;
+GMAT DefaultOrbitView.ViewPointVector = [ 200000 0 0 ];
+GMAT DefaultOrbitView.ViewDirection = Luna;
+GMAT DefaultOrbitView.ViewScaleFactor = 1;
+GMAT DefaultOrbitView.ViewUpCoordinateSystem = MoonMJ2000Eq;
+GMAT DefaultOrbitView.ViewUpAxis = Z;
+GMAT DefaultOrbitView.EclipticPlane = Off;
+GMAT DefaultOrbitView.XYPlane = Off;
+GMAT DefaultOrbitView.WireFrame = Off;
+GMAT DefaultOrbitView.Axes = On;
+GMAT DefaultOrbitView.Grid = Off;
+GMAT DefaultOrbitView.SunLine = Off;
+GMAT DefaultOrbitView.UseInitialView = On;
+GMAT DefaultOrbitView.StarCount = 7000;
+GMAT DefaultOrbitView.EnableStars = On;
+GMAT DefaultOrbitView.EnableConstellations = Off;
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.UpperLeft = [ 0 0 ];
+GMAT ReportFile1.Size = [ 0 0 ];
+GMAT ReportFile1.RelativeZOrder = 0;
+GMAT ReportFile1.Maximized = false;
+GMAT ReportFile1.Filename = 'D:\Documents\Georgia Tech\_PNT\cislunar-nav\matlab\data\ELFO_20231027.txt';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.Add = {ELFO.MoonMJ2000Eq.X, ELFO.MoonMJ2000Eq.Y, ELFO.MoonMJ2000Eq.Z};
+GMAT ReportFile1.WriteHeaders = true;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.FixedWidth = true;
+GMAT ReportFile1.Delimiter = ' ';
+GMAT ReportFile1.ColumnWidth = 23;
+GMAT ReportFile1.WriteReport = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate Synchronized DefaultProp(ELFO) {ELFO.ElapsedDays = 1};

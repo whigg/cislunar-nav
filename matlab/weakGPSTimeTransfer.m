@@ -15,52 +15,87 @@ max_a = 40 * pi/180;    % rad, maximum off-boresight angle link can close
 c = 299792458;          % m/s, speed of light
 
 % SPICE kernel initialization
-t0 = convertTo(datetime('11-Feb-2027 00:00:00'), 'juliandate');
-t0 = (t0 - 2451545) * 86400;    % JD to seconds past J2000
+% t0 = convertTo(datetime('11-Feb-2027 00:00:00'), 'juliandate');
+% t0 = (t0 - 2451545) * 86400;    % JD to seconds past J2000
+% imdata = {'data/NSNS-DRM1.0-Khon2.bsp', 'data/NSNS-DRM1.0-Khon2.tpc.pc'};
 
-imdata = {'data/NSNS-DRM1.0-Khon2.bsp', 'data/NSNS-DRM1.0-Khon2.tpc.pc'};
-gendata = {'data/naif0012.tls', 'data/de430.bsp', 'data/gm_de431.tpc'};
-cspice_furnsh([imdata, gendata]);
+% % Lunar Reconnaissance Orbiter in low lunar orbit (nominal alt = 50km)
+% lrodata = {'lrorg_2009169_2010001_v01.bsp'};
+% % NOMINAL MISSION  2009-09-15 to 2010-09-15
+% % SCIENCE MISSION  2010-09-16 to 2012-09-15
+% % EXTENDED SCIENCE MISSION  2012-09-15 to 2014-09-15
+% % SECOND EXTENDED SCIENCE MISSION  2014-09-15 to 2016-09-15
+% % THIRD EXTENDED SCIENCE MISSION  2016-09-15 to 2019-09-15
+% % FOURTH EXTENDED SCIENCE MISSION  2019-09-15 to 2022-10-01
+% % FIFTH EXTENDED SCIENCE MISSION  2022-10-01 to 2025-10-01
+% % one month after time LRO obtained mission orbit
+% t0 = convertTo(datetime('15-Oct-2009 00:00:00'), 'juliandate');
+% t0 = (t0 - 2451545) * 86400;    % JD to seconds past J2000
+
+% Custom ELFO orbit generated in GMAT
+t0 = convertTo(datetime('27-Oct-2023 00:00:00'), 'juliandate');
+t0 = (t0 - 2451545) * 86400;    % JD to seconds past J2000
+elfodata = {'ELFO_20231026-20231103.bsp'};
+
+
+gendata = {'naif0012.tls', 'de430.bsp', 'gm_de431.tpc'};
+cspice_furnsh([ ...
+    cellfun(@(x) strcat('spice/elfo/',x), elfodata, 'UniformOutput', false), ...
+    cellfun(@(x) strcat('spice/generic/',x), gendata, 'UniformOutput', false)]);
 
 % get Moon, Earth, Sun, and GPS satellite trajectory handles
 file = 'G_2023-10-27_to_2023-11-02_060.pos';
 [t, moon, earth, sun, sats, satdata] = load_trajectories(file);
+t = t(1):60*1:t(end);
 tdays = (t - t(1)) ./ (60 * 60 * 24);   % elapsed days
 n = length(t);          % number of time steps
 M = length(sats);       % number of satellites total
 
-%% Khon-2 trajectory
+%% Spacecraft trajectory
 % realign time to start of Khon timespan for gathering of truth data
-x_true = cspice_spkezr('Khon-2', (t-t(1) + t0)', 'J2000', 'NONE', 'MOON');
-R = rotz(-30 * pi/180);
-x_true(1:3,:) = R * x_true(1:3,:);
-x_true(4:6,:) = R * x_true(4:6,:);
+% x_true = cspice_spkezr('Khon-2', (t-t(1) + t0)', 'J2000', 'NONE', 'MOON');
+% R = rotz(-30 * pi/180);
+% x_true(1:3,:) = R * x_true(1:3,:);
+% x_true(4:6,:) = R * x_true(4:6,:);
+
+x_true = cspice_spkezr('-10000001', t-t(1) + t0, 'J2000', 'NONE', 'MOON');
+
+fsz = 12;
+
+figure();
+plot3(x_true(1,:), x_true(2,:), x_true(3,:), "LineWidth", 1.5);
+hold on;
+% moon
+[Imoon, ~] = imread("data/lroc_color_poles_1k.jpg");
+[xx, yy, zz] = ellipsoid(0, 0, 0, moon.R, moon.R, moon.R);
+globe = surf(xx, yy, -zz);
+set(globe, 'FaceColor', 'texturemap', 'CData', Imoon, 'FaceAlpha', 1, ...
+    'EdgeColor', 'none');
+hold off; grid on; axis equal;
+xlabel("x (km)", "FontSize", fsz);
+ylabel("y (km)", "FontSize", fsz);
+zlabel("z (km)", "FontSize", fsz);
+title("7-day Elliptical Lunar Frozen Orbit Plot", "FontSize", fsz);
 
 %% Precomputed clock trajectory
-[Xclk, Qclk] = clockStateOverTime(t - t(1), 'CSAC');
+[Xclk, Qclk] = clockStateOverTime(t - t(1), 'RAFS');
 Xclk = Xclk .* c;                       % convert from time to distance
 
 %% pseudorange calculations
+clc, close all;
 % compute measured and expected pseudoranges
 % [UERE; UERRE] with an advanced receiver (Table 3.4-1, 3.4-2, A.4-1, and 
 % B.2-1; SPS PS 2020) plus clock error
 R_GPS = diag([9.7/1.96; .006/1.96].^2);
 UERE = @(i) mvnrnd([0 0], R_GPS*(1.^2))' + Xclk(1:2,i);
 % IM expected OD error ~10m, ~1cm/s (?) 3-sigma
-R_IM  = diag([4.0; .001/3].^2);
+R_IM  = diag(([10.0/3; .001/3]*1).^2);
 EPHE = @(~) mvnrnd([0 0], R_IM)';
 
 [psr_meas, psrr_meas] = compute_psr(t, x_true, sats, earth, moon, max_a, UERE);
 [psr_comp, psrr_comp] = compute_psr(t, x_true, sats, earth, moon, max_a, EPHE);
 psr_res = (psr_meas - psr_comp);        % m, pseudorange residuals
 psrr_res = (psrr_meas - psrr_comp);     % m/s, ^range-rate residuals
-
-figure();
-plot(tdays, Xclk(1,:));
-hold on;
-plot(tdays, sum(psr_res, 1) ./ sum(psr_res ~= 0, 1));
-hold off; grid on;
-xlabel("Time (days)"); ylabel("Clock bias (m)");
 
 %% Kalman filter design
 %  clock bias and frequency offset is assumed to be zero at start of
@@ -79,16 +114,16 @@ STM = @(tau) [1 tau tau^2/2;
               0 0   1       ];
 
 % covariance matrix of error associated w/ Wiener processes
-[s1, s2, s3] = DiffCoeffCSAC();
-s1 = s1 + 1e-10;
-s2 = s2 + 5e-14;
+[s1, s2, s3] = DiffCoeffRAFS();
+mult = 1;
+s1 = s1*mult; s2 = s2*mult; s3 = s3*mult;
 Q = @(tau) ...
      [s1^2*tau + s2^2/3*tau^3 + s3^2/20*tau^5 s2^2/2*tau^2 + s3^2/8*tau^4 s3^2/6*tau^3;
       s2^2/2*tau^2 + s3^2/8^tau^4             s2^2*tau + s3^2/3*tau^3     s3^2/2*tau^2;
       s3^2/6*tau^3                            s3^2/2*tau^2                s3^2*tau     ];
 
 % measurement variances of residuals (GPS + IM)
-var_res = diag(R_GPS + R_IM);
+var_res = diag(R_GPS + R_IM*(1)^2);
 
 for i=2:n
     dt = t(i) - t(i-1);                 % time step
@@ -119,49 +154,51 @@ diff = Xclk(1,:) - X(1,:);
 fprintf("3-sigma bound of Monte-Carlo run: %.3f m\n", std(diff) * 3);
 var_bias = reshape(Pt(1,1,:), [], 1);
 bnds = sqrt(var_bias) * 3;
-fprintf("Median 3-sigma bound of filter: %.3f m\n", median(bnds));
+fprintf("Median 3-sigma bound of filter: %.3f m (%.1f%%)\n", median(bnds), sum(abs(diff) < bnds') * 100 / n);
 nview = sum(psr_res ~= 0);
 
 % statistics of clock drift rate
-diff2 = Xclk(2,:) - X(2,:);
-fprintf("3-sigma bound of Monte-Carlo run: %.3f mm/s\n", std(diff2) * 3e3);
+diff2 = (Xclk(2,:) - X(2,:)) * 1e3;
+fprintf("3-sigma bound of Monte-Carlo run: %.3f mm/s\n", std(diff2) * 3);
 var_drift = reshape(Pt(2,2,:), [], 1);
 bnds2 = sqrt(var_drift) * 3e3;
-fprintf("Median 3-sigma bound of filter: %.3f mm/s\n", median(bnds2));
+fprintf("Median 3-sigma bound of filter: %.3f mm/s (%.1f%%)\n", median(bnds2), sum(abs(diff2) < bnds2') * 100 / n);
 
 
 
 % Plot monte-carlo run and performance of clock bias error
-h1 = figure();
+h1 = figure("Position", [300 300 750 330]);
 plot(tdays, Xclk(1,:) - X(1,:), 'LineWidth', 1);
 hold on;
 plot(tdays,  sqrt(var_bias) * 3, 'g--', 'LineWidth', 1);
 plot(tdays, -sqrt(var_bias) * 3, 'g--', 'LineWidth', 1, ...
      'HandleVisibility', 'off');
-plotViewOutages(tdays, nview, ylim);
+plotViewOutages(tdays, nview, [-40 40]);
 % plot(tdays, X(1,:));
 % plot(tdays, sum(psr_res) ./ sum(psr_res ~= 0));
 hold off; grid on;
+axis([-inf inf -40 40]);
 xlabel("Time (days)", 'FontSize', fsz);
 ylabel("Clock bias (m)", 'FontSize', fsz);
 title("Onboard clock bias error from Kalman filter", 'FontSize', fsz);
-legend(["MC Run", "3\sigma bound", "View outage"], ...
+legend(["Monte-Carlo Run", "3\sigma bound", "View outage"], ...
     'location', 'best', 'FontSize', fsz);
-fontname(h1, "Times New Roman");
+% fontname(h1, "Times New Roman");
 
 % Plot satellites in view each day
-h2 = figure();
+h2 = figure("Position", [300 300 750 330]);
 plot(tdays, nview, 'LineWidth', 1);
 grid on;
 xlabel("Time (days)", 'FontSize', fsz);
 ylabel("Visible GPS satellites", 'FontSize', fsz);
 title("Number of visible GPS satellites over time", 'FontSize', fsz);
-fontname(h2, "Times New Roman");
+% fontname(h2, "Times New Roman");
 
 %% render scene
+
 figure();
 
-plot3(x_true(1,:), x_true(2,:), x_true(3,:), 'c', 'Linewidth', 2);
+plot3(x_true(1,:), x_true(2,:), x_true(3,:), 'Linewidth', 2);
 hold on;
 
 ti = 1;
@@ -193,10 +230,9 @@ set(globe, 'FaceColor', 'texturemap', 'CData', Imoon, 'FaceAlpha', 1, ...
 
 hold off; grid on; axis equal;
 % set(gcf, 'Color', 'k');
-set(gca, 'Color', 'k');
+% set(gca, 'Color', 'k');
 xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
-legend(["Spacecraft Trajectory", "GNSS Satellite"], 'location', 'best', ...
-    'TextColor', 'w');
+legend(["Spacecraft Trajectory", "Visible GPS Satellites"], 'location', 'best');
 
 %% plot all GNSS satellites and affiliation
 figure();
