@@ -6,7 +6,7 @@ function [T, moon, earth, sun, sats, satdata] = load_trajectories(file)
 %    - file; relative path to the .sp3 or .pos file
 
 moon.R  = 1734;         % km, equatorial radius of moon
-earth.R = 6378; % + 965;   % km, equatorial radius of earth + ionosphere
+earth.R = 6378 + 1000;   % km, equatorial radius of earth + ionosphere
 sun.R   = 695700;       % km, radius of sun
 
 moon.GM  = cspice_bodvrd('MOON','GM',1);
