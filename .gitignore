@@ -6,6 +6,8 @@
 !/python/gmat/training/temp_MoonOrb.script
 !/python/data/training/temp_MoonOrb.txt
 !/python/data/kernels/README.md
+## Ignore plots
+**/plots/*
 
 # ignore large SPICE kernel(s) and GPS data
 de430.bsp
