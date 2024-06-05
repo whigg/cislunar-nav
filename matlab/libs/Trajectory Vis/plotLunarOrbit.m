@@ -1,33 +1,51 @@
-function plotLunarOrbit(x, name, moon)
+function plotLunarOrbit(ts,sats,plot_frame,name)
 %PLOTLUNARORBIT Plots the trajectory of a lunar orbit, given the 3- or
 %6-state output of ODE45 (or similar propagators).
 %   Inputs: (dims),[units]
-%    - x   ; (nx6),[km, km/s] time-history of satellite state
+%    - n   ; (1x1),[N/A] number of satellites
+%    - x   ; (6*nxm),[km, km/s] time-history of satellite state
 %    - name; (1x1), [N/A] string, plot title
-%    - moon; optional boolean argument, whether or not to have moon
-%            (default true)
 
-if nargin < 3, moon = true; end
+COLOR = [0 0.4470 0.7410];
 
 figure();
-% satellite
-plot3(x(:,1), x(:,2), x(:,3), 'b', 'LineWidth', 2);
-hold on;
-scatter3(x(end,1), x(end,2), x(end,3), 'ro', 'LineWidth', 2);
+% Display moon in trajectory plot
+R_me = 1738.1;          % km, moon equatorial radius
+R_mp = 1736;            % km, moon polar radius
+[Imoon, ~] = imread(userpath + "/astrodynamics/Moon_HermesCelestiaMotherlode.jpg");
+[xx, yy, zz] = ellipsoid(0, 0, 0, R_me, R_me, R_mp);
 
-% moon
-if moon
-    r = 1737;   % km, lunar equatorial radius
-    [I, ~] = imread("lroc_color_poles_1k.jpg");
-    [xx, yy, zz] = ellipsoid(0, 0, 0, r, r, r);
-    globe = surf(xx, yy, -zz);
-    set(globe, 'FaceColor', 'texturemap', 'CData', I, 'FaceAlpha', 1, ...
-        'EdgeColor', 'none');
+% Rotate moon from MOON_ME frame to plot_frame
+T = cspice_pxform('MOON_ME', plot_frame, ts(end));
+for j=1:size(xx,1)
+    for k=1:size(xx,2)
+        % -z to flip image
+        tmp = T * [xx(j,k); yy(j,k); -zz(j,k)];
+        xx(j,k) = tmp(1); yy(j,k) = tmp(2); zz(j,k) = tmp(3);
+    end
 end
 
-hold off; axis equal; grid on;
-xlabel("x (km)"); ylabel("y (km)"); zlabel("z (km)");
-legend(["Orbit", "Satellite"], "location", "best");
+globe = surf(xx, yy, zz);
+set(globe, 'FaceColor', 'texturemap', 'CData', Imoon, 'FaceAlpha', 1, ...
+    'EdgeColor', 'none');
+hold on;
+
+% put a little star on the south pole
+lsp = T * [0;0;-R_mp];
+scatter3(lsp(1), lsp(2), lsp(3), 100, "red", "filled", "pentagram");
+
+% plot user trajectory for same time frame
+for k=1:size(sats,3)
+    plot3(sats(:,1,k), sats(:,2,k), sats(:,3,k), "LineWidth", 1.5, "Color", COLOR, ...
+        "Marker", "diamond", "MarkerFaceColor", COLOR, "MarkerIndices", length(ts));
+end
+
+grid on; axis equal;
+SUB = strsplit(plot_frame,"_");
+SUB = SUB(end);
+xlabel("x_{"+SUB+"} (km)");
+ylabel("y_{"+SUB+"} (km)");
+zlabel("z_{"+SUB+"} (km)");
 title(name);
 end
 

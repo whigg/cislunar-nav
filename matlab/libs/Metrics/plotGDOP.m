@@ -45,6 +45,6 @@ xlabel(sprintf("Time (%s)", fmt));
 ylabel("Geometric Dilution of Precision");
 title("Geometric Dilution of Precision for User");
 
-set(gcf, 'position', [500, 250, 750, 500]);         % fixed size
+% set(gcf, 'position', [500, 250, 750, 500]);         % fixed size
 end
 

@@ -21,7 +21,7 @@ for i=1:length(GDOP)
         G = ones(nvis(i), 4);
         
         for j = 1:nvis(i)
-            ik = sats(i,:,vis(j)) - pos';
+            ik = sats(i,1:3,vis(j)) - pos';
             G(j,1:3) = ik / norm(ik);
         end
     
