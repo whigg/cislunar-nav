@@ -44,7 +44,7 @@ R = eye(3) + sin(ang) * U + (1 - cos(ang)) * U^2;
 
 visible = zeros(size(sats, 1), size(sats, 3));
 for i=1:size(sats,3)
-    loc = R * sats(:,:,i)';
+    loc = R * sats(:,1:3,i)';
     visible(:,i) = (loc(3,:) < zcone(loc(1,:), loc(2,:)))' * i;
 end
 end
