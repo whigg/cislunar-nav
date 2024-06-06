@@ -1,8 +1,9 @@
-function [X, V] = clockStateOverTime(t, clk)
+function [X, V] = clockStateOverTime(t,x0,clk)
 %CLOCKSTATEOVERTIME Returns the 3-state history of a specified clock over
 %the given time period.
 %   Inputs: (dims),[units]
 %    - t  ; (nx1),[s] time steps to evaluate clock at, initialized at t(1)
+%    - x0 ; (3,1) starting state of clock
 %    - clk; (1x1),[str] clock type -- either 'CSAC', 'RAFS', or 'USO'
 %   Output:
 %    - X  ; (3xn),[s; 1; 1/s] 3-state clock vector over time interval
@@ -11,15 +12,12 @@ function [X, V] = clockStateOverTime(t, clk)
 n = length(t);
 % state vector (phase deviation, frequency deviation, frequency drift)
 X = zeros(3, n);
+X(:,1) = x0;
 % variance of phase deviation
 V = zeros(3, 3, n);
 
 if strcmp(clk, 'CSAC')
     [s1, s2, s3] = DiffCoeffCSAC();
-    X(3,1) = 9e-10 / (86400 * 30);  % Hz/Hz/s, upper end of aging rate a
-    s1 = s1;
-    s2 = s2;
-    % s3 = 0;%X(3,1);
 elseif strcmp(clk, 'RAFS')
     [s1, s2, s3] = DiffCoeffRAFS();
 elseif strcmp(clk, 'USO')
