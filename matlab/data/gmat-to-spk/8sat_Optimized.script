@@ -1,0 +1,646 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2024-04-12 13:07:00
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft LNSS1;
+GMAT LNSS1.DateFormat = UTCGregorian;
+GMAT LNSS1.Epoch = '10 Oct 2009 00:00:00.000';
+GMAT LNSS1.CoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS1.DisplayStateType = Keplerian;
+GMAT LNSS1.SMA = 6541.399999999643;
+GMAT LNSS1.ECC = 0.5999999999999952;
+GMAT LNSS1.INC = 56.20000000000025;
+GMAT LNSS1.RAAN = 0;
+GMAT LNSS1.AOP = 89.99999999999842;
+GMAT LNSS1.TA = 43.69000000000191;
+GMAT LNSS1.DryMass = 80;
+GMAT LNSS1.Cd = 2.1;
+GMAT LNSS1.Cr = 1.75;
+GMAT LNSS1.DragArea = 1.8;
+GMAT LNSS1.SRPArea = 2.5;
+GMAT LNSS1.SPADDragScaleFactor = 1;
+GMAT LNSS1.SPADSRPScaleFactor = 1;
+GMAT LNSS1.AtmosDensityScaleFactor = 1;
+GMAT LNSS1.ExtendedMassPropertiesModel = 'None';
+GMAT LNSS1.NAIFId = -10000001;
+GMAT LNSS1.NAIFIdReferenceFrame = -9000001;
+GMAT LNSS1.OrbitColor = Red;
+GMAT LNSS1.TargetColor = Teal;
+GMAT LNSS1.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT LNSS1.CdSigma = 1e+70;
+GMAT LNSS1.CrSigma = 1e+70;
+GMAT LNSS1.Id = 'SatId';
+GMAT LNSS1.Attitude = CoordinateSystemFixed;
+GMAT LNSS1.SPADSRPInterpolationMethod = Bilinear;
+GMAT LNSS1.SPADSRPScaleFactorSigma = 1e+70;
+GMAT LNSS1.SPADDragInterpolationMethod = Bilinear;
+GMAT LNSS1.SPADDragScaleFactorSigma = 1e+70;
+GMAT LNSS1.AtmosDensityScaleFactorSigma = 1e+70;
+GMAT LNSS1.ModelFile = 'aura.3ds';
+GMAT LNSS1.ModelOffsetX = 0;
+GMAT LNSS1.ModelOffsetY = 0;
+GMAT LNSS1.ModelOffsetZ = 0;
+GMAT LNSS1.ModelRotationX = 0;
+GMAT LNSS1.ModelRotationY = 0;
+GMAT LNSS1.ModelRotationZ = 0;
+GMAT LNSS1.ModelScale = 1;
+GMAT LNSS1.AttitudeDisplayStateType = 'Quaternion';
+GMAT LNSS1.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT LNSS1.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS1.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft LNSS2;
+GMAT LNSS2.DateFormat = UTCGregorian;
+GMAT LNSS2.Epoch = '10 Oct 2009 00:00:00.000';
+GMAT LNSS2.CoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS2.DisplayStateType = Keplerian;
+GMAT LNSS2.SMA = 6541.399999999996;
+GMAT LNSS2.ECC = 0.6000000000000026;
+GMAT LNSS2.INC = 56.20000000000002;
+GMAT LNSS2.RAAN = 360;
+GMAT LNSS2.AOP = 89.99999999999964;
+GMAT LNSS2.TA = 183.3400000000002;
+GMAT LNSS2.DryMass = 80;
+GMAT LNSS2.Cd = 2.1;
+GMAT LNSS2.Cr = 1.75;
+GMAT LNSS2.DragArea = 1.8;
+GMAT LNSS2.SRPArea = 2.5;
+GMAT LNSS2.SPADDragScaleFactor = 1;
+GMAT LNSS2.SPADSRPScaleFactor = 1;
+GMAT LNSS2.AtmosDensityScaleFactor = 1;
+GMAT LNSS2.ExtendedMassPropertiesModel = 'None';
+GMAT LNSS2.NAIFId = -10000001;
+GMAT LNSS2.NAIFIdReferenceFrame = -9000001;
+GMAT LNSS2.OrbitColor = Red;
+GMAT LNSS2.TargetColor = Teal;
+GMAT LNSS2.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT LNSS2.CdSigma = 1e+70;
+GMAT LNSS2.CrSigma = 1e+70;
+GMAT LNSS2.Id = 'SatId';
+GMAT LNSS2.Attitude = CoordinateSystemFixed;
+GMAT LNSS2.SPADSRPInterpolationMethod = Bilinear;
+GMAT LNSS2.SPADSRPScaleFactorSigma = 1e+70;
+GMAT LNSS2.SPADDragInterpolationMethod = Bilinear;
+GMAT LNSS2.SPADDragScaleFactorSigma = 1e+70;
+GMAT LNSS2.AtmosDensityScaleFactorSigma = 1e+70;
+GMAT LNSS2.ModelFile = 'aura.3ds';
+GMAT LNSS2.ModelOffsetX = 0;
+GMAT LNSS2.ModelOffsetY = 0;
+GMAT LNSS2.ModelOffsetZ = 0;
+GMAT LNSS2.ModelRotationX = 0;
+GMAT LNSS2.ModelRotationY = 0;
+GMAT LNSS2.ModelRotationZ = 0;
+GMAT LNSS2.ModelScale = 1;
+GMAT LNSS2.AttitudeDisplayStateType = 'Quaternion';
+GMAT LNSS2.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT LNSS2.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS2.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft LNSS3;
+GMAT LNSS3.DateFormat = UTCGregorian;
+GMAT LNSS3.Epoch = '10 Oct 2009 00:00:00.000';
+GMAT LNSS3.CoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS3.DisplayStateType = Keplerian;
+GMAT LNSS3.SMA = 6541.2;
+GMAT LNSS3.ECC = 0.6000000000000003;
+GMAT LNSS3.INC = 56.2000000000001;
+GMAT LNSS3.RAAN = 0;
+GMAT LNSS3.AOP = 89.99999999999989;
+GMAT LNSS3.TA = 152.5800000000001;
+GMAT LNSS3.DryMass = 80;
+GMAT LNSS3.Cd = 2.1;
+GMAT LNSS3.Cr = 1.75;
+GMAT LNSS3.DragArea = 1.8;
+GMAT LNSS3.SRPArea = 2.5;
+GMAT LNSS3.SPADDragScaleFactor = 1;
+GMAT LNSS3.SPADSRPScaleFactor = 1;
+GMAT LNSS3.AtmosDensityScaleFactor = 1;
+GMAT LNSS3.ExtendedMassPropertiesModel = 'None';
+GMAT LNSS3.NAIFId = -10000001;
+GMAT LNSS3.NAIFIdReferenceFrame = -9000001;
+GMAT LNSS3.OrbitColor = Red;
+GMAT LNSS3.TargetColor = Teal;
+GMAT LNSS3.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT LNSS3.CdSigma = 1e+70;
+GMAT LNSS3.CrSigma = 1e+70;
+GMAT LNSS3.Id = 'SatId';
+GMAT LNSS3.Attitude = CoordinateSystemFixed;
+GMAT LNSS3.SPADSRPInterpolationMethod = Bilinear;
+GMAT LNSS3.SPADSRPScaleFactorSigma = 1e+70;
+GMAT LNSS3.SPADDragInterpolationMethod = Bilinear;
+GMAT LNSS3.SPADDragScaleFactorSigma = 1e+70;
+GMAT LNSS3.AtmosDensityScaleFactorSigma = 1e+70;
+GMAT LNSS3.ModelFile = 'aura.3ds';
+GMAT LNSS3.ModelOffsetX = 0;
+GMAT LNSS3.ModelOffsetY = 0;
+GMAT LNSS3.ModelOffsetZ = 0;
+GMAT LNSS3.ModelRotationX = 0;
+GMAT LNSS3.ModelRotationY = 0;
+GMAT LNSS3.ModelRotationZ = 0;
+GMAT LNSS3.ModelScale = 1;
+GMAT LNSS3.AttitudeDisplayStateType = 'Quaternion';
+GMAT LNSS3.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT LNSS3.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS3.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft LNSS4;
+GMAT LNSS4.DateFormat = UTCGregorian;
+GMAT LNSS4.Epoch = '10 Oct 2009 00:00:00.000';
+GMAT LNSS4.CoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS4.DisplayStateType = Keplerian;
+GMAT LNSS4.SMA = 6541.400000000006;
+GMAT LNSS4.ECC = 0.5999999999999995;
+GMAT LNSS4.INC = 56.20000000000053;
+GMAT LNSS4.RAAN = 360;
+GMAT LNSS4.AOP = 89.9999999999994;
+GMAT LNSS4.TA = 216.8700000000001;
+GMAT LNSS4.DryMass = 80;
+GMAT LNSS4.Cd = 2.1;
+GMAT LNSS4.Cr = 1.75;
+GMAT LNSS4.DragArea = 1.8;
+GMAT LNSS4.SRPArea = 2.5;
+GMAT LNSS4.SPADDragScaleFactor = 1;
+GMAT LNSS4.SPADSRPScaleFactor = 1;
+GMAT LNSS4.AtmosDensityScaleFactor = 1;
+GMAT LNSS4.ExtendedMassPropertiesModel = 'None';
+GMAT LNSS4.NAIFId = -10000001;
+GMAT LNSS4.NAIFIdReferenceFrame = -9000001;
+GMAT LNSS4.OrbitColor = Red;
+GMAT LNSS4.TargetColor = Teal;
+GMAT LNSS4.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT LNSS4.CdSigma = 1e+70;
+GMAT LNSS4.CrSigma = 1e+70;
+GMAT LNSS4.Id = 'SatId';
+GMAT LNSS4.Attitude = CoordinateSystemFixed;
+GMAT LNSS4.SPADSRPInterpolationMethod = Bilinear;
+GMAT LNSS4.SPADSRPScaleFactorSigma = 1e+70;
+GMAT LNSS4.SPADDragInterpolationMethod = Bilinear;
+GMAT LNSS4.SPADDragScaleFactorSigma = 1e+70;
+GMAT LNSS4.AtmosDensityScaleFactorSigma = 1e+70;
+GMAT LNSS4.ModelFile = 'aura.3ds';
+GMAT LNSS4.ModelOffsetX = 0;
+GMAT LNSS4.ModelOffsetY = 0;
+GMAT LNSS4.ModelOffsetZ = 0;
+GMAT LNSS4.ModelRotationX = 0;
+GMAT LNSS4.ModelRotationY = 0;
+GMAT LNSS4.ModelRotationZ = 0;
+GMAT LNSS4.ModelScale = 1;
+GMAT LNSS4.AttitudeDisplayStateType = 'Quaternion';
+GMAT LNSS4.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT LNSS4.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS4.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft LNSS5;
+GMAT LNSS5.DateFormat = UTCGregorian;
+GMAT LNSS5.Epoch = '10 Oct 2009 00:00:00.000';
+GMAT LNSS5.CoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS5.DisplayStateType = Keplerian;
+GMAT LNSS5.SMA = 6541.400000000035;
+GMAT LNSS5.ECC = 0.6000000000000114;
+GMAT LNSS5.INC = 56.20000000000014;
+GMAT LNSS5.RAAN = 180;
+GMAT LNSS5.AOP = 89.99999999999926;
+GMAT LNSS5.TA = 42.90000000000131;
+GMAT LNSS5.DryMass = 80;
+GMAT LNSS5.Cd = 2.1;
+GMAT LNSS5.Cr = 1.75;
+GMAT LNSS5.DragArea = 1.8;
+GMAT LNSS5.SRPArea = 2.5;
+GMAT LNSS5.SPADDragScaleFactor = 1;
+GMAT LNSS5.SPADSRPScaleFactor = 1;
+GMAT LNSS5.AtmosDensityScaleFactor = 1;
+GMAT LNSS5.ExtendedMassPropertiesModel = 'None';
+GMAT LNSS5.NAIFId = -10000001;
+GMAT LNSS5.NAIFIdReferenceFrame = -9000001;
+GMAT LNSS5.OrbitColor = Red;
+GMAT LNSS5.TargetColor = Teal;
+GMAT LNSS5.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT LNSS5.CdSigma = 1e+70;
+GMAT LNSS5.CrSigma = 1e+70;
+GMAT LNSS5.Id = 'SatId';
+GMAT LNSS5.Attitude = CoordinateSystemFixed;
+GMAT LNSS5.SPADSRPInterpolationMethod = Bilinear;
+GMAT LNSS5.SPADSRPScaleFactorSigma = 1e+70;
+GMAT LNSS5.SPADDragInterpolationMethod = Bilinear;
+GMAT LNSS5.SPADDragScaleFactorSigma = 1e+70;
+GMAT LNSS5.AtmosDensityScaleFactorSigma = 1e+70;
+GMAT LNSS5.ModelFile = 'aura.3ds';
+GMAT LNSS5.ModelOffsetX = 0;
+GMAT LNSS5.ModelOffsetY = 0;
+GMAT LNSS5.ModelOffsetZ = 0;
+GMAT LNSS5.ModelRotationX = 0;
+GMAT LNSS5.ModelRotationY = 0;
+GMAT LNSS5.ModelRotationZ = 0;
+GMAT LNSS5.ModelScale = 1;
+GMAT LNSS5.AttitudeDisplayStateType = 'Quaternion';
+GMAT LNSS5.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT LNSS5.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS5.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft LNSS6;
+GMAT LNSS6.DateFormat = UTCGregorian;
+GMAT LNSS6.Epoch = '10 Oct 2009 00:00:00.000';
+GMAT LNSS6.CoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS6.DisplayStateType = Keplerian;
+GMAT LNSS6.SMA = 6541.40000000002;
+GMAT LNSS6.ECC = 0.5999999999999998;
+GMAT LNSS6.INC = 56.20000000000005;
+GMAT LNSS6.RAAN = 180;
+GMAT LNSS6.AOP = 89.99999999999957;
+GMAT LNSS6.TA = 152.2199999999998;
+GMAT LNSS6.DryMass = 80;
+GMAT LNSS6.Cd = 2.1;
+GMAT LNSS6.Cr = 1.75;
+GMAT LNSS6.DragArea = 1.8;
+GMAT LNSS6.SRPArea = 2.5;
+GMAT LNSS6.SPADDragScaleFactor = 1;
+GMAT LNSS6.SPADSRPScaleFactor = 1;
+GMAT LNSS6.AtmosDensityScaleFactor = 1;
+GMAT LNSS6.ExtendedMassPropertiesModel = 'None';
+GMAT LNSS6.NAIFId = -10000001;
+GMAT LNSS6.NAIFIdReferenceFrame = -9000001;
+GMAT LNSS6.OrbitColor = Red;
+GMAT LNSS6.TargetColor = Teal;
+GMAT LNSS6.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT LNSS6.CdSigma = 1e+70;
+GMAT LNSS6.CrSigma = 1e+70;
+GMAT LNSS6.Id = 'SatId';
+GMAT LNSS6.Attitude = CoordinateSystemFixed;
+GMAT LNSS6.SPADSRPInterpolationMethod = Bilinear;
+GMAT LNSS6.SPADSRPScaleFactorSigma = 1e+70;
+GMAT LNSS6.SPADDragInterpolationMethod = Bilinear;
+GMAT LNSS6.SPADDragScaleFactorSigma = 1e+70;
+GMAT LNSS6.AtmosDensityScaleFactorSigma = 1e+70;
+GMAT LNSS6.ModelFile = 'aura.3ds';
+GMAT LNSS6.ModelOffsetX = 0;
+GMAT LNSS6.ModelOffsetY = 0;
+GMAT LNSS6.ModelOffsetZ = 0;
+GMAT LNSS6.ModelRotationX = 0;
+GMAT LNSS6.ModelRotationY = 0;
+GMAT LNSS6.ModelRotationZ = 0;
+GMAT LNSS6.ModelScale = 1;
+GMAT LNSS6.AttitudeDisplayStateType = 'Quaternion';
+GMAT LNSS6.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT LNSS6.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS6.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft LNSS7;
+GMAT LNSS7.DateFormat = UTCGregorian;
+GMAT LNSS7.Epoch = '10 Oct 2009 00:00:00.000';
+GMAT LNSS7.CoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS7.DisplayStateType = Keplerian;
+GMAT LNSS7.SMA = 6541.399999999995;
+GMAT LNSS7.ECC = 0.6000000000000004;
+GMAT LNSS7.INC = 56.20000000000021;
+GMAT LNSS7.RAAN = 180;
+GMAT LNSS7.AOP = 90.00000000000017;
+GMAT LNSS7.TA = 182.82;
+GMAT LNSS7.DryMass = 80;
+GMAT LNSS7.Cd = 2.1;
+GMAT LNSS7.Cr = 1.75;
+GMAT LNSS7.DragArea = 1.8;
+GMAT LNSS7.SRPArea = 2.5;
+GMAT LNSS7.SPADDragScaleFactor = 1;
+GMAT LNSS7.SPADSRPScaleFactor = 1;
+GMAT LNSS7.AtmosDensityScaleFactor = 1;
+GMAT LNSS7.ExtendedMassPropertiesModel = 'None';
+GMAT LNSS7.NAIFId = -10000001;
+GMAT LNSS7.NAIFIdReferenceFrame = -9000001;
+GMAT LNSS7.OrbitColor = Red;
+GMAT LNSS7.TargetColor = Teal;
+GMAT LNSS7.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT LNSS7.CdSigma = 1e+70;
+GMAT LNSS7.CrSigma = 1e+70;
+GMAT LNSS7.Id = 'SatId';
+GMAT LNSS7.Attitude = CoordinateSystemFixed;
+GMAT LNSS7.SPADSRPInterpolationMethod = Bilinear;
+GMAT LNSS7.SPADSRPScaleFactorSigma = 1e+70;
+GMAT LNSS7.SPADDragInterpolationMethod = Bilinear;
+GMAT LNSS7.SPADDragScaleFactorSigma = 1e+70;
+GMAT LNSS7.AtmosDensityScaleFactorSigma = 1e+70;
+GMAT LNSS7.ModelFile = 'aura.3ds';
+GMAT LNSS7.ModelOffsetX = 0;
+GMAT LNSS7.ModelOffsetY = 0;
+GMAT LNSS7.ModelOffsetZ = 0;
+GMAT LNSS7.ModelRotationX = 0;
+GMAT LNSS7.ModelRotationY = 0;
+GMAT LNSS7.ModelRotationZ = 0;
+GMAT LNSS7.ModelScale = 1;
+GMAT LNSS7.AttitudeDisplayStateType = 'Quaternion';
+GMAT LNSS7.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT LNSS7.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS7.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft LNSS8;
+GMAT LNSS8.DateFormat = UTCGregorian;
+GMAT LNSS8.Epoch = '10 Oct 2009 00:00:00.000';
+GMAT LNSS8.CoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS8.DisplayStateType = Keplerian;
+GMAT LNSS8.SMA = 6541.399999999981;
+GMAT LNSS8.ECC = 0.6000000000000001;
+GMAT LNSS8.INC = 56.20000000000039;
+GMAT LNSS8.RAAN = 180;
+GMAT LNSS8.AOP = 89.99999999999987;
+GMAT LNSS8.TA = 217.2199999999999;
+GMAT LNSS8.DryMass = 80;
+GMAT LNSS8.Cd = 2.1;
+GMAT LNSS8.Cr = 1.75;
+GMAT LNSS8.DragArea = 1.8;
+GMAT LNSS8.SRPArea = 2.5;
+GMAT LNSS8.SPADDragScaleFactor = 1;
+GMAT LNSS8.SPADSRPScaleFactor = 1;
+GMAT LNSS8.AtmosDensityScaleFactor = 1;
+GMAT LNSS8.ExtendedMassPropertiesModel = 'None';
+GMAT LNSS8.NAIFId = -10000001;
+GMAT LNSS8.NAIFIdReferenceFrame = -9000001;
+GMAT LNSS8.OrbitColor = Red;
+GMAT LNSS8.TargetColor = Teal;
+GMAT LNSS8.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT LNSS8.CdSigma = 1e+70;
+GMAT LNSS8.CrSigma = 1e+70;
+GMAT LNSS8.Id = 'SatId';
+GMAT LNSS8.Attitude = CoordinateSystemFixed;
+GMAT LNSS8.SPADSRPInterpolationMethod = Bilinear;
+GMAT LNSS8.SPADSRPScaleFactorSigma = 1e+70;
+GMAT LNSS8.SPADDragInterpolationMethod = Bilinear;
+GMAT LNSS8.SPADDragScaleFactorSigma = 1e+70;
+GMAT LNSS8.AtmosDensityScaleFactorSigma = 1e+70;
+GMAT LNSS8.ModelFile = 'aura.3ds';
+GMAT LNSS8.ModelOffsetX = 0;
+GMAT LNSS8.ModelOffsetY = 0;
+GMAT LNSS8.ModelOffsetZ = 0;
+GMAT LNSS8.ModelRotationX = 0;
+GMAT LNSS8.ModelRotationY = 0;
+GMAT LNSS8.ModelRotationZ = 0;
+GMAT LNSS8.ModelScale = 1;
+GMAT LNSS8.AttitudeDisplayStateType = 'Quaternion';
+GMAT LNSS8.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT LNSS8.AttitudeCoordinateSystem = MoonMJ2000Eq;
+GMAT LNSS8.EulerAngleSequence = '321';
+
+%----------------------------------------
+%---------- Formation
+%----------------------------------------
+
+Create Formation LNSS;
+GMAT LNSS.Add = {LNSS1, LNSS2, LNSS3, LNSS4, LNSS5, LNSS6, LNSS7, LNSS8};
+
+
+
+
+
+
+
+
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel DefaultProp_ForceModel;
+GMAT DefaultProp_ForceModel.CentralBody = Luna;
+GMAT DefaultProp_ForceModel.PrimaryBodies = {Luna};
+GMAT DefaultProp_ForceModel.PointMasses = {Earth, Sun};
+GMAT DefaultProp_ForceModel.Drag = None;
+GMAT DefaultProp_ForceModel.SRP = Off;
+GMAT DefaultProp_ForceModel.RelativisticCorrection = Off;
+GMAT DefaultProp_ForceModel.ErrorControl = RSSStep;
+GMAT DefaultProp_ForceModel.GravityField.Luna.Degree = 16;
+GMAT DefaultProp_ForceModel.GravityField.Luna.Order = 16;
+GMAT DefaultProp_ForceModel.GravityField.Luna.StmLimit = 100;
+GMAT DefaultProp_ForceModel.GravityField.Luna.PotentialFile = 'LP165P.cof';
+GMAT DefaultProp_ForceModel.GravityField.Luna.TideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator DefaultProp;
+GMAT DefaultProp.FM = DefaultProp_ForceModel;
+GMAT DefaultProp.Type = RungeKutta89;
+GMAT DefaultProp.InitialStepSize = 60;
+GMAT DefaultProp.Accuracy = 9.999999999999999e-12;
+GMAT DefaultProp.MinStep = 0.001;
+GMAT DefaultProp.MaxStep = 60;
+GMAT DefaultProp.MaxStepAttempts = 50;
+GMAT DefaultProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem MoonMJ2000Eq;
+GMAT MoonMJ2000Eq.Origin = Luna;
+GMAT MoonMJ2000Eq.Axes = MJ2000Eq;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create OrbitView OrbitView1;
+GMAT OrbitView1.SolverIterations = Current;
+GMAT OrbitView1.UpperLeft = [ 0.2741176470588235 0.08333333333333333 ];
+GMAT OrbitView1.Size = [ 0.4823529411764706 0.6305970149253731 ];
+GMAT OrbitView1.RelativeZOrder = 16;
+GMAT OrbitView1.Maximized = false;
+GMAT OrbitView1.Add = {Luna};
+GMAT OrbitView1.CoordinateSystem = MoonMJ2000Eq;
+GMAT OrbitView1.DrawObject = [ true ];
+GMAT OrbitView1.DataCollectFrequency = 1;
+GMAT OrbitView1.UpdatePlotFrequency = 50;
+GMAT OrbitView1.NumPointsToRedraw = 0;
+GMAT OrbitView1.ShowPlot = true;
+GMAT OrbitView1.MaxPlotPoints = 20000;
+GMAT OrbitView1.ShowLabels = true;
+GMAT OrbitView1.ViewPointReference = Luna;
+GMAT OrbitView1.ViewPointVector = [ 200000 0 0 ];
+GMAT OrbitView1.ViewDirection = Luna;
+GMAT OrbitView1.ViewScaleFactor = 1;
+GMAT OrbitView1.ViewUpCoordinateSystem = MoonMJ2000Eq;
+GMAT OrbitView1.ViewUpAxis = Z;
+GMAT OrbitView1.EclipticPlane = Off;
+GMAT OrbitView1.XYPlane = Off;
+GMAT OrbitView1.WireFrame = Off;
+GMAT OrbitView1.Axes = On;
+GMAT OrbitView1.Grid = Off;
+GMAT OrbitView1.SunLine = Off;
+GMAT OrbitView1.UseInitialView = On;
+GMAT OrbitView1.StarCount = 7000;
+GMAT OrbitView1.EnableStars = On;
+GMAT OrbitView1.EnableConstellations = Off;
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.UpperLeft = [ 0 0 ];
+GMAT ReportFile1.Size = [ 0 0 ];
+GMAT ReportFile1.RelativeZOrder = 0;
+GMAT ReportFile1.Maximized = false;
+GMAT ReportFile1.Filename = 'D:\Documents\Georgia Tech\AE 6505\PROJ\6505 Project Repository\res\lnss1_data_20091010_20091109.txt';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.Add = {LNSS1.UTCGregorian, LNSS1.MoonMJ2000Eq.X, LNSS1.MoonMJ2000Eq.Y, LNSS1.MoonMJ2000Eq.Z, LNSS1.MoonMJ2000Eq.VX, LNSS1.MoonMJ2000Eq.VY, LNSS1.MoonMJ2000Eq.VZ};
+GMAT ReportFile1.WriteHeaders = true;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.FixedWidth = false;
+GMAT ReportFile1.Delimiter = ',';
+GMAT ReportFile1.ColumnWidth = 23;
+GMAT ReportFile1.WriteReport = true;
+
+Create ReportFile ReportFile2;
+GMAT ReportFile2.SolverIterations = Current;
+GMAT ReportFile2.UpperLeft = [ 0 0 ];
+GMAT ReportFile2.Size = [ 0 0 ];
+GMAT ReportFile2.RelativeZOrder = 0;
+GMAT ReportFile2.Maximized = false;
+GMAT ReportFile2.Filename = 'D:\Documents\Georgia Tech\AE 6505\PROJ\6505 Project Repository\res\lnss2_data_20091010_20091109.txt';
+GMAT ReportFile2.Precision = 16;
+GMAT ReportFile2.Add = {LNSS2.UTCGregorian, LNSS2.MoonMJ2000Eq.X, LNSS2.MoonMJ2000Eq.Y, LNSS2.MoonMJ2000Eq.Z, LNSS2.MoonMJ2000Eq.VX, LNSS2.MoonMJ2000Eq.VY, LNSS2.MoonMJ2000Eq.VZ};
+GMAT ReportFile2.WriteHeaders = true;
+GMAT ReportFile2.LeftJustify = On;
+GMAT ReportFile2.ZeroFill = Off;
+GMAT ReportFile2.FixedWidth = false;
+GMAT ReportFile2.Delimiter = ',';
+GMAT ReportFile2.ColumnWidth = 23;
+GMAT ReportFile2.WriteReport = true;
+
+Create ReportFile ReportFile3;
+GMAT ReportFile3.SolverIterations = Current;
+GMAT ReportFile3.UpperLeft = [ 0 0 ];
+GMAT ReportFile3.Size = [ 0 0 ];
+GMAT ReportFile3.RelativeZOrder = 0;
+GMAT ReportFile3.Maximized = false;
+GMAT ReportFile3.Filename = 'D:\Documents\Georgia Tech\AE 6505\PROJ\6505 Project Repository\res\lnss3_data_20091010_20091109.txt';
+GMAT ReportFile3.Precision = 16;
+GMAT ReportFile3.Add = {LNSS3.UTCGregorian, LNSS3.MoonMJ2000Eq.X, LNSS3.MoonMJ2000Eq.Y, LNSS3.MoonMJ2000Eq.Z, LNSS3.MoonMJ2000Eq.VX, LNSS3.MoonMJ2000Eq.VY, LNSS3.MoonMJ2000Eq.VZ};
+GMAT ReportFile3.WriteHeaders = true;
+GMAT ReportFile3.LeftJustify = On;
+GMAT ReportFile3.ZeroFill = Off;
+GMAT ReportFile3.FixedWidth = false;
+GMAT ReportFile3.Delimiter = ',';
+GMAT ReportFile3.ColumnWidth = 23;
+GMAT ReportFile3.WriteReport = true;
+
+Create ReportFile ReportFile4;
+GMAT ReportFile4.SolverIterations = Current;
+GMAT ReportFile4.UpperLeft = [ 0 0 ];
+GMAT ReportFile4.Size = [ 0 0 ];
+GMAT ReportFile4.RelativeZOrder = 0;
+GMAT ReportFile4.Maximized = false;
+GMAT ReportFile4.Filename = 'D:\Documents\Georgia Tech\AE 6505\PROJ\6505 Project Repository\res\lnss4_data_20091010_20091109.txt';
+GMAT ReportFile4.Precision = 16;
+GMAT ReportFile4.Add = {LNSS4.UTCGregorian, LNSS4.MoonMJ2000Eq.X, LNSS4.MoonMJ2000Eq.Y, LNSS4.MoonMJ2000Eq.Z, LNSS4.MoonMJ2000Eq.VX, LNSS4.MoonMJ2000Eq.VY, LNSS4.MoonMJ2000Eq.VZ};
+GMAT ReportFile4.WriteHeaders = true;
+GMAT ReportFile4.LeftJustify = On;
+GMAT ReportFile4.ZeroFill = Off;
+GMAT ReportFile4.FixedWidth = false;
+GMAT ReportFile4.Delimiter = ',';
+GMAT ReportFile4.ColumnWidth = 23;
+GMAT ReportFile4.WriteReport = true;
+
+Create ReportFile ReportFile5;
+GMAT ReportFile5.SolverIterations = Current;
+GMAT ReportFile5.UpperLeft = [ 0 0 ];
+GMAT ReportFile5.Size = [ 0 0 ];
+GMAT ReportFile5.RelativeZOrder = 0;
+GMAT ReportFile5.Maximized = false;
+GMAT ReportFile5.Filename = 'D:\Documents\Georgia Tech\AE 6505\PROJ\6505 Project Repository\res\lnss5_data_20091010_20091109.txt';
+GMAT ReportFile5.Precision = 16;
+GMAT ReportFile5.Add = {LNSS5.UTCGregorian, LNSS5.MoonMJ2000Eq.X, LNSS5.MoonMJ2000Eq.Y, LNSS5.MoonMJ2000Eq.Z, LNSS5.MoonMJ2000Eq.VX, LNSS5.MoonMJ2000Eq.VY, LNSS5.MoonMJ2000Eq.VZ};
+GMAT ReportFile5.WriteHeaders = true;
+GMAT ReportFile5.LeftJustify = On;
+GMAT ReportFile5.ZeroFill = Off;
+GMAT ReportFile5.FixedWidth = false;
+GMAT ReportFile5.Delimiter = ',';
+GMAT ReportFile5.ColumnWidth = 23;
+GMAT ReportFile5.WriteReport = true;
+
+Create ReportFile ReportFile6;
+GMAT ReportFile6.SolverIterations = Current;
+GMAT ReportFile6.UpperLeft = [ 0 0 ];
+GMAT ReportFile6.Size = [ 0 0 ];
+GMAT ReportFile6.RelativeZOrder = 0;
+GMAT ReportFile6.Maximized = false;
+GMAT ReportFile6.Filename = 'D:\Documents\Georgia Tech\AE 6505\PROJ\6505 Project Repository\res\lnss6_data_20091010_20091109.txt';
+GMAT ReportFile6.Precision = 16;
+GMAT ReportFile6.Add = {LNSS6.UTCGregorian, LNSS6.MoonMJ2000Eq.X, LNSS6.MoonMJ2000Eq.Y, LNSS6.MoonMJ2000Eq.Z, LNSS6.MoonMJ2000Eq.VX, LNSS6.MoonMJ2000Eq.VY, LNSS6.MoonMJ2000Eq.VZ};
+GMAT ReportFile6.WriteHeaders = true;
+GMAT ReportFile6.LeftJustify = On;
+GMAT ReportFile6.ZeroFill = Off;
+GMAT ReportFile6.FixedWidth = false;
+GMAT ReportFile6.Delimiter = ',';
+GMAT ReportFile6.ColumnWidth = 23;
+GMAT ReportFile6.WriteReport = true;
+
+Create ReportFile ReportFile7;
+GMAT ReportFile7.SolverIterations = Current;
+GMAT ReportFile7.UpperLeft = [ 0 0 ];
+GMAT ReportFile7.Size = [ 0 0 ];
+GMAT ReportFile7.RelativeZOrder = 0;
+GMAT ReportFile7.Maximized = false;
+GMAT ReportFile7.Filename = 'D:\Documents\Georgia Tech\AE 6505\PROJ\6505 Project Repository\res\lnss7_data_20091010_20091109.txt';
+GMAT ReportFile7.Precision = 16;
+GMAT ReportFile7.Add = {LNSS7.UTCGregorian, LNSS7.MoonMJ2000Eq.X, LNSS7.MoonMJ2000Eq.Y, LNSS7.MoonMJ2000Eq.Z, LNSS7.MoonMJ2000Eq.VX, LNSS7.MoonMJ2000Eq.VY, LNSS7.MoonMJ2000Eq.VZ};
+GMAT ReportFile7.WriteHeaders = true;
+GMAT ReportFile7.LeftJustify = On;
+GMAT ReportFile7.ZeroFill = Off;
+GMAT ReportFile7.FixedWidth = false;
+GMAT ReportFile7.Delimiter = ',';
+GMAT ReportFile7.ColumnWidth = 23;
+GMAT ReportFile7.WriteReport = true;
+
+Create ReportFile ReportFile8;
+GMAT ReportFile8.SolverIterations = Current;
+GMAT ReportFile8.UpperLeft = [ 0 0 ];
+GMAT ReportFile8.Size = [ 0 0 ];
+GMAT ReportFile8.RelativeZOrder = 0;
+GMAT ReportFile8.Maximized = false;
+GMAT ReportFile8.Filename = 'D:\Documents\Georgia Tech\AE 6505\PROJ\6505 Project Repository\res\lnss8_data_20091010_20091109.txt';
+GMAT ReportFile8.Precision = 16;
+GMAT ReportFile8.Add = {LNSS8.UTCGregorian, LNSS8.MoonMJ2000Eq.X, LNSS8.MoonMJ2000Eq.Y, LNSS8.MoonMJ2000Eq.Z, LNSS8.MoonMJ2000Eq.VX, LNSS8.MoonMJ2000Eq.VY, LNSS8.MoonMJ2000Eq.VZ};
+GMAT ReportFile8.WriteHeaders = true;
+GMAT ReportFile8.LeftJustify = On;
+GMAT ReportFile8.ZeroFill = Off;
+GMAT ReportFile8.FixedWidth = false;
+GMAT ReportFile8.Delimiter = ',';
+GMAT ReportFile8.ColumnWidth = 23;
+GMAT ReportFile8.WriteReport = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate Synchronized DefaultProp(LNSS1, LNSS2, LNSS3, LNSS4, LNSS5, LNSS6, LNSS7, LNSS8) {LNSS1.ElapsedDays = 30};

@@ -1,10 +1,17 @@
 function plotLunarOrbit(ts,sats,plot_frame,name)
 %PLOTLUNARORBIT Plots the trajectory of a lunar orbit, given the 3- or
 %6-state output of ODE45 (or similar propagators).
-%   Inputs: (dims),[units]
-%    - n   ; (1x1),[N/A] number of satellites
-%    - x   ; (6*nxm),[km, km/s] time-history of satellite state
-%    - name; (1x1), [N/A] string, plot title
+%   Inputs:
+%    - ts; time steps
+%    - sats; satellite positions over time
+%    - plot_frame; frame that sats is represented in for SPICE
+%    - name; plot title
+arguments
+    ts          (1,:)   double
+    sats        (:,:,:) double
+    plot_frame  (1,:)   char
+    name        (1,1)   string
+end
 
 COLOR = [0 0.4470 0.7410];
 

@@ -50,7 +50,7 @@ pts = pts(:, accept);   % points on surface of unit sphere below lat
 R = 1736;               % km, polar radius of moon
 alts = linspace(R, R + alt, 4);
 pts = [pts*alts(1) pts*alts(2) pts*alts(3) pts*alts(4)];
-% pts = getpoints(9);
+% pts = getpoints(13);
 
 l = size(pts, 2);       % final number of points
 n = size(sats, 1);      % number of time steps

@@ -1,0 +1,153 @@
+%General Mission Analysis Tool(GMAT) Script
+%Created: 2023-04-30 15:32:31
+
+
+%----------------------------------------
+%---------- Spacecraft
+%----------------------------------------
+
+Create Spacecraft DefaultSC;
+GMAT DefaultSC.DateFormat = UTCGregorian;
+GMAT DefaultSC.Epoch = '24 Apr 2023 23:59:42.000';
+GMAT DefaultSC.CoordinateSystem = MoonMJ2000Eq;
+GMAT DefaultSC.DisplayStateType = Cartesian;
+GMAT DefaultSC.X = -1.818989403545856e-12;
+GMAT DefaultSC.Y = 5803.266159353836;
+GMAT DefaultSC.Z = -7701.194305255427;
+GMAT DefaultSC.VX = 0.4675753279882551;
+GMAT DefaultSC.VY = 9.71445146547012e-17;
+GMAT DefaultSC.VZ = -1.318389841742373e-16;
+GMAT DefaultSC.DryMass = 850;
+GMAT DefaultSC.Cd = 2.2;
+GMAT DefaultSC.Cr = 1.8;
+GMAT DefaultSC.DragArea = 15;
+GMAT DefaultSC.SRPArea = 1;
+GMAT DefaultSC.SPADDragScaleFactor = 1;
+GMAT DefaultSC.SPADSRPScaleFactor = 1;
+GMAT DefaultSC.NAIFId = -10000001;
+GMAT DefaultSC.NAIFIdReferenceFrame = -9000001;
+GMAT DefaultSC.OrbitColor = Red;
+GMAT DefaultSC.TargetColor = Teal;
+GMAT DefaultSC.OrbitErrorCovariance = [ 1e+70 0 0 0 0 0 ; 0 1e+70 0 0 0 0 ; 0 0 1e+70 0 0 0 ; 0 0 0 1e+70 0 0 ; 0 0 0 0 1e+70 0 ; 0 0 0 0 0 1e+70 ];
+GMAT DefaultSC.CdSigma = 1e+70;
+GMAT DefaultSC.CrSigma = 1e+70;
+GMAT DefaultSC.Id = 'SatId';
+GMAT DefaultSC.Attitude = CoordinateSystemFixed;
+GMAT DefaultSC.SPADSRPInterpolationMethod = Bilinear;
+GMAT DefaultSC.SPADSRPScaleFactorSigma = 1e+70;
+GMAT DefaultSC.SPADDragInterpolationMethod = Bilinear;
+GMAT DefaultSC.SPADDragScaleFactorSigma = 1e+70;
+GMAT DefaultSC.ModelFile = 'aura.3ds';
+GMAT DefaultSC.ModelOffsetX = 0;
+GMAT DefaultSC.ModelOffsetY = 0;
+GMAT DefaultSC.ModelOffsetZ = 0;
+GMAT DefaultSC.ModelRotationX = 0;
+GMAT DefaultSC.ModelRotationY = 0;
+GMAT DefaultSC.ModelRotationZ = 0;
+GMAT DefaultSC.ModelScale = 1;
+GMAT DefaultSC.AttitudeDisplayStateType = 'Quaternion';
+GMAT DefaultSC.AttitudeRateDisplayStateType = 'AngularVelocity';
+GMAT DefaultSC.AttitudeCoordinateSystem = EarthMJ2000Eq;
+GMAT DefaultSC.EulerAngleSequence = '321';
+
+
+%----------------------------------------
+%---------- ForceModels
+%----------------------------------------
+
+Create ForceModel MoonProp_ForceModel;
+GMAT MoonProp_ForceModel.CentralBody = Luna;
+GMAT MoonProp_ForceModel.PrimaryBodies = {Luna};
+GMAT MoonProp_ForceModel.PointMasses = {Earth, Sun};
+GMAT MoonProp_ForceModel.Drag = None;
+GMAT MoonProp_ForceModel.SRP = Off;
+GMAT MoonProp_ForceModel.RelativisticCorrection = Off;
+GMAT MoonProp_ForceModel.ErrorControl = RSSStep;
+GMAT MoonProp_ForceModel.GravityField.Luna.Degree = 165;
+GMAT MoonProp_ForceModel.GravityField.Luna.Order = 165;
+GMAT MoonProp_ForceModel.GravityField.Luna.StmLimit = 100;
+GMAT MoonProp_ForceModel.GravityField.Luna.PotentialFile = 'LP165P.cof';
+GMAT MoonProp_ForceModel.GravityField.Luna.TideModel = 'None';
+
+%----------------------------------------
+%---------- Propagators
+%----------------------------------------
+
+Create Propagator MoonProp;
+GMAT MoonProp.FM = MoonProp_ForceModel;
+GMAT MoonProp.Type = RungeKutta89;
+GMAT MoonProp.InitialStepSize = 10;
+GMAT MoonProp.Accuracy = 9.999999999999999e-12;
+GMAT MoonProp.MinStep = 0.001;
+GMAT MoonProp.MaxStep = 10;
+GMAT MoonProp.MaxStepAttempts = 50;
+GMAT MoonProp.StopIfAccuracyIsViolated = true;
+
+%----------------------------------------
+%---------- Coordinate Systems
+%----------------------------------------
+
+Create CoordinateSystem MoonMJ2000Eq;
+GMAT MoonMJ2000Eq.Origin = Luna;
+GMAT MoonMJ2000Eq.Axes = MJ2000Eq;
+
+%----------------------------------------
+%---------- Subscribers
+%----------------------------------------
+
+Create OrbitView DefaultOrbitView;
+GMAT DefaultOrbitView.SolverIterations = Current;
+GMAT DefaultOrbitView.UpperLeft = [ -0.01818181818181818 0 ];
+GMAT DefaultOrbitView.Size = [ -6.181818181818182 0.8497596153846154 ];
+GMAT DefaultOrbitView.RelativeZOrder = 40;
+GMAT DefaultOrbitView.Maximized = false;
+GMAT DefaultOrbitView.Add = {DefaultSC, Luna};
+GMAT DefaultOrbitView.CoordinateSystem = MoonMJ2000Eq;
+GMAT DefaultOrbitView.DrawObject = [ true true ];
+GMAT DefaultOrbitView.DataCollectFrequency = 1;
+GMAT DefaultOrbitView.UpdatePlotFrequency = 50;
+GMAT DefaultOrbitView.NumPointsToRedraw = 0;
+GMAT DefaultOrbitView.ShowPlot = true;
+GMAT DefaultOrbitView.MaxPlotPoints = 20000;
+GMAT DefaultOrbitView.ShowLabels = false;
+GMAT DefaultOrbitView.ViewPointReference = Luna;
+GMAT DefaultOrbitView.ViewPointVector = [ 30000 0 0 ];
+GMAT DefaultOrbitView.ViewDirection = Luna;
+GMAT DefaultOrbitView.ViewScaleFactor = 1;
+GMAT DefaultOrbitView.ViewUpCoordinateSystem = MoonMJ2000Eq;
+GMAT DefaultOrbitView.ViewUpAxis = Z;
+GMAT DefaultOrbitView.EclipticPlane = Off;
+GMAT DefaultOrbitView.XYPlane = Off;
+GMAT DefaultOrbitView.WireFrame = Off;
+GMAT DefaultOrbitView.Axes = On;
+GMAT DefaultOrbitView.Grid = Off;
+GMAT DefaultOrbitView.SunLine = Off;
+GMAT DefaultOrbitView.UseInitialView = On;
+GMAT DefaultOrbitView.StarCount = 7000;
+GMAT DefaultOrbitView.EnableStars = On;
+GMAT DefaultOrbitView.EnableConstellations = Off;
+
+Create ReportFile ReportFile1;
+GMAT ReportFile1.SolverIterations = Current;
+GMAT ReportFile1.UpperLeft = [ 0 0 ];
+GMAT ReportFile1.Size = [ 0 0 ];
+GMAT ReportFile1.RelativeZOrder = 0;
+GMAT ReportFile1.Maximized = false;
+GMAT ReportFile1.Filename = 'D:\Documents\Georgia Tech\AE 8803 (Sat OD)\PROJ\scripts\data\GMAT_moonorb.txt';
+GMAT ReportFile1.Precision = 16;
+GMAT ReportFile1.Add = {DefaultSC.TDBModJulian, DefaultSC.MoonMJ2000Eq.X, DefaultSC.MoonMJ2000Eq.Y, DefaultSC.MoonMJ2000Eq.Z, DefaultSC.MoonMJ2000Eq.VX, DefaultSC.MoonMJ2000Eq.VY, DefaultSC.MoonMJ2000Eq.VZ};
+GMAT ReportFile1.WriteHeaders = true;
+GMAT ReportFile1.LeftJustify = On;
+GMAT ReportFile1.ZeroFill = Off;
+GMAT ReportFile1.FixedWidth = true;
+GMAT ReportFile1.Delimiter = ' ';
+GMAT ReportFile1.ColumnWidth = 23;
+GMAT ReportFile1.WriteReport = true;
+
+
+%----------------------------------------
+%---------- Mission Sequence
+%----------------------------------------
+
+BeginMissionSequence;
+Propagate MoonProp(DefaultSC) {DefaultSC.ElapsedSecs = 10000};

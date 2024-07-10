@@ -80,7 +80,7 @@ v6 = cspice_spkezr('Khon-6', t0, 'MOON_OP', 'NONE', 'MOON');
 [a6,e6,i6,r6,w6,f6] = rv2oe(v6(1:3),v6(4:6),moon.GM);
 v7 = cspice_spkezr('Khon-7', t0, 'MOON_OP', 'NONE', 'MOON');
 [a7,e7,i7,r7,w7,f7] = rv2oe(v7(1:3),v7(4:6),moon.GM);
-xopt = [mean([i2 i3 i4 i5 i6 i7]), mean([a2 a3 a4 a5 a6 a7]), r2, r3, r4, r5, r6, r7, f2, f3, f4, f5, f6, f7];
+xopt = [[i2 i3 i4 i5 i6 i7], [a2 a3 a4 a5 a6 a7], r2, r3, r4, r5, r6, r7, f2, f3, f4, f5, f6, f7];
 
 days = 28;
 step = 600; % seconds

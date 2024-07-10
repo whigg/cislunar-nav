@@ -1,0 +1,16 @@
+\begindata
+   INPUT_DATA_TYPE   = 'STATES'
+   OUTPUT_SPK_TYPE   = 13
+   OBJECT_ID         = -901
+   CENTER_NAME       = 'MOON'
+   REF_FRAME_NAME    = 'J2000'
+   PRODUCER_ID       = 'Mark Hartigan'
+   DATA_ORDER        = 'EPOCH X Y Z VX VY VZ'
+   DATA_DELIMITER    = ','
+   LEAPSECONDS_FILE  = '../spice/generic/lsk/naif0012.tls'
+   EPOCH_STR_LENGTH  = 24
+   IGNORE_FIRST_LINE = 1
+   TIME_WRAPPER      = '#'
+   POLYNOM_DEGREE    = 7
+   APPEND_TO_OUTPUT  = 'NO'
+\begintext
