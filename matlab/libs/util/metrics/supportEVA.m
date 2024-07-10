@@ -24,7 +24,7 @@ for i=1:days                    % iterate over every day
         k = 1;
         while k <= day          % iterate over every step in day
             p = day*(i-1) + k;              % start of 5hr window
-            q = min(day*i, p + fivehrs);    % end of 5hr window
+            q = min(day*i, p+fivehrs-1);    % end of 5hr window
             if sum(covered(p:q,j))/fivehrs == 1
                 % if 5 hours from point is covered, add to nwinj
                 nwinj = nwinj + 1;

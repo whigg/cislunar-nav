@@ -10,11 +10,13 @@ classdef ConOpt < handle
         n       (1,1)   {mustBePositive,mustBeInteger} = 5  % number of constellation satellites
         m       (1,1)   {mustBePositive,mustBeInteger} = 1  % number of time steps
         p       (1,1)   {mustBePositive,mustBeInteger} = 1  % number of eval points
+        n_sph   (1,1)   {mustBePositive,mustBeInteger} = 2  % number of spherical harmonics
         opts    (1,1)   struct                          % ODE45 propagation options
         moon    (1,1)   struct                          % planetary info for moon
         earth   (1,1)   struct                          % planetary info for earth
         T_OP2J  (6,6)   double                          % frame transformation from MOON_OP to J2000 at t0
         T_J2ME  (3,3,:) double                          % frame transformation from J2000 to MOON_ME at ts
+        flag    (1,1)   {mustBeInteger} = 1
     end
     
     methods
@@ -40,6 +42,8 @@ classdef ConOpt < handle
                         obj.n = varargin{i+1};
                     elseif strcmp(varargin{i}, "opts")
                         obj.opts = opts;
+                    elseif strcmp(varargin{i}, "n_sph")
+                        obj.n_sph = varargin{i+1};
                     end
                 end
             elseif nargin < narg
@@ -139,7 +143,7 @@ classdef ConOpt < handle
 
             % handle boundary condition here by using pseudo-objective func
             e = frozenorbitfinder(i);
-            rp = a/(1-e);
+            rp = a*(1-e);
             if rp < 2138
                 y = y + (2138 - rp)^2;
                 return
@@ -158,24 +162,33 @@ classdef ConOpt < handle
             for j=1:obj.p               % iterate over every eval point
                 [dop, nvis] = GDOP(obj.pts(:,j), sats);
             
-                covered(:,j) = nvis >= links;   % minimum links met
-                if links >= 4                   % GDOP < max, if links 4+
-                    covered(:,j) = covered(:,j) .* (dop < maxDOP);
-                end
+                % minimum links met, meets GDOP requirements
+                covered(:,j) = (nvis >= links) .* (dop <= maxDOP);
             end
             
             % make obj combo of total % cvg (worst pt) + % worst-day (worst pt)
             % y = y - min(sum(covered, 1) / obj.m);
             % worst 24h period of coverage (in pct)
-            steps = floor(86400 / obj.dt) + 1;  % time steps in 1 day
-            CVG = zeros(obj.m-steps+1,1);
-            for j = 1:(obj.m-steps+1)
+            steps = floor(86400 / obj.dt) + 1;      % time steps in 1 day
+            % win = ones(1, floor(steps * 5/24));     % time steps in 5-hour window
+            % CVG = zeros(obj.m-steps+1,1);
+            EVA = steps;
+
+            for j = 1:steps:(obj.m-steps+1)
                 % coverage over day
-                CVG(j) = min(sum(covered(j:(j+steps-1),:), 1) / steps);
+                % [CVG(j), k] = min(sum(covered(j:(j+steps-1),:), 1) / steps);
+                for k=1:obj.p
+                    temp = sum(maxk(cellfun('length', split(char(covered(j:j+steps-1, k)'), char(0))), 2));
+                    if temp < EVA, EVA = temp; end
+                end
             end
+
+            % TODO:
+            %  - expand design to include orbits of same precession rate
             
             % flip negative so minimizing
-            y = y - 100*min(CVG);
+            % y = y - 100 * min(CVG) - 100 * EVA / steps;
+            y = y - 100 * EVA / steps;
         end
 
         function [sats,fail] = orbitgenerator(obj,i,a,RAANs,TAs,R,S)
@@ -204,7 +217,8 @@ classdef ConOpt < handle
             for j=1:obj.n
                 [r0,v0] = oe2rv(a,e,i,RAANs(j),pi/2,TAs(j),obj.moon.GM);
                 x0 = R * [r0; v0];
-                [~,X] = ode45(@(t,x) orbitaldynamics(t,x,obj.moon,2,obj.earth), obj.ts, x0, obj.opts);
+                [~,X] = ode45(@(t,x) orbitaldynamics(t,x,obj.moon,obj.n_sph,obj.earth), ...
+                              obj.ts, x0, obj.opts);
 
                 % exit from loop if propagation failed
                 if size(X,1) ~= obj.m
