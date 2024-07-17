@@ -9,9 +9,10 @@
 ## Ignore plots
 **/plots/*
 
-# ignore large SPICE kernel(s) and GPS data
+# ignore large SPICE kernel(s) and data
 de430.bsp
 *.pos
+*.tif
 # ignore CUI Intuitive Machines data
 NSNS-DRM*
 /matlab/spice/nsns/*
