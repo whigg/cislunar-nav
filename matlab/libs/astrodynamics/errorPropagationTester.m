@@ -15,13 +15,13 @@ START = '2024 May 1 00:00:00';
 % frame of data
 FRAME = 'J2000';
 % number of days in simulation
-DAYS = 0.5;
+DAYS = 1/3;
 % number of iterations for computing statistics
-N_ITER = 1000;
+N_ITER = 100;
 % OE # (orbit from RUN16 of optimizer)
-OE = 2;
+OE = 1;
 % True anomaly of starting point (deg)
-F = 269;
+F = 270;
 
 % load generic lunar information
 cspice_furnsh(strcat(userpath,'/kernels/generic/mk/generic_lunar.tm'));
@@ -53,7 +53,8 @@ catch           % if data doesn't exist, run simulations
     ts = t0:60:t0 + DAYS*86400;
     m = length(ts);
     opts = odeset("RelTol", 1e-10, "AbsTol", 1e-12);
-    load("data/optimization/RUN16 (10p,0).mat");
+    load("data/optimization/RUN28- (56p,1).mat");
+    % load("data/optimization/RUN16 (10p,0).mat");
     
     % assembling dynamics
     n = 6;
@@ -66,7 +67,7 @@ catch           % if data doesn't exist, run simulations
     traj = statetotrajectory(t0, ts(end), x0, f);
     
     p = @(t,v) lyapunov(v, dfdx(t,traj(t)), Q);
-    P0 = diag([2e-3 2e-3 2e-3 1e-6 1e-6 1e-6].^2);
+    P0 = diag([1.29e-3 1.29e-3 1.29e-3 1.15e-7 1.15e-7 1.15e-7].^2);
     
     % true state propagation (aligns mostly with GMAT but off by a few meters, disagrees in spherical harmonics)
     [~,X] = ode45(f, ts, x0, opts);
@@ -94,7 +95,7 @@ catch           % if data doesn't exist, run simulations
         verr(i,:) = sqrt(sum(x_err(4:6,:,i).^2, 1));
     end
 
-    % save(fname);
+    save(fname);
 end
 
 %% Actual statistics computation
@@ -117,7 +118,7 @@ plot(rline, rline, '--');
 hold off; grid on;
 axis([rline rline]);
 xlabel("Experimental \sigma^2"); ylabel("Computed \sigma^2");
-title(sprintf("Position (R^2 = %.2f)", Rsqr*100));
+title(sprintf("Position (R^2 = %.2f)", Rsqr));
 
 subplot(1,2,2);
 scatter(vstd_comp, vstd);
@@ -127,7 +128,7 @@ plot(vline, vline, '--');
 hold off; grid on;
 axis([vline vline]);
 xlabel("Experimental \sigma^2"); ylabel("Computed \sigma^2");
-title(sprintf("Velocity (R^2 = %.2f)", Rsqv*100));
+title(sprintf("Velocity (R^2 = %.2f)", Rsqv));
 sgtitle("Fit of computed vs. experimental variance");
 
 tplot = (ts - t0) / 3600;
@@ -155,6 +156,7 @@ hold off; box off;
 axis([0 DAYS*24 -inf inf]);
 ylabel("Position (m)");
 title("State error over time");
+legend(["Experimental 3\sigma","Computed 3\sigma","MC Run"],"location","northwest");
 
 % plot radial velocity error over time with 3-sigma bound
 subplot(2,1,2);

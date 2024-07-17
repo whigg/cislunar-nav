@@ -1,4 +1,4 @@
-function A = lnss_elfopartials(x,moon)
+function A = lnss_elfopartials(t,x,moon,earth)
 %LNSS_ELFOPARTIALS Returns the Jacobian of lnss_elfodyn w.r.t. x.
 %
 %   State: [x_J2000 (km);    y_J2000 (km);    z_J2000 (km);
@@ -11,7 +11,7 @@ function A = lnss_elfopartials(x,moon)
 %           for moon
 
 A = zeros(9,9);
-A(1:6,1:6) = orbitalpartials(x(1:6),moon);
+A(1:6,1:6) = orbitalpartials(t,x(1:6),moon,earth);
 A(7:9,7:9) = [0 1 0; 0 0 1; 0 0 0];
 end
 

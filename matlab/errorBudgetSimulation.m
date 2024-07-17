@@ -32,6 +32,16 @@ cspice_furnsh(strcat(userpath,'/kernels/GNSS/mk/gnss.tm'));
 ELFO = '-909';                  % SPICE ID of ELFO s/c
 t0 = cspice_str2et(START);
 
+% planetary info
+bods = getplanets("MOON", "EARTH", "SUN", "JUPITER");
+
+% store spherical harmonic coefficients for the moon from Lunar Prospector
+[~,C,S] = cofloader("data/LP165P.cof");
+bods(1).C = C; bods(1).S = S;
+bods(1).frame = 'MOON_ME';      % body-fixed frame of coefficients
+moon = bods(1);                 % primary body
+sec = bods(2:end);              % secondary bodies
+
 %% generate truth orbit
 ns = 1440;
 ts = linspace(t0, t0+86400*DAYS, ns);
@@ -42,7 +52,6 @@ for i=1:ns
 end
 
 x0_OP = cspice_sxform(FRAME, 'MOON_OP', t0) * sat(1:6,1);
-moon.GM = cspice_bodvrd('MOON', 'GM', 1);
 [oe.a,oe.e,oe.i,oe.RAAN,oe.w,oe.f] = rv2oe(x0_OP(1:3), x0_OP(4:6), moon.GM);
 % plotLunarOrbit(ts, sat', FRAME, "ELFO");
 
@@ -57,29 +66,6 @@ x0 = sat(:,1);
 [f_GNSS, names_GNSS] = getgnsshandles("BOTH");
 n_GNSS = length(f_GNSS);
 
-[R,C,S] = cofloader("data/LP165P.cof");
-
-earth.GM = cspice_bodvrd('EARTH', 'GM', 1);
-earth.x  = @(tau) cspice_spkpos('EARTH', tau, 'J2000', 'NONE', 'MOON');
-earth.R  = 6378 + 800;   % km, radius of earth + ionosphere
-
-sun.GM = cspice_bodvrd('SUN', 'GM', 1);
-sun.x  = @(tau) cspice_spkpos('SUN', tau, 'J2000', 'NONE', 'MOON');
-sun.R  = 0;
-
-jupiter.GM = cspice_bodvrd('JUPITER BARYCENTER', 'GM', 1);
-jupiter.x  = @(tau) cspice_spkpos('JUPITER BARYCENTER', tau, 'J2000', 'NONE', 'MOON');
-jupiter.R  = 0;
-
-bodies = [earth sun jupiter];
-
-moon.GM = cspice_bodvrd('MOON', 'GM', 1);
-moon.x = @(~) [0;0;0];
-moon.R = R * 1e-3;      % convert from m to km
-moon.C = C;             % store in moon struct for orbitaldynamics
-moon.S = S;             % store in moon struct for orbitaldynamics
-moon.frame = 'MOON_ME'; % body-fixed frame of coefficients
-
 % generate measurement model
 R = zeros(2*n_GNSS,2*n_GNSS);       % measurement covariance matrix
 % per LSP SRD Table 3-11, SISE Position (ignore receiver noise)
@@ -87,7 +73,7 @@ R(1:n_GNSS,1:n_GNSS) = diag(repmat((9.7/1.96*1e-3)^2, 1, n_GNSS));
 % per LSP SRD Table 3-11, SISE Velocity (ignore receiver noise)
 R(n_GNSS+1:end,n_GNSS+1:end) = diag(repmat((.006/1.96*1e-3)^2, 1, n_GNSS));
 
-measurements = GNSSmeasurements("BOTH",ts,f_GNSS,R,earth,moon,sat);
+measurements = GNSSmeasurements("BOTH",ts,f_GNSS,R,sec(1),moon,sat);
 
 %% create filter
 % process noise
@@ -98,8 +84,8 @@ Qclk = [s1 s2 s3].^2;
 Q = diag([Qorb Qclk]);
 
 opts = odeset("RelTol", 1e-9, "AbsTol", 1e-11);
-filter = EKF("hybrid", @(t,x) lnss_elfodyn(t,x,moon,N_SPH,bodies), ...
-             @(~,x) lnss_elfopartials(x,moon), ...
+filter = EKF("hybrid", @(t,x) lnss_elfodyn(t,x,moon,N_SPH,sec), ...
+             @(t,x) lnss_elfopartials(t,x,moon,sec(1)), ...
              Q, ...
              @(t,x) measurements.compute(t,x), ...
              measurements.ymeas, ...
@@ -141,27 +127,35 @@ x02 = filter.x(:,end);      % starting state of ephemeris propagation
 N_APPX = 14;
 % span = linspace(-1, 1, N_APPX - 1);
 span = chebichev(N_APPX);
-tf2 = t02 + 3600 * 4;
+tf2 = t02 + 3600 * 5;
 t_interp = t02 + (span + 1) * (tf2 - t02) / 2;
 t_eval = linspace(t02, tf2, ns);
 [tspan, i_interp, ~] = union(t_interp, t_eval, "sorted");
-[T,X] = ode45(@(t,x) lnss_elfodyn(t,x,moon,150,bodies), tspan, x02, opts);
+[T,X] = ode45(@(t,x) lnss_elfodyn(t,x,moon,150,sec), tspan, x02, opts);
 
 basis = @(tau) tau.^(0:N_APPX);
-% basis = @(tau) [tau.^(0:N_APPX/3-1) sin(2*pi*tau*(0:N_APPX/3-1)) cos(2*pi*tau*(0:N_APPX/3-1))];
+dbasis = @(tau) (0:N_APPX) .* (tau.^([0 0:N_APPX - 1]));
+% basis = @(tau) cell2mat(arrayfun(@(x) chebyshevT(0:N_APPX,x), tau, 'UniformOutput', false));
 phi = basis(span');
 B = pinv(phi);
-c_x = B * X(ismember(tspan, t_interp),1);
+c = B * X(ismember(tspan, t_interp),1:3);
 
-x_appx = basis(2*(T - t02)/(tf2 - t02) - 1) * c_x;
+x_appx = basis(2*(T - t02)/(tf2 - t02) - 1) * c;
+dx_appx = dbasis(2*(T - t02)/(tf2 - t02) - 1) * c * 2/(tf2 - t02);
 
-err_x = x_appx - X(:,1);
+err_x = x_appx - X(:,1:3);
+err_dx = dx_appx - X(:,4:6);
 
 plotformat("IEEE", 0.4, "scaling", 2);
 figure();
-plot((tspan - t02)/3600, err_x * 1e3);
+plot((tspan - t02)/3600, sqrt(sum(err_x.^2,2)) * 1e3);
 grid on;
 xlabel("Time (hrs)"); ylabel("Error (m)");
+
+figure();
+plot((tspan - t02)/3600, sqrt(sum(err_dx.^2,2)) * 1e6);
+grid on;
+xlabel("Time (hrs)"); ylabel("Error (mm/s)");
 
 
 
