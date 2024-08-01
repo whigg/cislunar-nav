@@ -1,4 +1,4 @@
-function [fLnss, namesLnss] = getlnsshandles(ref)
+function [fLnss, namesLnss] = getlnsshandles()
 %GETLNSSHANDLES Returns function handles for each satellite in generated
 %constellation; handle accepts time(s) in seconds past J2000 and returns
 %[pos (km); vel (km/s)] state(s).
@@ -19,8 +19,8 @@ cspice_furnsh(strcat(userpath,'/kernels/LNSS/mk/lnss.tm'));
 namesLnss = importdata(strcat(userpath,'/kernels/LNSS/LNSS_sats.txt'));
 nLnss = length(namesLnss);
 fLnss = cell(nLnss, 1);
-for i=1:nLnss
-    fLnss{i} = @(tau,ref) cspice_spkezr(num2str(namesLnss(i)), tau, ref, 'NONE', 'MOON');
+for z=1:nLnss
+    fLnss{z} = @(tau,ref) cspice_spkezr(num2str(namesLnss(z)), tau, ref, 'NONE', 'MOON');
 end
 end
 
