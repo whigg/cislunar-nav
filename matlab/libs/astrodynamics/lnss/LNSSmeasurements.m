@@ -11,6 +11,7 @@ classdef LNSSmeasurements < handle
         ymeas   (:,:) double        % measurement array
         user    (9,:) double        % true state of user
         max_a   (1,1) double        % maximum satellite beam width
+        frame   (1,:) {mustBeText} = 'J2000'                    % reference frame to get data in
         range   (1,1) logical = false                           % boolean, is range desired?
         rate    (1,1) logical = false                           % boolean, is range-rate desired?
         nsats   (1,1) {mustBePositive, mustBeInteger} = 1       % number of LNSS satellites
@@ -20,7 +21,7 @@ classdef LNSSmeasurements < handle
     end
     
     methods
-        function obj = LNSSmeasurements(obs,tmeas,fsats,R,moon,user,max_a)
+        function obj = LNSSmeasurements(obs,tmeas,fsats,R,moon,user,varargin)
             %LNSSMEASUREMENTS Construct an LNSS measurement object
             %instance.
             %   Inputs:
@@ -31,14 +32,22 @@ classdef LNSSmeasurements < handle
             %    - R; measurement covariance matrix, (nsats,nsats) or (2*nsats,2*nsats) depending on obs
             %    - moon; struct containing info about moon (radius at minimum)
             %    - user; true state of user at measurement times [pos (km); vel (km/s); clk]
-            %    - max_a; optional, maximum antenna beam-width of LNSS (in
-            %             radians)
+            %    - max_a; optional name-value pair, maximum antenna beam-width 
+            %             of LNSS (in radians)
+            %    - 
             
-            if nargin < 7
-                max_a = 30 * pi / 180;
+            max_a = 30 * pi / 180;
+
+            if nargin > 6
+                for i=1:2:nargin-6
+                    if strcmp(varargin{i}, "max_a")
+                        max_a = varargin{i+1};
+                    elseif strcmp(varargin{i}, "frame")
+                        obj.frame = varargin{i+1};
+                    end
+                end
             elseif nargin < 6
-                error("LNSSmeasurements:nargin", ...
-                    "Incorrect number of input arguments; accepts 5.")
+                error("LNSSmeasurements:nargin", "Too few arguments.")
             end
 
             % assign measurements desired to booleans
@@ -94,7 +103,7 @@ classdef LNSSmeasurements < handle
 
             for i=1:obj.nsats   % consider every satellite
                 if visi(i)          % if satellite is visible
-                    x_s = obj.fsats{i}(t,'J2000');  % satellite state
+                    x_s = obj.fsats{i}(t,obj.frame);  % satellite state
                     r_s = x_s(1:3);                 % satellite position vector
                     v_s = x_s(4:6);                 % satellite velocity vector
                     r_us = r_m + r_s;               % user->sat position vector
@@ -141,7 +150,7 @@ classdef LNSSmeasurements < handle
 
             for i=1:obj.nsats   % consider every satellite
                 if visi(i)          % if satellite is visible
-                    x_s = obj.fsats{i}(t,'J2000');  % satellite state
+                    x_s = obj.fsats{i}(t,obj.frame);  % satellite state
                     r_s = x_s(1:3);                 % satellite position vector
                     v_s = x_s(4:6);                 % satellite velocity vector
 
@@ -158,6 +167,45 @@ classdef LNSSmeasurements < handle
                     elseif obj.rate     % obs == "RATE"
                         H(i,:) = [(dr'*dvdr/rho^3 - dv'/rho) -dr'/rho 0 obj.c 0];
                     end
+                end
+            end
+        end
+
+        function [xs, gdop] = trilaterate(obj)
+            %TRILATERATE Performs pseudorange-based multilateration on the
+            %associated measurements, returning the estimated state and
+            %GDOP.
+            %   Output:
+            %    - xs; (4xm) position (km) and clock bias (s)
+            %    - gdop; (1xm) geometric dilution of precision at each point
+
+            x_last = [obj.user(1:3,1); obj.user(7)];
+            nvis = sum(obj.visible, 1);
+            gdop = zeros(1, obj.m);
+            xs = inf(4, obj.m);
+            
+            for i=1:obj.m
+                if nvis(i) >= 4
+                    dx = ones(4,1);
+                    while norm(dx) > 1e-6
+                        dp = zeros(obj.nsats, 1);
+                        G = ones(obj.nsats, 4);
+                        for j=1:obj.nsats
+                            x_s = obj.fsats{j}(obj.tmeas(i), 'MOON_ME');
+                            dp(j) = obj.ymeas(j,i) - norm(x_s(1:3)-x_last(1:3)) - obj.c*x_last(4);
+                            G(j,1:3) = -(x_s(1:3) - x_last(1:3))' / norm(x_s(1:3)-x_last(1:3));
+                        end
+                        dp = dp(obj.visible(:,i) == 1);
+                        G = G(obj.visible(:,i) == 1, :);
+                        dx = pinv(G) * dp;
+                        x_last = x_last + [dx(1:3); dx(4)/obj.c];
+                    end
+                    
+                    H = inv(G'*G);
+                    gdop(i) = sqrt(trace(H));
+                    xs(:,i) = x_last;
+                else
+                    gdop(i) = Inf;
                 end
             end
         end
@@ -180,7 +228,7 @@ classdef LNSSmeasurements < handle
                 ang_m = asin(obj.moon.R / norm(r_m));
 
                 for j=1:obj.nsats       % iterate over each satellite
-                    x_s = obj.fsats{j}(ti,'J2000'); % satellite state
+                    x_s = obj.fsats{j}(ti,obj.frame); % satellite state
                     r_s = x_s(1:3);                 % satellite position vector
                     v_s = x_s(4:6);                 % satellite velocity vector
                     r_us = r_m + r_s;               % user->sat position vector

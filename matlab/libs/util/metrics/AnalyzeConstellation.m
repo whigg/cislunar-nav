@@ -46,9 +46,8 @@ moon.S = S;             % store in moon struct for orbitaldynamics
 moon.frame = 'MOON_ME'; % body-fixed frame of coefficients
 
 %% propagate orbits
-oes = [oe1 oe2 oe3 oe4 oe5 oe6];
 frame = 'MOON_ME';
-days = 90;
+days = 30;
 step = 300;
 ts = t0:step:t0+86400*days;
 n = length(oes);
@@ -58,11 +57,15 @@ sats = zeros(m, 6, n);
 opts = odeset("RelTol", 1e-9, "AbsTol", 1e-11);
 
 Xs = [];
+dOs = zeros(n, 1);
 for i=1:n
     [r,v] = oe2rv(oes(i).a,oes(i).e,oes(i).i,oes(i).RAAN,oes(i).w,oes(i).f,moon.GM);
     x0 = cspice_sxform('MOON_OP', 'J2000', t0) * [r; v];
     [~,X] = ode45(@(t,x) orbitaldynamics(t,x,moon,50,[earth sun]), ts, x0, opts);
     X = X';
+    xf = cspice_sxform('J2000', 'MOON_OP', ts(end)) * X(:,end);
+    [~,~,~,rf,~,~] = rv2oe(xf(1:3), xf(4:6), moon.GM);
+    dOs(i) = (rf - oes(i).RAAN) / (ts(end) - t0) * 180/pi * 86400;
     for j=1:length(ts)
         X(:,j) = cspice_sxform('J2000', frame, ts(j)) * X(:,j);
     end
