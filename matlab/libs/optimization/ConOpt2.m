@@ -14,7 +14,7 @@ classdef ConOpt2 < handle
         opts    (1,1)   struct                          % ODE45 propagation options
         moon    (1,1)   struct                          % planetary info for moon
         earth   (1,1)   struct                          % planetary info for earth
-        T_OP2J  (6,6)   double                          % frame transformation from MOON_OP to J2000 at t0
+        T_OP2J  (6,6,2) double                          % frame transformation from MOON_OP to J2000 at t0
         T_J2ME  (3,3,:) double                          % frame transformation from J2000 to MOON_ME at ts
         flag    (1,1)   {mustBeInteger} = 2
     end
@@ -32,7 +32,7 @@ classdef ConOpt2 < handle
 
             narg = 2;   % number of required args
 
-            opts = odeset("RelTol", 1e-8, "AbsTol", 1e-9);
+            obj.opts = odeset("RelTol", 1e-8, "AbsTol", 1e-9);
 
             if nargin > narg
                 for i=1:2:nargin-narg
@@ -41,7 +41,7 @@ classdef ConOpt2 < handle
                     elseif strcmp(varargin{i}, "n")
                         obj.n = varargin{i+1};
                     elseif strcmp(varargin{i}, "opts")
-                        opts = varargin{i+1};
+                        obj.opts = varargin{i+1};
                     elseif strcmp(varargin{i}, "n_sph")
                         obj.n_sph = varargin{i+1};
                     end
@@ -56,7 +56,6 @@ classdef ConOpt2 < handle
             % construct evaluation timespan (30 days, time step of dt)
             obj.ts = t0:obj.dt:t0 + 86400*30;
             obj.m = length(obj.ts);
-            obj.opts = opts;
 
             % planetary information from SPICE
             % earth information
@@ -79,7 +78,9 @@ classdef ConOpt2 < handle
 
             % necessary storage of transformations since SPICE cannot be used in
             % parallel applications
-            obj.T_OP2J = cspice_sxform('MOON_OP', 'J2000', t0);
+            obj.T_OP2J = zeros(6,6,2);
+            obj.T_OP2J(:,:,1) = cspice_sxform('MOON_OP', 'J2000', t0);
+            obj.T_OP2J(:,:,2) = cspice_sxform('MOON_OP', 'J2000', obj.ts(end));
             obj.T_J2ME = zeros(3,3,obj.m);
             for i=1:obj.m
                 obj.T_J2ME(:,:,i) = cspice_pxform('J2000', 'MOON_ME', obj.ts(i));
@@ -142,22 +143,20 @@ classdef ConOpt2 < handle
             TAs   = x(3*obj.n+1:4*obj.n);
             y = 100;
 
-            % handle boundary condition here by using pseudo-objective func
-            dOs = zeros(obj.n, 1);
+            % handle boundary condition of periapsis here
             for i=1:obj.n
-                e = frozenorbitfinder(is(i));
-                dOs(i) = ascendingnodedrift(as(i), e, is(i));
-                rp = as(i)*(1-e);
+                rp = as(i)*(1 - frozenorbitfinder(is(i)));
                 if rp < 2038, y = y + (2038 - rp)^2; end
             end
-            % enfore boundary of drift rates being equal
-            y = y + (std(dOs) / mean(dOs))^2;
 
-            [sats, fail] = obj.orbitgenerator(is,as,RAANs,TAs,R,S);
+            [sats, fail, dOs] = obj.orbitgenerator(is,as,RAANs,TAs,R,S);
             warning('on','MATLAB:ode45:IntegrationTolNotMet');
             if fail     % at least one integration failed; invalid orbit
                 return;
             end
+
+            % enfore boundary of drift rates being equal
+            y = y + (10 * std(dOs) / mean(dOs))^2;
                
             links = 4;
             maxDOP = 6;
@@ -206,7 +205,7 @@ classdef ConOpt2 < handle
             % y = y + EVADOP^2;
         end
 
-        function [sats,fail] = orbitgenerator(obj,is,as,RAANs,TAs,R,S)
+        function [sats,fail,dOs] = orbitgenerator(obj,is,as,RAANs,TAs,R,S)
             %ORBITGENERATOR creates position histories of satellites over the 
             %simulation time, given orbital elements.
             %   Inputs:
@@ -220,7 +219,7 @@ classdef ConOpt2 < handle
                 as      (1,:)   double {mustBeSemimajorAxes,mustBe1xN(obj,as)}
                 RAANs   (1,:)   double {mustBeAngle,mustBe1xN(obj,RAANs)}
                 TAs     (1,:)   double {mustBeAngle,mustBe1xN(obj,TAs)}
-                R       (6,6)   double
+                R       (6,6,2) double
                 S       (3,3,:) double
             end
 
@@ -228,10 +227,13 @@ classdef ConOpt2 < handle
             sats = zeros(obj.m, 3, obj.n);
             fail = false;
 
+            % find drift rates over prop period
+            dOs = zeros(obj.n, 1);
+
             for j=1:obj.n
                 e = frozenorbitfinder(is(j));
                 [r0,v0] = oe2rv(as(j),e,is(j),RAANs(j),pi/2,TAs(j),obj.moon.GM);
-                x0 = R * [r0; v0];
+                x0 = R(:,:,1) * [r0; v0];
                 [~,X] = ode45(@(t,x) orbitaldynamics(t,x,obj.moon,obj.n_sph,obj.earth), ...
                               obj.ts, x0, obj.opts);
 
@@ -240,6 +242,10 @@ classdef ConOpt2 < handle
                     fail = true;
                     return
                 end
+
+                xf = R(:,:,2)' * X(end,:)';
+                [~,~,~,rf,~,~] = rv2oe(xf(1:3), xf(4:6), obj.moon.GM);
+                dOs(j) = (rf - RAANs(j)) / (obj.ts(end) - obj.ts(1));
 
                 X = X(:,1:3)';
                 for k=1:obj.m
