@@ -30,7 +30,7 @@ FILTER = "EKF";
 N_PART = 10;                        % Particles for particle filter
 
 % Plot settings
-PLOT_SCENE = false;                 % boolean, plot all satellite trajectories?
+PLOT_SCENE = true;                 % boolean, plot all satellite trajectories?
 PLOT_DYN = true;                   % boolean, plot different dynamical errors
 PLOT_FRAME = 'J2000';               % frame to plot in
 LNSS_COLOR = [0 0.4470 0.7410];     % color of LNSS trajectories in plots
@@ -211,7 +211,7 @@ if PLOT_SCENE
     % Display moon in trajectory plot
     R_me = 1738.1;          % km, moon equatorial radius
     R_mp = 1736;            % km, moon polar radius
-    [Imoon, ~] = imread("res/Moon_HermesCelestiaMotherlode.jpg");
+    [Imoon, ~] = imread("data/lroc_color_poles_1k.jpg");
     [xx, yy, zz] = ellipsoid(0, 0, 0, R_me, R_me, R_mp);
 
     % Rotate moon from MOON_ME frame to PLOT_FRAME
@@ -233,16 +233,16 @@ if PLOT_SCENE
             "LineWidth", 1.5, "Color", LNSS_COLOR, "Marker", "diamond", "MarkerFaceColor", LNSS_COLOR, "MarkerIndices", ns);
     end
 
-    % plot user trajectory for same time frame
-    plot3(x_user(1,:), x_user(2,:), x_user(3,:), ...
-        "LineWidth", 1.5, "Color", LRO_COLOR, "Marker", "o", "MarkerFaceColor", LRO_COLOR, "MarkerIndices", ns);
-    
+    % % plot user trajectory for same time frame
+    % plot3(x_user(1,:), x_user(2,:), x_user(3,:), ...
+    %     "LineWidth", 1.5, "Color", LRO_COLOR, "Marker", "o", "MarkerFaceColor", LRO_COLOR, "MarkerIndices", ns);
+    % 
     hold off; grid on; axis equal;
     xlabel("x_{J2000} (km)");
     ylabel("y_{J2000} (km)");
     zlabel("z_{J2000} (km)");
     title(int2str(DAYS) + "-day propagation, starting at " + START);
-    legend('', 'LNSS Satellites', '', '', '', '', '', '', '', 'LRO', "Location", "best");
+    legend('', 'LNSS Satellites', '', '', '', '', '', '', '', "Location", "best");
 
     h3 = figure();
     subplot(2,1,1);
