@@ -43,8 +43,10 @@ scatter3(lsp(1), lsp(2), lsp(3), 100, "red", "filled", "pentagram");
 
 % plot user trajectory for same time frame
 for k=1:size(sats,3)
-    plot3(sats(:,1,k), sats(:,2,k), sats(:,3,k), "LineWidth", 1.5, "Color", COLOR, ...
-        "Marker", "diamond", "MarkerFaceColor", COLOR, "MarkerIndices", length(ts));
+    % plot3(sats(:,1,k), sats(:,2,k), sats(:,3,k), "LineWidth", 1.5, "Color", COLOR, ...
+    %     "Marker", "diamond", "MarkerFaceColor", COLOR, "MarkerIndices", length(ts));
+    plot3(sats(:,1,k), sats(:,2,k), sats(:,3,k), "LineWidth", 1.5, ...
+        "Marker", "diamond", "MarkerIndices", length(ts));
 end
 
 grid on; axis equal;

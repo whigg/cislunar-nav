@@ -32,7 +32,7 @@ classdef ConOpt < handle
 
             narg = 2;   % number of required args
 
-            opts = odeset("RelTol", 1e-8, "AbsTol", 1e-9);
+            obj.opts = odeset("RelTol", 1e-8, "AbsTol", 1e-9);
 
             if nargin > narg
                 for i=1:2:nargin-narg
@@ -41,7 +41,7 @@ classdef ConOpt < handle
                     elseif strcmp(varargin{i}, "n")
                         obj.n = varargin{i+1};
                     elseif strcmp(varargin{i}, "opts")
-                        obj.opts = opts;
+                        obj.opts = varargin{i+1};
                     elseif strcmp(varargin{i}, "n_sph")
                         obj.n_sph = varargin{i+1};
                     end
