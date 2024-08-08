@@ -47,7 +47,7 @@ classdef ConOpt < handle
                     end
                 end
             elseif nargin < narg
-                error("EKF:nargin", "Too few arguments.")
+                error("ConOpt:nargin", "Too few arguments.")
             end
 
             % get evaluation points

@@ -4,82 +4,19 @@
 % Description:
 %    Display full constellation and its statistics
 
-% %% reset
-% clc, clear, close all;
-% addpath(genpath(pwd));
-% format long g;          % display long numbers, no scientific notation
-
-%% orbital parameters
-% START = '2024 May 1 00:00:00';
-
-% oe1.a = 19907.97;
-% oe1.i = 2.2157;
-% oe1.e = frozenorbitfinder(oe1.i);
-% oe1.w = pi/2;
-% oe2 = oe1; oe3 = oe1; oe4 = oe1; oe5 = oe1; oe6 = oe1;
-% 
-% oe1.RAAN = 2.9335;      oe1.f = 5.0115;
-% oe2.RAAN = 4.6715;      oe2.f = 3.3865;
-% oe3.RAAN = 4.7302;      oe3.f = 4.9999;
-% oe4.RAAN = 5.9584;      oe4.f = 4.2288;
-% oe5.RAAN = 6.2824;      oe5.f = 6.0517;
-% oe6.RAAN = 4.7612;      oe6.f = 2.7114;
-
-% cspice_furnsh(strcat(userpath,'/kernels/generic/mk/generic_lunar.tm'));
-% t0 = cspice_str2et(START);
-
-% earth information
-earth.GM = cspice_bodvrd('EARTH', 'GM', 1);
-earth.x = @(tau) cspice_spkpos('EARTH', tau, 'J2000', 'NONE', 'MOON');
-
-% sun information
-sun.GM = cspice_bodvrd('SUN', 'GM', 1);
-sun.x = @(tau) cspice_spkpos('SUN', tau, 'J2000', 'NONE', 'MOON');
-
-% moon information
-moon.GM = cspice_bodvrd('MOON', 'GM', 1);
-[R,C,S] = cofloader(userpath + "/astrodynamics/LP165P.cof");
-moon.x = @(~) [0;0;0];
-moon.R = R * 1e-3;      % convert from m to km
-moon.C = C;             % store in moon struct for orbitaldynamics
-moon.S = S;             % store in moon struct for orbitaldynamics
-moon.frame = 'MOON_ME'; % body-fixed frame of coefficients
-
-%% propagate orbits
-frame = 'MOON_ME';
-days = 30;
-step = 300;
-ts = t0:step:t0+86400*days;
-n = length(oes);
-m = length(ts);         % number of data points
-sats = zeros(m, 6, n);
-
-opts = odeset("RelTol", 1e-9, "AbsTol", 1e-11);
-
-Xs = [];
-dOs = zeros(n, 1);
-for i=1:n
-    [r,v] = oe2rv(oes(i).a,oes(i).e,oes(i).i,oes(i).RAAN,oes(i).w,oes(i).f,moon.GM);
-    x0 = cspice_sxform('MOON_OP', 'J2000', t0) * [r; v];
-    [~,X] = ode45(@(t,x) orbitaldynamics(t,x,moon,50,[earth sun]), ts, x0, opts);
-    X = X';
-    xf = cspice_sxform('J2000', 'MOON_OP', ts(end)) * X(:,end);
-    [~,~,~,rf,~,~] = rv2oe(xf(1:3), xf(4:6), moon.GM);
-    dOs(i) = (rf - oes(i).RAAN) / (ts(end) - t0) * 180/pi * 86400;
-    for j=1:length(ts)
-        X(:,j) = cspice_sxform('J2000', frame, ts(j)) * X(:,j);
-    end
-    sats(:,:,i) = X';
-end
-
-plotLunarOrbit(ts, sats, frame, "LNSS constellation trajectories");
+DAYS = 90;
+step = 86400*DAYS / 7200;
+prop = LunarPropagator(START, xopt, 32, 3);
+[ts,xs] = prop.run(86400 * DAYS, 7200, 'MOON_ME');
+prop.plotlastorbits('MOON_OP');
 
 %% get coverage statistics
+sats = permute(xs, [2,1,3]);
 [pct, minIdx, pts, covered] = coverageLNSP(step, sats, 'SV2', 4);
 plotDayCoverage(pts, covered, minIdx, step);
 plotDayCoverage(pts, covered, minIdx, step, true);
 fprintf("Minimum %% coverage of service volume over any 24h period: %.2f%%\n", pct*100);
-fprintf("\t(starting at day %.2f)\n", (ts(minIdx)-t0)/(ts(end)-t0) * days);
+fprintf("\t(starting at day %.2f)\n", (ts(minIdx)-t0)/(ts(end)-t0) * DAYS);
 
 %% EVA coverage
 [nwin, minPt, minDay] = supportEVA(covered, step);

@@ -123,45 +123,59 @@ end
 %% ephemeris fit
 t02 = ts(end);              % starting point of ephemeris propagation
 x02 = filter.x(:,end);      % starting state of ephemeris propagation
+hrs = 4;
+tf2 = 3600*hrs;             % final bound of ephemeris propagation
+[a,e,i,RAAN,w,~] = rv2oe(x02(1:3), x02(4:6), moon.GM);
+[r0,v0] = oe2rv(6540, 0.6, 56.2*pi/180, pi, pi/2, -pi/4, moon.GM);
+x02 = [r0; v0];
 
+% generate ephemeris approximation
+x0_eph = cspice_sxform('J2000', 'MOON_OP', t02) * x02;
 N_APPX = 14;
-% span = linspace(-1, 1, N_APPX - 1);
-span = chebichev(N_APPX);
-tf2 = t02 + 3600 * 5;
-t_interp = t02 + (span + 1) * (tf2 - t02) / 2;
-t_eval = linspace(t02, tf2, ns);
-[tspan, i_interp, ~] = union(t_interp, t_eval, "sorted");
-[T,X] = ode45(@(t,x) lnss_elfodyn(t,x,moon,150,sec), tspan, x02, opts);
+ephprop = LunarPropagator(t02, x0_eph, 50, 3);
+f_eph1 = ephprop.ephemerisfit("polynomial", tf2, N_APPX);
+f_eph2 = ephprop.ephemerisfit("Kepler", tf2, N_APPX - 2);
 
-basis = @(tau) tau.^(0:N_APPX);
-dbasis = @(tau) (0:N_APPX) .* (tau.^([0 0:N_APPX - 1]));
-% basis = @(tau) cell2mat(arrayfun(@(x) chebyshevT(0:N_APPX,x), tau, 'UniformOutput', false));
-phi = basis(span');
-B = pinv(phi);
-c = B * X(ismember(tspan, t_interp),1:3);
+% truth orbit
+[ts2,x_true2] = ephprop.run(tf2, 1600, 'J2000');
+ephprop.plotlastorbits('MOON_OP');
+% error between truth and approximations
+err1_x = f_eph1(ts2) - x_true2;
+err1_pos = sqrt(sum(err1_x(1:3,:).^2, 1)) * 1e3;
+err1_vel = sqrt(sum(err1_x(4:6,:).^2, 1)) * 1e6;
+err2_x = f_eph2(ts2) - x_true2;
+err2_pos = sqrt(sum(err2_x(1:3,:).^2, 1)) * 1e3;
+err2_vel = sqrt(sum(err2_x(4:6,:).^2, 1)) * 1e6;
 
-x_appx = basis(2*(T - t02)/(tf2 - t02) - 1) * c;
-dx_appx = dbasis(2*(T - t02)/(tf2 - t02) - 1) * c * 2/(tf2 - t02);
+fprintf("  int. |  Poly (3s) |  Kep  (3s)\n");
+fprintf("--------------------------------\n");
+fprintf(" %d hrs | %8.2f m | %8.2f m \n", hrs, 3*std(err1_pos), 3*std(err2_pos));
+fprintf("       | %5.2f mm/s | %5.2f mm/s \n", 3*std(err1_vel), 3*std(err2_vel));
 
-err_x = x_appx - X(:,1:3);
-err_dx = dx_appx - X(:,4:6);
-
-plotformat("IEEE", 0.4, "scaling", 2);
+plotformat("IEEE", 1, "scaling", 2);
 figure();
-plot((tspan - t02)/3600, sqrt(sum(err_x.^2,2)) * 1e3);
-grid on;
-xlabel("Time (hrs)"); ylabel("Error (m)");
+subplot(2,1,1);
+plot((ts2 - t02)/3600, err1_pos);
+hold on;
+plot((ts2 - t02)/3600, err2_pos);
+hold off; grid on;
+linestyleorder("mixedstyles");
+ylabel("Error (m)");
+title("Approximation error of different surrogate models");
 
-figure();
-plot((tspan - t02)/3600, sqrt(sum(err_dx.^2,2)) * 1e6);
-grid on;
+subplot(2,1,2);
+plot((ts2 - t02)/3600, err1_vel);
+hold on;
+plot((ts2 - t02)/3600, err2_vel);
+hold off; grid on;
+linestyleorder("mixedstyles");
 xlabel("Time (hrs)"); ylabel("Error (mm/s)");
-
-
-
+legend(["Polynomial (N=14)", "Keplerian + Polynomial (N=12)"], ...
+    "location", "northwest");
 
 
 % TODO:
+% - compare / contrast with max approximation intervals bar chart from
+%   cortinovis
 % - add additional observable (ranging to moon simulating opnav?) for nav
 %   solution improvement
-% - fit ephemeris polynomials
