@@ -47,14 +47,14 @@ classdef ConOpt2 < handle
                     end
                 end
             elseif nargin < narg
-                error("EKF:nargin", "Too few arguments.")
+                error("ConOpt2:nargin", "Too few arguments.")
             end
 
             % get evaluation points
             obj.p = p;
             obj.pts = getpoints(p);
-            % construct evaluation timespan (30 days, time step of dt)
-            obj.ts = t0:obj.dt:t0 + 86400*30;
+            % construct evaluation timespan (7 days, time step of dt)
+            obj.ts = t0:obj.dt:t0 + 86400*7;
             obj.m = length(obj.ts);
 
             % planetary information from SPICE
@@ -144,19 +144,21 @@ classdef ConOpt2 < handle
             y = 100;
 
             % handle boundary condition of periapsis here
+            dOs = zeros(1, obj.n);
             for i=1:obj.n
-                rp = as(i)*(1 - frozenorbitfinder(is(i)));
+                ei = frozenorbitfinder(is(i));
+                rp = as(i)*(1 - ei);
                 if rp < 2038, y = y + (2038 - rp)^2; end
+                dOs(i) = ascendingnodedrift(as(i), ei, is(i));
             end
+            % enfore boundary of drift rates being equal
+            y = y + (32 * max(dOs - mean(dOs)) / mean(dOs))^2;
 
-            [sats, fail, dOs] = obj.orbitgenerator(is,as,RAANs,TAs,R,S);
+            [sats, fail] = obj.orbitgenerator(is,as,RAANs,TAs,R,S);
             warning('on','MATLAB:ode45:IntegrationTolNotMet');
             if fail     % at least one integration failed; invalid orbit
                 return;
             end
-
-            % enfore boundary of drift rates being equal
-            y = y + (10 * std(dOs) / mean(dOs))^2;
                
             links = 4;
             maxDOP = 6;
@@ -180,7 +182,7 @@ classdef ConOpt2 < handle
             % win = ones(1, floor(steps * 5/24));     % time steps in 5-hour window
             % CVG = zeros(obj.m-steps+1,1);
             EVA = steps;
-            EVADOP = maxDOP;
+            % EVADOP = maxDOP;
 
             for j = 1:steps:(obj.m-steps+1)
                 % coverage over day
@@ -189,8 +191,8 @@ classdef ConOpt2 < handle
                     temp = sum(maxk(cellfun('length', split(char(covered(j:j+steps-1, k)'), char(0))), 2));
                     if temp < EVA
                         EVA = temp;
-                        daydop = dops(j:j+steps-1, k);
-                        EVADOP = 2*sum(daydop(daydop > maxDOP)) / steps;
+                        % daydop = dops(j:j+steps-1, k);
+                        % EVADOP = 2*sum(daydop(daydop > maxDOP)) / steps;
                     end
                 end
             end
@@ -205,7 +207,7 @@ classdef ConOpt2 < handle
             % y = y + EVADOP^2;
         end
 
-        function [sats,fail,dOs] = orbitgenerator(obj,is,as,RAANs,TAs,R,S)
+        function [sats,fail] = orbitgenerator(obj,is,as,RAANs,TAs,R,S)
             %ORBITGENERATOR creates position histories of satellites over the 
             %simulation time, given orbital elements.
             %   Inputs:
@@ -227,9 +229,6 @@ classdef ConOpt2 < handle
             sats = zeros(obj.m, 3, obj.n);
             fail = false;
 
-            % find drift rates over prop period
-            dOs = zeros(obj.n, 1);
-
             for j=1:obj.n
                 e = frozenorbitfinder(is(j));
                 [r0,v0] = oe2rv(as(j),e,is(j),RAANs(j),pi/2,TAs(j),obj.moon.GM);
@@ -242,10 +241,6 @@ classdef ConOpt2 < handle
                     fail = true;
                     return
                 end
-
-                xf = R(:,:,2)' * X(end,:)';
-                [~,~,~,rf,~,~] = rv2oe(xf(1:3), xf(4:6), obj.moon.GM);
-                dOs(j) = (rf - RAANs(j)) / (obj.ts(end) - obj.ts(1));
 
                 X = X(:,1:3)';
                 for k=1:obj.m
