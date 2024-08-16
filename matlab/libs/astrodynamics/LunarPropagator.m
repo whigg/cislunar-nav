@@ -184,7 +184,7 @@ classdef LunarPropagator < handle
                 obj     (1,1)   LunarPropagator
                 type    (1,:)   {mustBeText}
                 dt      (1,1)   double {mustBePositive}
-                N       (1,1)   {mustBePositive,mustBeInteger}
+                N       (1,1)   {mustBeNonnegative,mustBeInteger}
             end
 
             % basis = @(tau) cell2mat(arrayfun(@(x) chebyshevT(0:N_APPX,x), tau, 'UniformOutput', false));
@@ -205,21 +205,25 @@ classdef LunarPropagator < handle
                     "Model type must be either 'Kepler' or 'polynomial'.");
             end
 
-            % propagate state at interpolation points
-            [~,x] = obj.runat(t_interp, 'J2000');
-            dx = x - x_base;
-
-            % compute coefficients for basis and generate model function
-            phi = (span').^(0:N);
-            B = pinv(phi);
-            C = B * dx(1:3,:)';
-            basis = @(tau) [tau'.^(0:N) ...
-                (0:N).*(tau'.^([0 0:N - 1])) * 2/dt];
-            D = [C zeros(size(C)); zeros(size(C)) C];
-
-            % final model function
-            fx = @(tau) (basis(2*(tau - obj.t0)/dt - 1) * D)' ...
-                        + f_base(tau);
+            if N ~= 0
+                % propagate state at interpolation points
+                [~,x] = obj.runat(t_interp, 'J2000');
+                dx = x - x_base;
+    
+                % compute coefficients for basis and generate model function
+                phi = (span').^(0:N);
+                B = pinv(phi);
+                C = B * dx(1:3,:)';
+                basis = @(tau) [tau'.^(0:N) ...
+                    (0:N).*(tau'.^([0 0:N - 1])) * 2/dt];
+                D = [C zeros(size(C)); zeros(size(C)) C];
+    
+                % final model function
+                fx = @(tau) (basis(2*(tau - obj.t0)/dt - 1) * D)' ...
+                            + f_base(tau);
+            else
+                fx = @(tau) f_base(tau);
+            end
         end
 
         function x = keplertool(obj,ts)
