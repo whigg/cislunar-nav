@@ -4,13 +4,14 @@
 % Description:
 %    Display full constellation and its statistics
 
-DAYS = 90;
+DAYS = 1;
 step = 86400*DAYS / 7200;
 prop = LunarPropagator(START, xopt, 32, 3);
 [ts,xs] = prop.run(86400 * DAYS, 7200, 'MOON_ME');
 prop.plotlastorbits('MOON_OP');
 
 %% get coverage statistics
+plotformat("IEEE", 0.7, "scaling", 2);
 sats = permute(xs, [2,1,3]);
 [pct, minIdx, pts, covered] = coverageLNSP(step, sats, 'SV2', 4);
 plotDayCoverage(pts, covered, minIdx, step);

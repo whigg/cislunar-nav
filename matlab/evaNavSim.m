@@ -11,9 +11,10 @@ addpath(genpath(pwd));
 format long g;          % display long numbers, no scientific notation
 
 %% import data
+START = '15-Oct-2009 00:00:00';     % start date and time
+MEAS = "RANGE";                     % measurements to include, "RANGE" or "BOTH"
+
 cspice_furnsh(strcat(userpath,'/kernels/generic/mk/generic_lunar.tm'));
-[fLnss, namesLnss] = getlnsshandles();
-nLnss = length(fLnss);
 
 %% Generate simulation data
 % planetary info
@@ -21,7 +22,6 @@ moon = getplanets("MOON");
 c = 299792.458;                     % km/s, speed of light
 
 % timing information
-START = '15-Oct-2009 00:00:00';     % start date and time
 t0 = cspice_str2et(START);
 ts = t0:1:t0+4*3600;
 tm = t0:10:ts(end);
@@ -32,10 +32,6 @@ ns = length(ts);
 rng(420);
 [pts, reftraj, exptraj] = surfacetrajgen(t0,[-pi/2.01 0 1], 4, 1.6, 30*60);
 x_user = ppval(exptraj, ts);
-% lat = -pi/2.01; lon = 0;
-% x0 = [1737.4*[cos(lat)*cos(lon) cos(lat)*sin(lon) sin(lat)] 0 0 0 0 0 0]';
-% exptraj = @(t) repmat(x0, 1, length(t));
-% x_user = exptraj(ts);
 a_user = x_user(7:9,:);
 x_user = x_user(1:6,:);
 a = 2e-10 / (86400 * 30);       % Hz/Hz/s, upper end of aging rate a
@@ -47,34 +43,46 @@ x_true_m = x_true(:,im);
 x0 = x_true(:,1);
 
 %% generate measurement model
-R = zeros(2*nLnss,2*nLnss);         % measurement covariance matrix
-% per LSP SRD Table 3-11, SISE Position (ignore receiver noise)
-R(1:nLnss,1:nLnss) = diag(repmat((0.01343/3)^2, 1, nLnss));
-% per LSP SRD Table 3-11, SISE Velocity (ignore receiver noise)
-R(nLnss+1:end,nLnss+1:end) = diag(repmat((0.0000012/3)^2, 1, nLnss));
-% R = diag(repmat((0.01343/3)^2, 1, nLnss));
+% % get LNSS satellite handles
+% [fLnss, ~] = getlnsshandles();
+% nLnss = length(fLnss);
+load("data/optimization/RUN29 (56p,1).mat");
+lnssProp = LunarPropagator(t0, xopt, 32, 2);
+lnssProp.run(ts(end)-t0, 1000, 'J2000');
+fLnss = lnssProp.statetotrajectory();
+nLnss = length(fLnss);
 
-measurements = LNSSmeasurements("BOTH",tm,fLnss,R,moon,x_true_m,"frame",'MOON_ME');
+if strcmpi(MEAS, "BOTH")
+    R = zeros(2*nLnss,2*nLnss);         % measurement covariance matrix
+    % per LSP SRD Table 3-11, SISE Position (ignore receiver noise)
+    R(1:nLnss,1:nLnss) = diag(repmat((0.01343/3)^2, 1, nLnss));
+    % per LSP SRD Table 3-11, SISE Velocity (ignore receiver noise)
+    R(nLnss+1:end,nLnss+1:end) = diag(repmat((0.0000012/3)^2, 1, nLnss));
+elseif strcmpi(MEAS, "RANGE")
+    R = diag(repmat((0.01343/3)^2, 1, nLnss));
+end
 
-%% pseudorange-based trilateration
-[x_psd, gdop] = measurements.trilaterate();
+measurements = LNSSmeasurements(MEAS,tm,fLnss,R,moon,x_true_m,"frame",'MOON_ME');
 
-%% analyze trilateration
-ps_pos = sqrt(sum((x_psd(1:3,:) - x_true_m(1:3,:)).^2, 1));
-
-plotformat("IEEE", 0.8, "scaling", 2);
-
-figure();
-subplot(2,1,2);
-plot((tm - t0)/3600, gdop);
-grid on;
-xlabel("Time (hrs)");
-ylabel("GDOP");
-subplot(2,1,1);
-scatter((tm - t0)/3600, ps_pos * 1e3, 10, 'filled', 'diamond');
-grid on;
-ylabel("Error (m)");
-title("RSS position error from multilateration");
+% %% pseudorange-based trilateration
+% [x_psd, gdop] = measurements.trilaterate();
+% 
+% %% analyze trilateration
+% ps_pos = sqrt(sum((x_psd(1:3,:) - x_true_m(1:3,:)).^2, 1));
+% 
+% plotformat("IEEE", 0.8, "scaling", 2);
+% 
+% figure();
+% subplot(2,1,2);
+% plot((tm - t0)/3600, gdop);
+% grid on;
+% xlabel("Time (hrs)");
+% ylabel("GDOP");
+% subplot(2,1,1);
+% scatter((tm - t0)/3600, ps_pos * 1e3, 10, 'filled', 'diamond');
+% grid on;
+% ylabel("Error (m)");
+% title("RSS position error from multilateration");
 
 %% filter
 FILTER = "EKF";
@@ -83,8 +91,6 @@ N_PART = 200;
 getaccel = @(x) x(7:9);
 std_a = 80e-9*9.81;
 afunc = @(t) getaccel(ppval(exptraj,t)) + mvnrnd([0 0 0]', std_a.^2);
-% std_a = 0;
-% afunc = @(t) getaccel(exptraj(t)) + mvnrnd([0 0 0]', std_a.^2);
 dt = 1;
 Qusr = std_a^2 * [1/2*dt^2*eye(3) zeros(3,3); zeros(3,3) dt*eye(3)];
 Qclk = [s1^2*dt + s2^2/3*dt^3 + s3^2/20*dt^5 s2^2/2*dt^2 + s3^2/8*dt^4 s3^2/6*dt^3;
@@ -127,7 +133,6 @@ filter.run(x0hat, P0hat);
 
 %% performance statistics
 x_err = filter.x - x_true;
-% load('res/err_100x100.mat');
 
 rerr = sqrt(sum(x_err(1:3,:).^2, 1));
 rstd = reshape(sqrt(filter.P(1,1,:)+filter.P(2,2,:)+filter.P(3,3,:))*3, 1, ns);
@@ -146,7 +151,7 @@ fprintf("              %.3f (%.3f 3-sigma) mm/s\n", median(verr)*1e6, median(vst
 fprintf("              %.3f (%.3f 3-sigma) ns\n", median(berr)*1e9, median(bstd)*1e9);
 
 %% plot performance
-plotformat("IEEE", 1, "scaling", 2);
+plotformat("IEEE", 1, "scaling", 2, "coloring", "greyscale");
 h4 = figure();
 
 tplot = (ts - t0) / 3600;

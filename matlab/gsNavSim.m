@@ -10,9 +10,10 @@ addpath(genpath(pwd));
 format long g;          % display long numbers, no scientific notation
 
 %% import data
+START = '15-Oct-2009 00:00:00';     % start date and time
+MEAS = "BOTH";                     % measurements to include, "RANGE" or "BOTH"
+
 cspice_furnsh(strcat(userpath,'/kernels/generic/mk/generic_lunar.tm'));
-[fLnss, namesLnss] = getlnsshandles();
-nLnss = length(fLnss);
 
 %% Generate simulation data
 % planetary info
@@ -20,7 +21,6 @@ moon = getplanets("MOON");
 c = 299792.458;                     % km/s, speed of light
 
 % timing information
-START = '15-Oct-2009 00:00:00';     % start date and time
 t0 = cspice_str2et(START);
 ts = t0:1:t0+4*3600;
 tm = t0:10:ts(end);
@@ -44,34 +44,46 @@ x_true_m = x_true(:,im);
 x0 = x_true(:,1);
 
 %% generate measurement model
-R = zeros(2*nLnss,2*nLnss);         % measurement covariance matrix
-% per LSP SRD Table 3-11, SISE Position (ignore receiver noise)
-R(1:nLnss,1:nLnss) = diag(repmat((0.01343/3)^2, 1, nLnss));
-% per LSP SRD Table 3-11, SISE Velocity (ignore receiver noise)
-R(nLnss+1:end,nLnss+1:end) = diag(repmat((0.0000012/3)^2, 1, nLnss));
-% R = diag(repmat((0.01343/3)^2, 1, nLnss));
+% % get LNSS satellite handles
+% [fLnss, ~] = getlnsshandles();
+% nLnss = length(fLnss);
+load("data/optimization/RUN29 (56p,1).mat");
+lnssProp = LunarPropagator(t0, xopt, 32, 2);
+lnssProp.run(ts(end)-t0, 1000, 'J2000');
+fLnss = lnssProp.statetotrajectory();
+nLnss = length(fLnss);
 
-measurements = LNSSmeasurements("BOTH",tm,fLnss,R,moon,x_true_m,"frame",'MOON_ME');
+if strcmpi(MEAS, "BOTH")
+    R = zeros(2*nLnss,2*nLnss);         % measurement covariance matrix
+    % per LSP SRD Table 3-11, SISE Position (ignore receiver noise)
+    R(1:nLnss,1:nLnss) = diag(repmat((0.01343/3)^2, 1, nLnss));
+    % per LSP SRD Table 3-11, SISE Velocity (ignore receiver noise)
+    R(nLnss+1:end,nLnss+1:end) = diag(repmat((0.0000012/3)^2, 1, nLnss));
+elseif strcmpi(MEAS, "RANGE")
+    R = diag(repmat((0.01343/3)^2, 1, nLnss));
+end
 
-%% pseudorange-based trilateration
-[x_psd, gdop] = measurements.trilaterate();
+measurements = LNSSmeasurements(MEAS,tm,fLnss,R,moon,x_true_m,"frame",'MOON_ME');
 
-%% analyze trilateration
-ps_pos = sqrt(sum((x_psd(1:3,:) - x_true_m(1:3,:)).^2, 1));
-
-plotformat("IEEE", 0.8, "scaling", 2);
-
-figure();
-subplot(2,1,2);
-plot((tm - t0)/3600, gdop);
-grid on;
-xlabel("Time (hrs)");
-ylabel("GDOP");
-subplot(2,1,1);
-scatter((tm - t0)/3600, ps_pos * 1e3, 10, 'filled', 'diamond');
-grid on;
-ylabel("Error (m)");
-title("RSS position error from multilateration");
+% %% pseudorange-based trilateration
+% [x_psd, gdop] = measurements.trilaterate();
+% 
+% %% analyze trilateration
+% ps_pos = sqrt(sum((x_psd(1:3,:) - x_true_m(1:3,:)).^2, 1));
+% 
+% plotformat("IEEE", 0.8, "scaling", 2);
+% 
+% figure();
+% subplot(2,1,2);
+% plot((tm - t0)/3600, gdop);
+% grid on;
+% xlabel("Time (hrs)");
+% ylabel("GDOP");
+% subplot(2,1,1);
+% scatter((tm - t0)/3600, ps_pos * 1e3, 10, 'filled', 'diamond');
+% grid on;
+% ylabel("Error (m)");
+% title("RSS position error from multilateration");
 
 %% filter
 FILTER = "LUMVE";
@@ -118,7 +130,7 @@ fprintf("Median error: %.3f (%.3f 3-sigma) m\n", median(rerr)*1e3, median(rstd)*
 fprintf("              %.3f (%.3f 3-sigma) ns\n", median(berr)*1e9, median(bstd)*1e9);
 
 %% plot performance
-plotformat("IEEE", 0.7, "scaling", 2);
+plotformat("IEEE", 0.7, "scaling", 2, "coloring", "greyscale");
 h4 = figure();
 
 tplot = (ts - t0) / 3600;
