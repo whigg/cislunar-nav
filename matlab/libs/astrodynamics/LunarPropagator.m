@@ -275,6 +275,32 @@ classdef LunarPropagator < handle
             plotLunarOrbit(obj.ts, permute(data, [2,1,3]), frame, "Satellite trajectories");
         end
 
+        function handles = statetotrajectory(obj)
+            %STATETOTRAJECTORY Converts the last propagation to a
+            %spline-interpolated trajectory handle.
+            %   Input:
+            %    - frame; reference frame for trajectories
+            arguments
+                obj     (1,1)   LunarPropagator
+            end
+
+            data = obj.xs;
+
+            % catch a lack of run happening
+            if isempty(obj.frame)
+                error("plotlastorbits:noData", ...
+                    "No data has been generated yet!");
+            end
+
+            % convert trajectory into splines
+            handles = cell(obj.nsats, 1);
+            for k=1:obj.nsats
+                pp = spline(obj.ts, data(:,:,k));
+                handles{k} = @(tau,frame) cspice_sxform(obj.frame,frame,tau) ...
+                             * ppval(pp, tau);
+            end
+        end
+
         function [comp,exp] = computedriftrates(obj)
             %COMPUTEDRIFTRATES Computes the drift of right ascension for
             %each orbit over the propagation period.
