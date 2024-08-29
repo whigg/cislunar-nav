@@ -3,6 +3,7 @@ function [oes,t0] = yuma2oes(file,rollover,tol)
 %
 %   OE structs will contain the following information:
 %   {  SV, space vehicle #
+%      PRN, PRN code #
 %      t0, time information was collected at (in s past J2000, UTC/TDB)
 %      a, semi-major axis (in km)
 %      e, eccentricity
@@ -38,14 +39,14 @@ lines = readlines(file);
 m = length(lines);          % lines in file
 n = floor(m / 15);          % number of SVs recorded (15 lines ea.)
 blank = cell(1,n);
-oes = struct('SV',blank,'t0',blank,'a',blank,'e',blank,'i',blank, ...
+oes = struct('SV',blank,'PRN',blank,'t0',blank,'a',blank,'e',blank,'i',blank, ...
              'RAAN',blank,'w',blank,'f',blank,'af0',blank,'af1',blank);
 
 % iterate over each bank of data in file
 for j=1:n
     oes(j).t0 = t0;
-    SV = strip(split(lines((j-1)*15 + 2), ":"));
-    oes(j).SV = double(SV(2));          % space vehicle #
+    PRN = strip(split(lines((j-1)*15 + 2), ":"));
+    oes(j).PRN = double(PRN(2));        % satellite PRN #
     e = strip(split(lines((j-1)*15 + 4), ":"));
     oes(j).e = double(e(2));            % orbit eccentricity
     tk = strip(split(lines((j-1)*15 + 5), ":"));
