@@ -5,6 +5,10 @@
 %    Organize the GPS block IIR and IIR-M antenna pattern data into a
 %    format more machine-readable. Also average the azimuth patterns,
 %    making it only dependent on elevation.
+%
+% TODO:
+%  - Create average antenna patterns for generic use, call SVNX_L1.txt and
+%    SVNX_L2.txt; this should be made using the IIR-M data
 
 %% reset
 clc, clear, close all;

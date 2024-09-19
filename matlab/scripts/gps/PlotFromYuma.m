@@ -28,3 +28,11 @@ svns = prn2svn(t0, [oes(:).PRN]);
 for i=1:length(oes)
     oes(i).SV = svns(i);
 end
+
+%% get SV -> GCF info
+gcfs = svn2gcf(svns);
+
+for i=1:length(oes)
+    oes(i).gcfL1 = gcfs(1,i);
+    oes(i).gcfL2 = gcfs(2,i);
+end
