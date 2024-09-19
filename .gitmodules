@@ -1,0 +1,3 @@
+[submodule "matlab/libs/GTGNSS"]
+	path = matlab/libs/GTGNSS
+	url = https://github.com/mchartigan/GTGNSS
